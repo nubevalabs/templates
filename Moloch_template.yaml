@@ -196,7 +196,7 @@ Resources:
         configSets:
           # List the configSets and the config keys they contain:
           Configure:
-            - "configVxlan"
+#            - "configVxlan"
             - "configStartup"
           Install:
             - "installElasticsearch"
