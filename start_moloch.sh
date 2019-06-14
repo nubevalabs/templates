@@ -3,7 +3,7 @@ cd /data/moloch/bin
 /bin/rm -f /data/moloch/capture.log.old
 /bin/mv /data/moloch/logs/capture.log /data/moloch/logs/capture.log.old
 /data/moloch/bin/moloch-capture -c /data/moloch/etc/config.ini > /data/moloch/logs/capture.log 2>&1 &
-sleep 25
+sleep 120
 # Start moloch viewer process
 cd /data/moloch/viewer
 /bin/rm -f /data/moloch/logs/viewer.log.old
