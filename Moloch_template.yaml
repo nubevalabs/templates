@@ -13,7 +13,9 @@ AWSTemplateFormatVersion: "2010-09-09"
 #    Description: 'Amazon EC2 Key Pair'
 #    Type: "AWS::EC2::KeyPair::KeyName"
 Parameters:
-
+  APIKey:
+    Description: "The Token for your Prisms account"
+    Type: String
   myKeyPair:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
@@ -199,25 +201,26 @@ Resources:
           Install:
             - "installElasticsearch"
             - "installServices"
+            - "installNurxAgent"
             - "installMoloch"
           Start:
             - "startMoloch"
 
         # Config key: configvxlan
-        configVxlan:
-          commands:
-            01_interface:
-              command: "ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789"
-            02_bringup:
-              command: "ip link set vxlan555 up"
+#        configVxlan:
+#          commands:
+#            01_interface:
+#              command: "ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789"
+#            02_bringup:
+#              command: "ip link set vxlan555 up"
 
         # Config key: configstartup
         configStartup:
           commands:
-            01_addintrclocal:
-              command: "echo 'ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
-            02_adduprclocal:
-              command: "echo 'ip link set up dev vxlan555' >> /etc/rc.local"
+ #           01_addintrclocal:
+ #             command: "echo 'ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
+ #           02_adduprclocal:
+ #             command: "echo 'ip link set up dev vxlan555' >> /etc/rc.local"
             03_chmod:
               command: "chmod +x /etc/rc.d/rc.local"
 
@@ -239,13 +242,20 @@ Resources:
               java-1.8.0-openjdk: []
               wget: []
               elasticsearch: []
+              docker: []
           services:
             sysvinit:
               elasticsearch:
                 enabled: true
                 ensureRunning: true
 
-
+        #  Config key: installNurxAgent
+        installNurxAgent:
+          commands:
+            01_download_and_install:
+              command:
+                !Sub |
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
 
 
         # Config key: installMoloch
