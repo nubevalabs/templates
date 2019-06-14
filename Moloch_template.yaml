@@ -248,6 +248,9 @@ Resources:
               elasticsearch:
                 enabled: true
                 ensureRunning: true
+              docker:
+                enabled: true
+                ensureRunning: true
 
         #  Config key: installNurxAgent
         installNurxAgent:
