@@ -52,7 +52,7 @@ vars:
 # The default logging directory.  Any log or output file will be
 # placed here if its not specified with a full path name. This can be
 # overridden with the -l command line parameter.
-default-log-dir: @e_logdir@
+default-log-dir: /var/log/suricata
 
 # global stats configuration
 stats:
@@ -79,7 +79,7 @@ outputs:
 
   # Extensible Event Format (nicknamed EVE) event log in JSON format
   - eve-log:
-      enabled: @e_enable_evelog@
+      enabled: yes
       filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
       filename: eve.json
       #prefix: "@cee: " # prefix to prepend to each log entry
@@ -1102,7 +1102,7 @@ unix-command:
 
 # Magic file. The extension .mgc is added to the value here.
 #magic-file: /usr/share/file/magic
-@e_magic_file_comment@magic-file: @e_magic_file@
+#@e_magic_file_comment@magic-file: @e_magic_file@
 
 legacy:
   uricontent: enabled
