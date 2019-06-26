@@ -1845,7 +1845,7 @@ napatech:
 ##
 
 default-rule-path: /etc/suricata/rules/
-  rule-files:
+rule-files:
   - suricata.rules
 
 ##
