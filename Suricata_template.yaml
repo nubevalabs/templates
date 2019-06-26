@@ -1,0 +1,314 @@
+AWSTemplateFormatVersion: "2010-09-09"
+#Parameters:
+#  VPCid:
+#    Description: 'VPC ID'
+#    Type: "AWS::EC2::VPC::Id"
+#  Subnetid:
+#    Description: 'Subnet ID'
+#    Type: "AWS::EC2::Subnet::Id"
+#  Securitygroupid:
+#    Description: 'Security Group ID'
+#    Type: "AWS::EC2::SecurityGroup::Id"
+#  myKeyPair:
+#    Description: 'Amazon EC2 Key Pair'
+#    Type: "AWS::EC2::KeyPair::KeyName"
+Parameters:
+  APIKey:
+    Description: "The Token for your Prisms account"
+    Type: String
+  myKeyPair:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
+  VPCid:
+    Type: AWS::EC2::VPC::Id
+    Description: Select the VPC to install into.
+  Subnetid:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Select at least one subnet in your selected VPC, it should have internet access provisioned via an Internet gateway. For a high availability configuration select two or more subnets in another availability zone.
+  CIDR:
+    Type: String
+    Description: The CIDR notation of address to access this tool
+    Default: '0.0.0.0/0'
+  DesiredInstances:
+    Description: 'The number of EC2 instances'
+    Type: Number
+    Default: 2
+  MaxSize:
+    Type: Number
+    Default: '6'
+    Description: Maximum number of instances that can be launched in your tool cluster.
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t3.xlarge
+    AllowedValues: [t3.xlarge, t3.2xlarge, m5.xlarge, m5.2xlarge,
+      m5.4xlarge, m5.12xlarge, m5.24xlarge, c5.xlarge, c5.2xlarge, c5.4xlarge,
+      c5.8xlarge, r5.xlarge, r5.2xlarge, r5.4xlarge, r5.12xlarge,
+      r5.24xlarge, i3.xlarge, i3.2xlarge, i3.4xlarge, i3.8xlarge, i3.16xlarge]
+    ConstraintDescription: Please choose a valid instance type.
+  CustomAMI:
+    Description: AMI ID -- Change if custom AMI is desired
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Network Configuration"
+        Parameters:
+          - VPCid
+          - Subnetid
+          - CIDR
+      - Label:
+          default: "Autoscaling Configuration"
+        Parameters:
+          - myKeyPair
+          - InstanceType
+          - CustomAMI
+          - DesiredInstances
+          - MaxSize
+    ParameterLabels:
+      VPC:
+        default: "Which VPC should this be deployed to?"
+
+Conditions:
+  HasKeyName: !Not [!Equals [!Ref myKeyPair, '']]
+
+Resources:
+  # Security Groups
+
+  # The Security Group placed on the tools themselves
+  ToolSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+#    DependsOn: NubevaIAMRole  # Ensure IAMRole is deleted last
+    Properties:
+      GroupDescription: Tool Security Group
+      VpcId: !Ref 'VPCid'
+  # Inbound- allow ssh
+  SecurityGroupSSHinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+#    DependsOn: NubevaIAMRole  # Ensure IAMRole is deleted last
+    Properties:
+      GroupId: !Ref "ToolSecurityGroup"
+      IpProtocol: tcp
+      FromPort: '22'
+      ToPort: '22'
+      CidrIp: !Ref "CIDR"
+  # Inbound- allow VXLAN
+  ToolSecurityGroupVXLANinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+#    DependsOn: NubevaIAMRole  # Ensure IAMRole is deleted last
+    Properties:
+      GroupId: !Ref "ToolSecurityGroup"
+      CidrIp: !Ref "CIDR"
+      IpProtocol: udp
+      FromPort: '4789'
+      ToPort: '4789'
+  # Inbound- allow moloch
+#  ToolSecurityGroupntopinbound:
+#    Type: AWS::EC2::SecurityGroupIngress
+#    DependsOn: NubevaIAMRole  # Ensure IAMRole is deleted last
+#    Properties:
+#      GroupId: !Ref "ToolSecurityGroup"
+#      IpProtocol: tcp
+#      FromPort: '8005'
+#      ToPort: '8005'
+#      CidrIp: !Ref "CIDR"
+  # Outbound- allow all
+  ToolSecurityGroupOutbound:
+    Type: AWS::EC2::SecurityGroupEgress
+#    DependsOn: NubevaIAMRole  # Ensure IAMRole is deleted last
+    Properties:
+      GroupId: !Ref "ToolSecurityGroup"
+      CidrIp: 0.0.0.0/0
+      IpProtocol: "-1"
+      FromPort: '-1'
+      ToPort: '-1'
+
+  InstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: '/'
+      Roles:
+      - !Ref IAMRole
+
+  IAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - 'ec2.amazonaws.com'
+          Action:
+          - 'sts:AssumeRole'
+      Path: '/'
+      Policies:
+      - PolicyName: asg
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 'autoscaling:DescribeAutoScalingGroups'
+            - 'autoscaling:DescribeAutoScalingInstances'
+            - 'ec2:DescribeInstances'
+            Resource:
+            - '*'
+
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      # AvailabilityZones: !Ref AvailabilityZones
+      VPCZoneIdentifier:  !Ref Subnetid
+      LaunchConfigurationName: !Ref LaunchConfiguration
+      MinSize: 0
+      MaxSize: !Ref 'MaxSize'
+      DesiredCapacity: !Ref 'DesiredInstances'
+      MetricsCollection:
+      - Granularity: 1Minute
+        Metrics:
+        - GroupInServiceInstances
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}
+        PropagateAtLaunch: 'true'
+    CreationPolicy:
+      ResourceSignal:
+        Count: 0
+        Timeout: PT5M
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: !Ref DesiredInstances
+        MaxBatchSize: '1'
+        PauseTime: PT5M
+        SuspendProcesses:
+        - AlarmNotification
+        WaitOnResourceSignals: 'true'
+
+  LaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          # List the configSets and the config keys they contain:
+          Configure:
+#            - "configVxlan"
+            - "configStartup"
+          Install:
+            - "installLogstash"
+            - "installServices"
+            - "installNurxAgent"
+            - "installSuricata"
+          Start:
+            - "startSuricata"
+
+        # Config key: configvxlan
+#        configVxlan:
+#          commands:
+#            01_interface:
+#              command: "ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789"
+#            02_bringup:
+#              command: "ip link set vxlan555 up"
+
+        # Config key: configstartup
+        configStartup:
+          commands:
+ #           01_addintrclocal:
+ #             command: "echo 'ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
+ #           02_adduprclocal:
+ #             command: "echo 'ip link set up dev vxlan555' >> /etc/rc.local"
+            03_chmod:
+              command: "chmod +x /etc/rc.d/rc.local"
+
+        # Config key: installLogstash
+        installLogstash:
+          commands:
+            01_setES_pubkeys:
+              command: "rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+            02_get_repo_info:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/logstash.repo -O /etc/yum.repos.d/logstash.repo"
+
+        # Config key: installServices
+        installServices:
+          packages:
+            yum:
+              docker: []
+              suricata: []
+              java-1.8.0-openjdk: []
+              logstash: []
+          services:
+            sysvinit:
+              logstash:
+                enabled: true
+                ensureRunning: true
+              docker:
+                enabled: true
+                ensureRunning: true
+
+        #  Config key: installNurxAgent
+        installNurxAgent:
+          commands:
+            01_download_and_install:
+              command:
+                !Sub |
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
+
+
+        # Config key: installSuricata
+        installSuricata:
+          commands:
+            01_installconfig:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/mastersuricataconfig.yaml -O /etc/suricata/suricata.yaml"
+
+
+        # Config key: startSuricata
+        startSuricata:
+          commands:
+            01_addsleeprclocal:
+              command: "echo 'sleep 60' >> /etc/rc.local"
+            02_addSuricatarclocal:
+              command: "echo 'suricata -c /etc/suricata/suricata.yaml -i nurx0 --user suricata --group suricata' >> /etc/rc.local"
+            03_delaystartSuricata:
+              command: "sleep 60"
+            03_startSuricata:
+              command: "suricata -c /etc/suricata/suricata.yaml -i nurx0 --user suricata --group suricata"
+
+
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          yum update -y
+          yum update -y aws-cfn-bootstrap
+          # how do I get correct region variable
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start
+          # don't know how to get a signal # has something to do with minnimums on autoscale-0 works, 1 doesn't
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
+      InstanceType: !Ref InstanceType
+      ImageId: !Ref CustomAMI
+      SecurityGroups:
+      - !Ref "ToolSecurityGroup"
+      IamInstanceProfile: !Ref InstanceProfile
+      KeyName:
+        Ref: myKeyPair
+      #NetworkInterfaces:
+      AssociatePublicIpAddress: "true"
+      #    DeviceIndex: "0"
+      #    SecurityGroups:
+      #     - !Ref "ToolSecurityGroup"
+      #GroupSet:
+      #    SubnetId:
+      #      Ref: Subnetid
+
+
+#Outputs:
+#  URL:
+#    Description: "The URL of this instance's Moloch Dashboard"
+#    Value: !Sub "http://${MyServerInstance.PublicIp}:8005"
+#  URL2:
+#    Description: "Point VXLan 111 trafic to:"
+#    Value: !Sub "${MyServerInstance.PrivateIp}"
