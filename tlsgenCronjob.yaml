@@ -1,0 +1,15 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: tlstraffic
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec: # JOB
+      template:
+        spec:
+          containers:
+          - name: tlsgenerator
+            image: ejfree/tlsgenerator:9times
+          restartPolicy: Never
+      backoffLimit: 2

@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nuagent
+spec:
+  selector:
+    matchLabels:
+      name: nuagent
+  template:
+    metadata:
+      labels:
+        name: nuagent
+    spec:
+      hostNetwork: true
+      containers:
+      - name: nuagent
+        image: nubeva/nuagent
+        imagePullPolicy: Always
+        args: ["--accept-eula", "--nutoken", "<<<insert NuToken here>>>", "-noautoupdate"]
+        securityContext:
+          capabilities:
+            add: ["NET_ADMIN", "SYS_ADMIN", "SYS_RESOURCE"]
+        volumeMounts:
+          - name: dockersocket
+            mountPath: /var/run/docker.sock
+          - name: vhost
+            mountPath: /host
+      volumes:
+        - hostPath:
+            path: /var/run/docker.sock
+          name: dockersocket
+        - hostPath:
+            path: /
+          name: vhost
