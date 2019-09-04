@@ -42,7 +42,7 @@ Parameters:
   CustomAMI:
     Description: AMI ID -- Change if custom AMI is desired
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    #Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
