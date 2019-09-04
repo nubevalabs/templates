@@ -147,7 +147,7 @@ Resources:
         MaximumNodes: !Ref MaximumNodes
         NodeInstanceType: !Ref NodeInstanceType
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
-        VPCID: !GetAtt VPCStack.Outputs.VPCID
+        VPCID: !Ref VPCID
         APIKey: !Ref APIKey
   molochStack:
     Type: AWS::CloudFormation::Stack
@@ -164,7 +164,7 @@ Resources:
         MaximumNodes: !Ref MaximumNodes
         NodeInstanceType: !Ref NodeInstanceType
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
-        VPCID: !GetAtt VPCStack.Outputs.VPCID
+        VPCID: !Ref VPCID
         APIKey: !Ref APIKey
 
 #Outputs:
