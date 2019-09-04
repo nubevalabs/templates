@@ -9,14 +9,16 @@ Parameters:
   VPCID:
     Type: AWS::EC2::VPC::Id
     Description: Select the VPC to install into.
-  Subnetid:
-    Type: List<AWS::EC2::Subnet::Id>
-    Description: Select at least one subnet in your selected VPC, it should have internet access provisioned via an Internet gateway. For a high availability configuration select two or more subnets in another availability zone.
   RemoteAccessCIDR:
     Type: String
     Description: The CIDR notation of address to access this tool
-    Default: '0.0.0.0/0'
-  NumberofNodes:
+  PrivateSubnet1ID:
+    Description: Subnet Id for Private Subnet1
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2ID:
+    Description: Subnet Id for Private Subnet2
+    Type: AWS::EC2::Subnet::Id  
+  NumberOfNodes:
     Description: 'The number of EC2 instances'
     Type: Number
     Default: 2
@@ -47,23 +49,18 @@ Metadata:
       - Label:
           default: "Network Configuration"
         Parameters:
-          - VPCid
-          - Subnetid
-          - CIDR
+          - VPCID
+          - PrivateSubnet1CIDR
+          - PrivateSubnet2CIDR
+          - VPCCIDR
       - Label:
           default: "Autoscaling Configuration"
         Parameters:
-          - myKeyPair
-          - InstanceType
+          - KeyPairName
+          - NodeInstanceType
           - CustomAMI
-          - DesiredInstances
-          - MaxSize
-    ParameterLabels:
-      VPC:
-        default: "Which VPC should this be deployed to?"
-
-Conditions:
-  HasKeyName: !Not [!Equals [!Ref myKeyPair, '']]
+          - NumberOfNodes
+          - MaximumNodes
 
 Resources:
   # Security Groups
@@ -71,7 +68,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Tool Security Group
-      VpcId: !Ref 'VPCid'
+      VpcId: !Ref 'VPCID'
   # Inbound- allow ssh
   SecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
@@ -80,14 +77,13 @@ Resources:
       IpProtocol: tcp
       FromPort: '22'
       ToPort: '22'
-      CidrIp: !Ref "CIDR"
-  # Inbound- allow VXLAN
+      CidrIp: !Ref "RemoteAccessCIDR"
+  # Inbound- allow VXLAN from ONLY the VPC
   ToolSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref "ToolSecurityGroup"
-      # This needs a lambda function to call: https://github.com/stelligent/cloudformation-custom-resources/tree/master/lambda
-      CidrIp: 10.0.0.0/8
+      CidrIp: 10.10.0.0/16
       IpProtocol: udp
       FromPort: '4789'
       ToPort: '4789'
@@ -99,7 +95,7 @@ Resources:
       IpProtocol: tcp
       FromPort: '3000'
       ToPort: '3000'
-      CidrIp: !Ref "CIDR"
+      CidrIp: !Ref "RemoteAccessCIDR"
   # Outbound- allow all
   ToolSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
@@ -146,11 +142,13 @@ Resources:
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
-      VPCZoneIdentifier:  !Ref Subnetid
+      VPCZoneIdentifier: 
+      - !Ref PrivateSubnet1ID
+      - !Ref PrivateSubnet2ID
       LaunchConfigurationName: !Ref LaunchConfiguration
       MinSize: 0
-      MaxSize: !Ref 'MaxSize'
-      DesiredCapacity: !Ref 'DesiredInstances'
+      MaxSize: !Ref 'MaximumNodes'
+      DesiredCapacity: !Ref 'NumberOfNodes'
       MetricsCollection:
       - Granularity: 1Minute
         Metrics:
@@ -165,7 +163,7 @@ Resources:
         Timeout: PT5M
     UpdatePolicy:
       AutoScalingRollingUpdate:
-        MinInstancesInService: !Ref DesiredInstances
+        MinInstancesInService: !Ref NumberOfNodes
         MaxBatchSize: '1'
         PauseTime: PT5M
         SuspendProcesses:
@@ -177,9 +175,7 @@ Resources:
     Metadata:
       AWS::CloudFormation::Init:
         configSets:
-          # List the configSets and the config keys they contain:
           Configure:
-#            - "configVxlan"
             - "configStartup"
             - "addRepo"
           Install:
@@ -187,28 +183,22 @@ Resources:
             - "installNurxAgent"
           Start:
             - "startNtop"
-
-        # Config key: configStartup
         configStartup:
           commands:
             01_addintrclocal:
               command: "echo 'yum update -y' >> /etc/rc.local"
             02_adduprclocal:
-              command: "echo 'sleep 120' >> /etc/rc.local"
+              command: "echo 'sleep 60' >> /etc/rc.local"
             03_adduprclocal:
               command: "echo 'ntopng -i nurx0' >> /etc/rc.local"
             04_chmod:
               command: "chmod +x /etc/rc.d/rc.local"
-
-        # Config key: addRepo
         addRepo:
           commands:
             01_wget:
               command: "wget http://packages.ntop.org/centos-stable/ntop.repo -O /etc/yum.repos.d/ntop.repo"
             02_sed:
               command: "sed -i 's/$releasever/7/g' /etc/yum.repos.d/ntop.repo"
-
-        # Config key: installServices
         installServices:
           packages:
             yum:
@@ -227,8 +217,6 @@ Resources:
               docker:
                 enabled: true
                 ensureRunning: true
-
-        #  Config key: installNurxAgent
         installNurxAgent:
           commands:
             01_download_and_install:
@@ -252,20 +240,18 @@ Resources:
           yum update -y aws-cfn-bootstrap
           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start
           /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
-      InstanceType: !Ref InstanceType
+      InstanceType: !Ref NodeInstanceType
       ImageId: !Ref CustomAMI
       SecurityGroups:
       - !Ref "ToolSecurityGroup"
       IamInstanceProfile: !Ref InstanceProfile
       KeyName:
-        Ref: myKeyPair
-      AssociatePublicIpAddress: "true"
+        Ref: KeyPairName
+      AssociatePublicIpAddress: "false"
 
 
 #Outputs:
 #  URL:
 #    Description: "The URL of this instance's nTop Dashboard"
 #    Value: !Sub "http://${MyServerInstance.PublicIp}:3000"
-#  URL2:
-#    Description: "Point VXLan 111 trafic to:"
-#    Value: !Sub "${MyServerInstance.PrivateIp}"
+
