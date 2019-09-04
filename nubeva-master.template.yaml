@@ -7,6 +7,8 @@ Metadata:
         default: Nubeva configuration
       Parameters:
         - APIKey
+        - molochInstall
+        - ntopInstall
     - Label:
         default: Network configuration
       Parameters:
@@ -30,6 +32,10 @@ Metadata:
       - QSS3BucketName
       - QSS3KeyPrefix
     ParameterLabels:
+      molochInstall:
+        default: Install Moloch ASG
+      ntopInstall:
+        default: Install ntop ASG
       AvailabilityZones:
         default: Availability Zones
       APIKey:
@@ -59,6 +65,20 @@ Metadata:
       MaximumNodes:
         default: Maximum number of nodes per tool
 Parameters:
+  molochInstall:    
+    Default: true
+    AllowedValues:
+    - 'true'
+    - 'false'
+    Description: Installs Moloch Auto Scaling Group.
+    Type: String
+  ntopInstall:    
+    Default: true
+    AllowedValues:
+    - 'true'
+    - 'false'
+    Description: Installs ntop Auto Scaling Group.
+    Type: String
   AvailabilityZones:
     Description: List of Availability Zones to use for the subnets in the VPC. Two
       Availability Zones are used for this deployment, and the logical order of your
@@ -169,9 +189,13 @@ Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
     Type: String
-
 Conditions:
-  HasKeyName: !Not [!Equals [!Ref KeyPairName, '']]
+  molochInstallTrue: !Equals
+    - !Ref molochInstall
+    - 'true'
+  ntopInstallTrue: !Equals
+    - !Ref ntopInstall
+    - 'true'
 
 Resources:
   VPCStack:
@@ -189,6 +213,7 @@ Resources:
         PublicSubnet2CIDR: !Ref 'PublicSubnet2CIDR'
         VPCCIDR: !Ref 'VPCCIDR'
   ntopStack:
+    Condition: ntopInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
       #TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks.template.yaml'
@@ -206,6 +231,7 @@ Resources:
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         APIKey: !Ref APIKey
   molochStack:
+    Condition: molochInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
       #TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks.template.yaml'
