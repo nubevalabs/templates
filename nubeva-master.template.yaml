@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Nubeva TLS Decrypt & Open Source Tools in a new VPC
+Description: Deploys Nubeva TLS Decrypt & Open Source Tools in a new VPC.
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
