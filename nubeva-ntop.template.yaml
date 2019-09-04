@@ -62,37 +62,37 @@ Mappings:
     AMI:
       awslinux2: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
     ap-northeast-1:
-      awslinux2: ami-0c3fd0f5d33134a76
+      awslinux2: "ami-0c3fd0f5d33134a76"
     ap-northeast-2:
-      awslinux2: ami-095ca789e0549777d    
+      awslinux2: "ami-095ca789e0549777d"    
     ap-south-1:
-      awslinux2: ami-0d2692b6acea72ee6      
+      awslinux2: "ami-0d2692b6acea72ee6"      
     ap-southeast-1:
-      awslinux2: ami-01f7527546b557442      
+      awslinux2: "ami-01f7527546b557442"      
     ap-southeast-2:
-      awslinux2: ami-0dc96254d5535925f       
+      awslinux2: "ami-0dc96254d5535925f"       
     eu-central-1:
-      awslinux2: ami-0cc293023f983ed53      
+      awslinux2: "ami-0cc293023f983ed53"      
     eu-north-1:
-      awslinux2: ami-3f36be41      
+      awslinux2: "ami-3f36be41"      
     eu-west-1:
-      awslinux2: ami-0bbc25e23a7640b9b      
+      awslinux2: "ami-0bbc25e23a7640b9b"      
     eu-west-2:
-      awslinux2: ami-0d8e27447ec2c8410      
+      awslinux2: "ami-0d8e27447ec2c8410"      
     eu-west-3:
-      awslinux2: ami-0adcddd3324248c4c      
+      awslinux2: "ami-0adcddd3324248c4c"      
     us-east-1:
-      awslinux2: ami-0b898040803850657
+      awslinux2: "ami-0b898040803850657"
     us-east-2:
-      awslinux2: ami-0d8f6eb4f641ef691
+      awslinux2: "ami-0d8f6eb4f641ef691"
     us-west-1:
-      awslinux2: ami-056ee704806822732
+      awslinux2: "ami-056ee704806822732"
     us-west-2:
-      awslinux2: ami-082b5a644766e0e6f
+      awslinux2: "ami-082b5a644766e0e6f"
     ca-central-1:
-      awslinux2: ami-0d4ae09ec9361d8ac
+      awslinux2: "ami-0d4ae09ec9361d8ac"
     sa-east-1:
-      awslinux2: ami-058943e7d9b9cabfb
+      awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
   # Security Groups
