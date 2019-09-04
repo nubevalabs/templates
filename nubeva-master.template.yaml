@@ -6,9 +6,9 @@ Metadata:
     - Label:
         default: Nubeva configuration
       Parameters:
-        - APIKey
-        - molochInstall
-        - ntopInstall
+      - APIKey
+      - molochInstall
+      - ntopInstall
     - Label:
         default: Network configuration
       Parameters:
