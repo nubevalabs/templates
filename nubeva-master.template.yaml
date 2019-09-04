@@ -204,5 +204,6 @@ Resources:
         NodeInstanceType: !Ref NodeInstanceType
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !GetAtt VPCStack.Outputs.VPCID
+        APIKey: !Ref APIKey
 
 #Outputs:
