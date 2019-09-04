@@ -185,7 +185,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       #TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template'
-      TemplateURL: !Sub 'https://raw.githubusercontent.com/aws-quickstart/quickstart-aws-vpc/master/templates/aws-vpc.template'
+      TemplateURL: !Sub 'https://nubevalabs.s3.amazonaws.com/awc-vpc-copy.template'
       Parameters:
         AvailabilityZones: !Join [ ',', !Ref 'AvailabilityZones' ]
         KeyPairName: !Ref 'KeyPairName'
@@ -199,7 +199,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       #TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks.template.yaml'
-      TemplateURL: !Sub 'https://github.com/nubevalabs/templates/blob/master/nubeva-ntop.template.yaml'
+      TemplateURL: !Sub 'https://nubevalabs.s3.amazonaws.com/nubeva-ntop.template.yaml'
       Parameters:
         KeyPairName: !Ref KeyPairName
         QSS3BucketName: !Ref QSS3BucketName
