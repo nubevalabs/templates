@@ -49,6 +49,7 @@ Metadata:
           - PrivateSubnet1CIDR
           - PrivateSubnet2CIDR
           - VPCCIDR
+          - RemoteAccessCIDR
       - Label:
           default: "Autoscaling Configuration"
         Parameters:
