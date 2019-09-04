@@ -7,6 +7,8 @@ Metadata:
         default: Nubeva configuration
       Parameters:
         - APIKey
+        - molochInstall
+        - ntopInstall
     - Label:
         default: Network configuration
       Parameters:
@@ -27,6 +29,10 @@ Metadata:
       - QSS3BucketName
       - QSS3KeyPrefix
     ParameterLabels:
+      molochInstall:
+        default: Install Moloch ASG
+      ntopInstall:
+        default: Install ntop ASG
       KeyPairName:
         default: SSH key name
       QSS3BucketName:
@@ -49,7 +55,22 @@ Metadata:
         default: VPC ID
       APIKey:
         default: Nubeva Token
+
 Parameters:
+  molochInstall:    
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    Description: Installs Moloch Auto Scaling Group.
+    Type: String
+  ntopInstall:    
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    Description: Installs ntop Auto Scaling Group.
+    Type: String
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
       to securely connect to your instance after it launches
@@ -131,8 +152,18 @@ Parameters:
   PrivateSubnet2ID:
     Type: "AWS::EC2::Subnet::Id"
     Description: The ID of the private subnet in Availability Zone 2 in your existing VPC (e.g., subnet-be8b01ea)
+
+Conditions:
+  molochInstallTrue: !Equals
+    - !Ref molochInstall
+    - 'true'
+  ntopInstallTrue: !Equals
+    - !Ref ntopInstall
+    - 'true'
+
 Resources:
   ntopStack:
+    Condition: ntopInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
       #TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks.template.yaml'
@@ -150,6 +181,7 @@ Resources:
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
   molochStack:
+    Condition: molochInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
       #TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks.template.yaml'
