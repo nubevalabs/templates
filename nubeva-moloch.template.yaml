@@ -306,7 +306,6 @@ Resources:
       IamInstanceProfile: !Ref InstanceProfile
       KeyName:
         Ref: KeyPairName
-      AssociatePublicIpAddress: "true"
       BlockDeviceMappings:
       - DeviceName: "/dev/xvda"
         Ebs:
