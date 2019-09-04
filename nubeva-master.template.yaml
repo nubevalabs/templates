@@ -24,7 +24,6 @@ Metadata:
       - NodeInstanceType
       - NumberOfNodes
       - MaximumNodes
-      - CustomAMI
     - Label:
         default: AWS Quick Start configuration
       Parameters:
@@ -59,8 +58,6 @@ Metadata:
         default: Desired number of nodes per tool
       MaximumNodes:
         default: Maximum number of nodes per tool
-      CustomAMI:
-        default: Base AMI to use for Tools
 Parameters:
   AvailabilityZones:
     Description: List of Availability Zones to use for the subnets in the VPC. Two
@@ -169,10 +166,6 @@ Parameters:
     Default: 6
     Description: The maximum number of EC2 instance nodes in the each Tool Autoscaling Group.
     Type: String
-  CustomAMI:
-    Description: AMI ID -- Change if custom AMI is desired
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
   APIKey:
     Description: "The Token for your Prisms account"
     Type: String
@@ -208,7 +201,6 @@ Resources:
         PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
         NumberOfNodes: !Ref NumberOfNodes
         MaximumNodes: !Ref MaximumNodes
-        CustomAMI: !Ref CustomAMI
         NodeInstanceType: !Ref NodeInstanceType
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !GetAtt VPCStack.Outputs.VPCID
