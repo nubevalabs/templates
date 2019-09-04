@@ -195,8 +195,8 @@ Resources:
       TemplateURL: !Sub 'https://nubevalabs.s3.amazonaws.com/nubeva-ntop.template.yaml'
       Parameters:
         KeyPairName: !Ref KeyPairName
-        QSS3BucketName: !Ref QSS3BucketName
-        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        #QSS3BucketName: !Ref QSS3BucketName
+        #QSS3KeyPrefix: !Ref QSS3KeyPrefix
         PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
         PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
         NumberOfNodes: !Ref NumberOfNodes
