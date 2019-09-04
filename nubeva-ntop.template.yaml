@@ -39,10 +39,6 @@ Parameters:
       r5.24xlarge, i2.xlarge, i2.2xlarge, i2.4xlarge, i2.8xlarge, i3.large, i3.xlarge, i3.2xlarge,
       i3.4xlarge, i3.8xlarge, i3.16xlarge, c5.large, c5.xlarge, c5.2xlarge, c5.4xlarge, c5.8xlarge]
     ConstraintDescription: Please choose a valid instance type.
-  CustomAMI:
-    Description: AMI ID -- Change if custom AMI is desired
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    #Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -58,9 +54,45 @@ Metadata:
         Parameters:
           - KeyPairName
           - NodeInstanceType
-          - CustomAMI
           - NumberOfNodes
           - MaximumNodes
+
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      awslinux2: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    ap-northeast-1:
+      awslinux2: ami-0c3fd0f5d33134a76
+    ap-northeast-2:
+      awslinux2: ami-095ca789e0549777d    
+    ap-south-1:
+      awslinux2: ami-0d2692b6acea72ee6      
+    ap-southeast-1:
+      awslinux2: ami-01f7527546b557442      
+    ap-southeast-2:
+      awslinux2: ami-0dc96254d5535925f       
+    eu-central-1:
+      awslinux2: ami-0cc293023f983ed53      
+    eu-north-1:
+      awslinux2: ami-3f36be41      
+    eu-west-1:
+      awslinux2: ami-0bbc25e23a7640b9b      
+    eu-west-2:
+      awslinux2: ami-0d8e27447ec2c8410      
+    eu-west-3:
+      awslinux2: ami-0adcddd3324248c4c      
+    us-east-1:
+      awslinux2: ami-0b898040803850657
+    us-east-2:
+      awslinux2: ami-0d8f6eb4f641ef691
+    us-west-1:
+      awslinux2: ami-056ee704806822732
+    us-west-2:
+      awslinux2: ami-082b5a644766e0e6f
+    ca-central-1:
+      awslinux2: ami-0d4ae09ec9361d8ac
+    sa-east-1:
+      awslinux2: ami-058943e7d9b9cabfb
 
 Resources:
   # Security Groups
@@ -241,8 +273,11 @@ Resources:
           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start
           /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
       InstanceType: !Ref NodeInstanceType
-      #ImageId: !Ref CustomAMI /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
-      ImageId: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+      ImageId:
+        - !FindInMap
+          - AWSAMIRegionMap
+          - !Ref "AWS::Region"
+          - awslinux2
       SecurityGroups:
       - !Ref "ToolSecurityGroup"
       IamInstanceProfile: !Ref InstanceProfile
