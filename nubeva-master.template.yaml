@@ -68,15 +68,15 @@ Parameters:
   molochInstall:    
     Default: true
     AllowedValues:
-    - 'true'
-    - 'false'
+    - true
+    - false
     Description: Installs Moloch Auto Scaling Group.
     Type: String
   ntopInstall:    
     Default: true
     AllowedValues:
-    - 'true'
-    - 'false'
+    - true
+    - false
     Description: Installs ntop Auto Scaling Group.
     Type: String
   AvailabilityZones:
