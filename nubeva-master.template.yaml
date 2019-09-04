@@ -9,6 +9,7 @@ Metadata:
       - APIKey
       - molochInstall
       - ntopInstall
+      - wiresharkInstall
     - Label:
         default: Network configuration
       Parameters:
@@ -36,6 +37,8 @@ Metadata:
         default: Install Moloch ASG
       ntopInstall:
         default: Install ntop ASG
+      wiresharkInstall:
+        default: Install Wireshark ASG
       AvailabilityZones:
         default: Availability Zones
       APIKey:
@@ -65,14 +68,21 @@ Metadata:
       MaximumNodes:
         default: Maximum number of nodes per tool
 Parameters:
-  molochInstall:    
+  molochInstall:
     Default: true
     AllowedValues:
     - true
     - false
     Description: Installs Moloch Auto Scaling Group.
     Type: String
-  ntopInstall:    
+  ntopInstall:
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    Description: Installs ntop Auto Scaling Group.
+    Type: String
+  wiresharkInstall:
     Default: true
     AllowedValues:
     - true
@@ -196,6 +206,9 @@ Conditions:
   ntopInstallTrue: !Equals
     - !Ref ntopInstall
     - 'true'
+  wiresharkInstallTrue: !Equals
+    - !Ref wiresharkInstall
+    - 'true'
 
 Resources:
   VPCStack:
@@ -248,4 +261,24 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         APIKey: !Ref APIKey
+  wiresharkStack:
+    Condition: wiresharkInstallTrue
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      #TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks.template.yaml'
+      TemplateURL: !Sub 'https://nubevalabs.s3.amazonaws.com/nubeva-wireshark.template.yaml'
+      Parameters:
+        KeyPairName: !Ref KeyPairName
+        #QSS3BucketName: !Ref QSS3BucketName
+        #QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
+        PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+        NumberOfNodes: !Ref NumberOfNodes
+        MaximumNodes: !Ref MaximumNodes
+        NodeInstanceType: !Ref NodeInstanceType
+        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+        VPCID: !GetAtt VPCStack.Outputs.VPCID
+        APIKey: !Ref APIKey
+
+
 #Outputs:
