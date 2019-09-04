@@ -205,5 +205,21 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         APIKey: !Ref APIKey
-
+  molochStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      #TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks.template.yaml'
+      TemplateURL: !Sub 'https://nubevalabs.s3.amazonaws.com/nubeva-moloch.template.yaml'
+      Parameters:
+        KeyPairName: !Ref KeyPairName
+        #QSS3BucketName: !Ref QSS3BucketName
+        #QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
+        PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+        NumberOfNodes: !Ref NumberOfNodes
+        MaximumNodes: !Ref MaximumNodes
+        NodeInstanceType: !Ref NodeInstanceType
+        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+        VPCID: !GetAtt VPCStack.Outputs.VPCID
+        APIKey: !Ref APIKey
 #Outputs:
