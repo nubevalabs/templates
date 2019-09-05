@@ -260,6 +260,7 @@ Resources:
       IamInstanceProfile: !Ref InstanceProfile
       KeyName:
         Ref: KeyPairName
+      AssociatePublicIpAddress: "true"
       BlockDeviceMappings:
       - DeviceName: "/dev/sda1"
         Ebs:
