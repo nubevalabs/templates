@@ -190,8 +190,8 @@ Resources:
         PropagateAtLaunch: 'true'
     CreationPolicy:
       ResourceSignal:
-        Count: 0
-        Timeout: PT5M
+        Count: 1
+        Timeout: PT10M
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MinInstancesInService: !Ref NumberOfNodes
