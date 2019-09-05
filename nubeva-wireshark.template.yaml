@@ -216,8 +216,13 @@ Resources:
 
         configStartup:
           commands:
-            01_chmod:
-              command: "chmod +x /etc/rc.d/rc.local"
+            01_touch:
+              command: "touch /etc/rc.local"
+            02_start:
+              command: "echo '#!/bin/bash -xe' >> /etc/rc.local"
+            03_chmod:
+              command: "chmod +x /etc/rc.local"
+
         installServices:
           packages:
             apt:
