@@ -222,7 +222,6 @@ Resources:
           packages:
             apt:
               wireshark: []
-              python3-pip: []
               docker.io: []
               lxde: []
               xrdp: []
@@ -250,7 +249,7 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
           apt-get update
-          apt-get install pip
+          apt-get install python3-pip
           pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
 
           #yum update -y aws-cfn-bootstrap
