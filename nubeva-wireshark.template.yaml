@@ -222,6 +222,7 @@ Resources:
           packages:
             apt:
               wireshark: []
+              python3-pip: []
               docker.io: []
               lxde: []
               xrdp: []
