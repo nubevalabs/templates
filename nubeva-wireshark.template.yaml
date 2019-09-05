@@ -232,8 +232,6 @@ Resources:
               xrdp: []
           services:
             sysvinit:
-              rc.local:
-                enabled: true
               docker:
                 enabled: true
                 ensureRunning: true
