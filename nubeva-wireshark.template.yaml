@@ -248,9 +248,9 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
-          apt-get update
-          apt-get install python3-pip
-          pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
+          apt-get update -y
+          apt-get install python3-pip -y
+          pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
 
           #yum update -y aws-cfn-bootstrap
           # how do I get correct region variable
