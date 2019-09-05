@@ -45,7 +45,6 @@ Metadata:
           - VPCID
           - PrivateSubnet1CIDR
           - PrivateSubnet2CIDR
-          - VPCCIDR
           - RemoteAccessCIDR
       - Label:
           default: "Autoscaling Configuration"
@@ -212,7 +211,6 @@ Resources:
           Install:
             - "installServices"
             - "installNurxAgent"
-            - "installMoloch"
           Start:
             - "startUpdate"
 
