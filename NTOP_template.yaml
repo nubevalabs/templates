@@ -267,5 +267,5 @@ Outputs:
     Description: The URL for any instance's nTop Dashboard
     Value: "http://ntopinstance:3000"
   Login:
-    Descritption: The usename & password defaults are in the documentation
+    Description: The usename & password defaults are in the documentation
     Value: "https://docs.nubeva.com/ntop"
