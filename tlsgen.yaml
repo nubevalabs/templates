@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: tlsgen
   labels:
-    app:
+    app: tlsgen
 spec:
   replicas: 1
   selector:
