@@ -16,4 +16,4 @@ spec:
     spec:
       containers:
       - name: tlsgen
-        image: ejfree/tlsgenerator:9times
+        image: ejfree/tlsgenerator:update
