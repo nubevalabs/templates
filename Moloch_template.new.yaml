@@ -154,6 +154,7 @@ Resources:
         - FromPort: 80
           IpProtocol: tcp
           ToPort: 80
+          CidrIp: '10.0.0.0/8'
           CidrIp: !Sub
           - !GetAtt ${VPC}.CidrBlockAssociations
           - VPC: !Ref VPCID
