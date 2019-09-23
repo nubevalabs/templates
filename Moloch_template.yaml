@@ -242,6 +242,8 @@ Resources:
               command: "sleep 60"
             07_setupNewDB:
               command: "/data/moloch/db/db.pl http://localhost:9200 init"
+            07a_addESaVariable:
+              command: "echo 'elasticsearch=http://localhost:9200' >> /data/moloch/etc/config.ini"
             08_createAdmin:
               command: "/data/moloch/bin/moloch_add_user.sh admin \"admin user\" G0Nub3va20[] --admin"
             09_setupMolochGeoIP:
