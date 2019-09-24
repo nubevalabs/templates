@@ -19,7 +19,7 @@ spec:
         args: ["--accept-eula", "--nutoken", "<<<insert NuToken here>>>", "-noautoupdate"]
         securityContext:
           capabilities:
-            add: ["NET_ADMIN", "SYS_ADMIN", "SYS_RESOURCE"]
+            add: ["NET_ADMIN", "SYS_ADMIN", "SYS_PTRACE", "SYS_RESOURCE"]
         volumeMounts:
           - name: dockersocket
             mountPath: /var/run/docker.sock
