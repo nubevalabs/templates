@@ -157,9 +157,6 @@ Resources:
           IpProtocol: tcp
           ToPort: 80
           CidrIp: !Ref 'VPCCIDR'
-          #CidrIp: !Sub
-          #- !GetAtt ${vpc}.CidrBlock
-          #- {vpc: !Ref VPCID}
   ToolSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
