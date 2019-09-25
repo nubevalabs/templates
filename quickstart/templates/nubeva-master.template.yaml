@@ -286,7 +286,6 @@ Resources:
         VPCID:
           Fn::GetAtt:
           - VPCStack
-  banzai
           - Outputs.VPCID
   NubevaStack:
     Type: AWS::CloudFormation::Stack
