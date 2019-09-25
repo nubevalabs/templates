@@ -64,9 +64,9 @@ Metadata:
       PrivateSubnet2ID:
         default: Private subnet 2 ID
       PublicSubnet1ID:
-        default: Public subnet 1 CIDR
+        default: Public subnet 1 ID
       PublicSubnet2ID:
-        default: Public subnet 2 CIDR
+        default: Public subnet 2 ID
       VPCID:
         default: VPC ID
       VPCCIDR:
