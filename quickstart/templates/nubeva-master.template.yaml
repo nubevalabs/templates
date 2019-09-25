@@ -29,11 +29,11 @@ Metadata:
       - NodeInstanceType
       - NumberOfNodes
       - MaximumNodes
-    - Label:
-        default: AWS Quick Start configuration
-      Parameters:
-      - QSS3BucketName
-      - QSS3KeyPrefix
+    #- Label:
+    #    default: AWS Quick Start configuration
+    #  Parameters:
+    #  - QSS3BucketName
+    #  - QSS3KeyPrefix
     ParameterLabels:
       MolochInstall:
         default: Install Moloch ASG
@@ -59,10 +59,10 @@ Metadata:
         default: Public subnet 1 CIDR
       PublicSubnet2CIDR:
         default: Public subnet 2 CIDR
-      QSS3BucketName:
-        default: Quick Start S3 bucket name
-      QSS3KeyPrefix:
-        default: Quick Start S3 key prefix
+      #QSS3BucketName:
+      #  default: Quick Start S3 bucket name
+      #QSS3KeyPrefix:
+      #  default: Quick Start S3 key prefix
       RemoteAccessCIDR:
         default: Allowed external access CIDR
       VPCCIDR:
@@ -173,7 +173,8 @@ Parameters:
     ConstraintDescription: Quick Start bucket name can include numbers, lowercase
       letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
       (-).
-    Default: aws-quickstart
+    #Default: aws-quickstart
+    Default: nubevalabs
     Description: S3 bucket name for the Quick Start assets. This string can include
       numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
       or end with a hyphen (-).
@@ -182,7 +183,8 @@ Parameters:
     AllowedPattern: ^[0-9a-zA-Z-/]*$
     ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
       uppercase letters, hyphens (-), and forward slash (/).
-    Default: quickstart-nubeva-tlsdecrypt/
+    Default: quickstart/
+    #Default: quickstart-nubeva-tlsdecrypt/
     Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
       can include numbers, lowercase letters, uppercase letters, hyphens (-), and
       forward slash (/).
