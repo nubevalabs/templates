@@ -304,7 +304,7 @@ Resources:
     Properties:
       VpcId: !Ref VPCID
       Port: 8005
-      Protocol: TCP
+      Protocol: TCP_UDP
       HealthCheckEnabled: true
       HealthCheckIntervalSeconds: 10
       HealthCheckProtocol: TCP

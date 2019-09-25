@@ -250,7 +250,7 @@ Resources:
     Properties:
       VpcId: !Ref VPCID
       Port: 3000
-      Protocol: TCP
+      Protocol: TCP_UDP
       HealthCheckEnabled: true
       HealthCheckIntervalSeconds: 10
       HealthCheckProtocol: TCP
