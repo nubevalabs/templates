@@ -235,15 +235,15 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref NtopTargetGroup
 
-  #MolochCaptureListener:
-  #  Type: AWS::ElasticLoadBalancingV2::Listener
-  #  Properties:
-  #    LoadBalancerArn: !Ref MolochELB
-  #    Port: 4789
-  #    Protocol: UDP
-  #    DefaultActions:
-  #      - Type: forward
-  #        TargetGroupArn: !Ref MolochTargetGroup
+  NtopCaptureListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref NtopELB
+      Port: 4789
+      Protocol: UDP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref NtopTargetGroup
 
   NtopTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
