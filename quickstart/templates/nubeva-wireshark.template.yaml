@@ -341,7 +341,7 @@ Resources:
                 - "useradd ${admin}"
                 - {admin: !Ref ToolAdmin}
             #IN DEVELOPMENT
-            05_passwdUser:
+            #05_passwdUser:
               #command: !Sub
                 #- "echo -e '${password}\n${password}' | passwd ${admin}"
                 #- {password: !Ref ToolPassword, admin: !Ref ToolAdmin}
