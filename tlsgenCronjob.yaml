@@ -10,6 +10,6 @@ spec:
         spec:
           containers:
           - name: tlsgenerator
-            image: ejfree/tlsgenerator
+            image: ejfree/tlsgenerator:update
           restartPolicy: Never
       backoffLimit: 2
