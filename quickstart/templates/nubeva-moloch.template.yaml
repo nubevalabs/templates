@@ -300,7 +300,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref VPCID
-      Port: 8005
+      #Port: 8005
       Protocol: TCP_UDP
       HealthCheckEnabled: true
       HealthCheckIntervalSeconds: 10

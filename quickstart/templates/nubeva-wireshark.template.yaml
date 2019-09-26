@@ -246,7 +246,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref VPCID
-      Port: 3389
+      #Port: 3389
       Protocol: TCP_UDP
       HealthCheckEnabled: true
       HealthCheckIntervalSeconds: 10
@@ -332,13 +332,16 @@ Resources:
           commands:
             01_addsrclocalupdate:
               command: "echo 'apt-get update -y' >> /etc/rc.local"
-            02_internetrando:
-              command: "touch /etc/security/opasswd"
-            02_addUser:
+            02_addsmorerclocalupdate:
+              command: "echo 'apt-get upgrade -y' >> /etc/rc.local"
+            03_allowXRDP:
+              command: "sed -i 's/allowed_users=console/allowed_users=anybody/g' /etc/X11/Xwrapper.config"
+            04_addUser:
               command: !Sub
                 - "useradd ${admin}"
                 - {admin: !Ref ToolAdmin}
-            #03_passwdUser: IN DEVELOPMENT
+            #IN DEVELOPMENT
+            05_passwdUser:
               #command: !Sub
                 #- "echo -e '${password}\n${password}' | passwd ${admin}"
                 #- {password: !Ref ToolPassword, admin: !Ref ToolAdmin}

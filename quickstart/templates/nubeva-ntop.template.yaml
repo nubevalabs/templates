@@ -249,7 +249,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref VPCID
-      Port: 3000
+      #Port: 3000
       Protocol: TCP_UDP
       HealthCheckEnabled: true
       HealthCheckIntervalSeconds: 10
