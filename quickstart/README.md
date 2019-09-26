@@ -1,6 +1,6 @@
 # quickstart-nubeva-tlsdecrypt
 
-This Quick Start adds five open source security & networking tools to your AWS Cloud environment. It deploys Moloch, ntopng, Wireshark, Zeek, and Suricata that provide advanced security visibility in your cloud. These tools are integrated with the Nubeva TLS Decryption solution with provides deeper visibility into all TLS traffic, including TLS 1.2 w/PFS and TLS 1.3. You can choose to create a new VPC environment for your open source tools or deploy them into your existing VPC environment. After you deploy the Quick Start, you can add other AWS services, infrastructure components, and software layers to complete your test.
+This Quick Start adds five open source security & networking tools to your AWS Cloud environment. It deploys Moloch, ntopng, Wireshark, Zeek, and Suricata that provide advanced security visibility in your cloud. These tools are integrated with the Nubeva TOLS Decryption solution with provides deeper visibility into all TLS traffic, including TLS 1.2 w/PFS and TLS 1.3. You can choose to create a new VPC environment for your open source tools or deploy them into your existing VPC environment. After you deploy the Quick Start, you can add other AWS services, infrastructure components, and software layers to complete your test.
 
 ![Quick Start Nubeva TLS Decrypt Open Source Tool Architecture](https://nubevalabs.s3.amazonaws.com/quickstart.png )
 
@@ -16,10 +16,10 @@ Moloch Instructions:
 3. For more instructions, see the [documentation](https://docs.nubeva.com/moloch)
 
 Wireshark Instructions:
-1. Connect to the Wireshark instance using SSH. Set the password for tooladmin. sudo passwd tooladmin [This is in being automated]
-2. Connect to the WiresharkhELB on port 3389 using RDP. Login in with the tooladmin username & password.
-2. Create Amazon VPC traffic mirroring target for the WiresharkELB and point your sessions there.
-3. For more instructions, see the [documentation](https://docs.nubeva.com/wireshark)
+1. Connect to the Wireshark instance using SSH; ssh ubuntu@[ip.address]. Set the password for the ubuntu user. sudo passwd ubuntu [This is in being automated and shifted to tooladmin]
+2. Connect to the WiresharkhELB on port 3389 using RDP. Login in with the ubuntu username & password from step 1
+3. Create Amazon VPC traffic mirroring target for the WiresharkELB and point your sessions there.
+4. For more instructions, see the [documentation](https://docs.nubeva.com/wireshark)
 
 ntop Instructions:
 1. Connect to the NtopELB on port 3000 using HTTP. Login in with the default username & password.
