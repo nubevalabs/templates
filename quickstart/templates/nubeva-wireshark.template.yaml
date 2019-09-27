@@ -367,12 +367,12 @@ Resources:
                 - "useradd ${admin}"
                 - {admin: !Ref ToolAdmin}
             #IN DEVELOPMENT
-            05_passwdUser:
-              command: !Sub
+            #05_passwdUser:
+              #command: !Sub
                 #- "echo -e '${password}\n${password}' | passwd ${admin}"
                 #- {password: !Ref ToolPassword, admin: !Ref ToolAdmin}
-                - "echo -e '${password}\n${password}' | passwd ubuntu"
-                - {password: !Ref ToolPassword}
+                #- "echo -e '${password}\n${password}' | passwd ubuntu"
+                #- {password: !Ref ToolPassword}
 
     Properties:
       UserData:
