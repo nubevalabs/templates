@@ -49,8 +49,14 @@ Parameters:
     Default: 2
   MaximumNodes:
     Type: Number
-    Default: '6'
+    Default: 6
     Description: Maximum number of instances that can be launched in your tool cluster.
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Description: CIDR block for the VPC
+    Type: String
   NodeInstanceType:
     Description: EC2 instance type
     Type: String
@@ -80,6 +86,7 @@ Parameters:
     - r5.12xlarge
     - r5.24xlarge
     ConstraintDescription: Please choose a valid instance type.
+
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -140,7 +147,16 @@ Mappings:
       awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
-  # Security Groups
+  ZeekESSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Zeek ElasticSearch Service Security Group
+      VpcId: !Ref 'VPCID'
+      SecurityGroupIngress:
+        - FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+          CidrIp: !Ref 'VPCCIDR'
   ToolSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -155,23 +171,23 @@ Resources:
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
-  # Inbound- allow VXLAN from ONLY the VPC
+  # Inbound- allow VXLAN
   ToolSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref "ToolSecurityGroup"
-      CidrIp: 10.10.0.0/16
+      CidrIp: !Ref "RemoteAccessCIDR"
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
-  # Inbound- allow ntop
+  # Inbound- allow Zeek
   ToolSecurityGroupntopinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref "ToolSecurityGroup"
       IpProtocol: tcp
-      FromPort: 3000
-      ToPort: 3000
+      FromPort: 8005
+      ToPort: 8005
       CidrIp: !Ref "RemoteAccessCIDR"
   # Outbound- allow all
   ToolSecurityGroupOutbound:
@@ -216,49 +232,61 @@ Resources:
             Resource:
             - '*'
 
-  NtopELB:
+  ZeekElasticsearchDomain:
+    Type: AWS::Elasticsearch::Domain
+    Properties:
+      DomainName: zeek-es
+      ElasticsearchVersion: '6.8'
+      ElasticsearchClusterConfig:
+        InstanceCount: !Ref NumberOfNodes
+        InstanceType: !Sub
+          - ${InstanceType}.elasticsearch
+          - InstanceType: !Ref NodeInstanceType
+        ZoneAwarenessEnabled: true
+        ZoneAwarenessConfig:
+          AvailabilityZoneCount: 2
+      EBSOptions:
+        EBSEnabled: true
+        VolumeSize: 100
+      SnapshotOptions:
+        AutomatedSnapshotStartHour: 0
+      AccessPolicies:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: '*'
+            Action: 'es:*'
+            Resource: '*'
+      AdvancedOptions:
+        rest.action.multi.allow_explicit_index: 'true'
+      VPCOptions:
+        SubnetIds:
+          - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
+        SecurityGroupIds:
+          - !Ref ZeekESSecurityGroup
+
+  ZeekELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: NtophELB
+      Name: ZeekELB
       Subnets:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID
       Type: network
 
-  NtopViewerListener:
+  ZeekCaptureListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
-      LoadBalancerArn: !Ref NtopELB
-      Port: 3000
-      Protocol: TCP
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref NtopWWWTargetGroup
-
-  NtopCaptureListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn: !Ref NtopELB
+      LoadBalancerArn: !Ref ZeekELB
       Port: 4789
       Protocol: UDP
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref NtopVXLANTargetGroup
+          TargetGroupArn: !Ref ZeekVXLANTargetGroup
 
-  NtopWWWTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      VpcId: !Ref VPCID
-      Port: 3000
-      Protocol: TCP_UDP
-      HealthCheckEnabled: true
-      HealthCheckIntervalSeconds: 10
-      HealthCheckProtocol: TCP
-      HealthCheckTimeoutSeconds: 10
-      HealthyThresholdCount: 3
-      UnhealthyThresholdCount: 3
-
-  NtopVXLANTargetGroup:
+  ZeekVXLANTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref VPCID
@@ -270,19 +298,20 @@ Resources:
       HealthCheckTimeoutSeconds: 10
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
-      HealthCheckPort: '3000'
+      HealthCheckPort: '22'
 
-  #NtopELBTrafficMirrorTarget:
+  #ZeekELBTrafficMirrorTarget:
   #  Type: AWS::EC2::TrafficMirrorTarget
   #  Properties:
-  #    Description: "ntopELB"
-  #    NetworkLoadBalancerArn: !Ref NtopELB
+  #    Description: "ZeekELB"
+  #    NetworkLoadBalancerArn: !Ref ZeekELB
   #  Tags:
   #    - Key: "Name"
-  #      Value: "ntopELBTMT"
+  #      Value: "ZeekELBTMT"
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: ZeekElasticsearchDomain
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
@@ -291,8 +320,7 @@ Resources:
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
-        - !Ref NtopWWWTargetGroup
-        - !Ref NtopVXLANTargetGroup
+        - !Ref ZeekVXLANTargetGroup
       DesiredCapacity: !Ref 'NumberOfNodes'
       MetricsCollection:
       - Granularity: 1Minute
@@ -310,7 +338,7 @@ Resources:
       AutoScalingRollingUpdate:
         MinInstancesInService: !Ref NumberOfNodes
         MaxBatchSize: 1
-        PauseTime: PT10M
+        PauseTime: PT5M
         SuspendProcesses:
         - AlarmNotification
         WaitOnResourceSignals: true
@@ -322,40 +350,41 @@ Resources:
         configSets:
           Configure:
             - "ConfigStartup"
-            - "AddRepo"
           Install:
             - "InstallServices"
+            - "SetupElastic"
             - "InstallNurxAgent"
+            - "InstallZeek"
           Start:
-            - "StartNtop"
+            - "StartZeek"
+
         ConfigStartup:
           commands:
-            01_addintrclocal:
-              command: "echo 'yum update -y' >> /etc/rc.local"
-          02_adduprclocal:
-            04_chmod:
+            01_chmod:
               command: "chmod +x /etc/rc.d/rc.local"
-        AddRepo:
-          commands:
-            01_wget:
-              command: "wget http://packages.ntop.org/centos-stable/ntop.repo -O /etc/yum.repos.d/ntop.repo"
-            02_sed:
-              command: "sed -i 's/$releasever/7/g' /etc/yum.repos.d/ntop.repo"
         InstallServices:
           packages:
             yum:
+              libpcap-devel: []
+              openssl-devel: []
+              python-devel: []
+              zlib-devel: []
+              java-1.8.0-openjdk: []
               wget: []
-              cento: []
-              redis: []
               docker: []
           services:
             sysvinit:
-              redis:
-                enabled: true
-                ensureRunning: true
               docker:
                 enabled: true
                 ensureRunning: true
+        SetupElastic:
+          commands:
+            01_setES_pubkeys:
+              command: "rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+            02_get_repo_info:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/elastic.repo -O /etc/yum.repos.d/elastic.repo"
+            03_get_ZeekEepo_info:
+              command: "wget -nv https://download.opensuse.org/repositories/security:zeek/CentOS_7/security:zeek.repo -O /etc/yum.repos.d/security:zeek.repo"
         InstallNurxAgent:
           commands:
             01_download_and_install:
@@ -365,39 +394,52 @@ Resources:
         #InstallVXLANInterface:
         #  commands:
         #    01_createVXLAN:
-        #      command: "ip link add vxlan111 type vxlan id 111 remote 0.0.0.0 dstport 4789"
+        #      command: "ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789"
         #    02_interfaceUp:
-        #      command: "ip link set vxlan111 up"
+        #      command: "ip link set vxlan555 up"
         #    03_autoLaunchVXLAN:
-        #      command: "echo 'ip link add vxlan111 type vxlan id 111 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
+        #      command: "echo 'ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
         #    04_addsmorerclocalupdate:
-        #      command: "echo 'ip link set vxlan111 up' >> /etc/rc.local"
-
-        StartNtop:
+        #      command: "echo 'ip link set vxlan555 up' >> /etc/rc.local"
+        InstallZeek:
           packages:
             yum:
-              pfring: []
-              n2disk: []
-              nprobe: []
-              ntopng: []
-              ntopng-data: []
+              zeek: []
+              logstash: []
+          commands:
+            01_configLogstash:
+              command: "/usr/share/logstash/bin/system-install"
+            02_setLogstashRegion:
+              command:
+                !Sub |
+                  echo 'REGION='${AWS::Region} >> /etc/default/logstash
+            03_setLogstashES:
+              command: "echo 'ES_HOST='${ESDomain} >> /etc/default/logstash"
+              env:
+                ESDomain: !GetAtt ZeekElasticsearchDomain.DomainEndpoint
+            04_installConfig:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/logstash-zeek.conf -O /etc/logstash/conf.d/logstash-zeek.conf"
+            05_setupLogstash:
+              command: "/usr/share/logstash/bin/logstash-plugin install logstash-filter-geoip && /usr/share/logstash/bin/logstash-plugin install logstash-output-amazon_es && /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate"
+            06_zeekAccess:
+              command: "usermod -a -G zeek logstash"
           services:
             sysvinit:
-              ntopng:
+              logstash:
                 enabled: true
                 ensureRunning: true
-
+        StartZeek:
           commands:
-            #This doesnt work at present
-            01_setupToolAdmin:
-              command: !Sub
-                - "echo -n \"${password}\" | md5sum | xargs -I {} redis-cli SET ntopng.user.${admin}.password {}"
-                - {admin: !Ref ToolAdmin, password: !Ref ToolPassword}
-            02_installconfig:
-              command: "wget -nv https://nubevalabs.s3.amazonaws.com/ntopng.conf -O /etc/ntopng/ntopng.conf"
-            03_restart:
-              command: "systemctl restart ntopng"
-            #Future Development. Auto update of .conf file for mesh connectivity
+            01_addUpdaterclocal:
+              command: "echo 'yum update -y' >> /etc/rc.local"
+            02_runZeekAlways:
+              command: "echo '/opt/zeek/bin/start_zeek.sh' >> /etc/rc.local"
+            03_installStartScript:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/start_zeek.sh -O /opt/zeek/bin/start_zeek.sh"
+            04_allowExecute:
+              command: "chmod +x /opt/zeek/bin/start_zeek.sh"
+            #05_startZeek:
+            #  command: "/opt/zeek/bin/start_zeek.sh"
 
     Properties:
       UserData:
@@ -418,15 +460,16 @@ Resources:
       IamInstanceProfile: !Ref InstanceProfile
       KeyName:
         Ref: KeyPairName
-      AssociatePublicIpAddress: false
-
-
+      BlockDeviceMappings:
+      - DeviceName: "/dev/xvda"
+        Ebs:
+          VolumeSize: 100
 Outputs:
   Login:
     Description: The username & password defaults are in the documentation
-    Value: "https://docs.nubeva.com/ntop"
+    Value: "https://docs.nubeva.com/Zeek"
   URL:
-    Description: The URL for any instance's ntop Dashboard
+    Description: The URL for the Zeek Kibana Dashboard
     Value: !Sub
-        - "http://${NtopDNS}:3000"
-        - NtopDNS: !GetAtt NtopELB.DNSName
+        - "http://${ZeekES}_plugin/kibana/"
+        - ZeekES: !GetAtt ZeekElasticsearchDomain.DomainEndpoint
