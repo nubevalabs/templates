@@ -275,7 +275,7 @@ Resources:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID
       Type: network
-      Scheme: internal
+
 
   ZeekCaptureListener:
     Type: AWS::ElasticLoadBalancingV2::Listener

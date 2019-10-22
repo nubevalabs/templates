@@ -267,7 +267,7 @@ Resources:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID
       Type: network
-      Scheme: internal
+
 
   SuricataCaptureListener:
     Type: AWS::ElasticLoadBalancingV2::Listener

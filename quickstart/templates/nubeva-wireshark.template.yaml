@@ -227,7 +227,7 @@ Resources:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID
       Type: network
-      Scheme: internal
+
 
   WiresharkViewerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
