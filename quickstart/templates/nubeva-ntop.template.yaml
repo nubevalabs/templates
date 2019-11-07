@@ -58,7 +58,7 @@ Parameters:
     Description: CIDR block for the VPC
     Type: String
   ELBScheme:
-    Default: internet-facing
+    Default: internal
     AllowedValues:
     - internet-facing
     - internal
@@ -233,7 +233,7 @@ Resources:
   NtopELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: NtophELB
+      Name: NtopELB
       Subnets:
           - !Ref PublicSubnet1ID
           - !Ref PublicSubnet2ID
