@@ -156,7 +156,7 @@ Resources:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref "DecryptorSecurityGroup"
-      CidrIp: !Ref 'VPCCIDR'
+      CidrIp: 0.0.0.0/0
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
