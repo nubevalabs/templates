@@ -161,10 +161,10 @@ Resources:
       FromPort: 4789
       ToPort: 4789
   # Outbound- allow all
-  ToolSecurityGroupOutbound:
+  DecryptorSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "DecryptorSecurityGroup"
       CidrIp: 0.0.0.0/0
       IpProtocol: "-1"
       FromPort: -1
