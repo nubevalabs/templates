@@ -1,0 +1,342 @@
+
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Deploys Nubeva Stand Alone Decryptor Instance
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Nubeva configuration
+      Parameters:
+      - APIKey
+      - DestToolIP
+    - Label:
+        default: Network configuration
+      Parameters:
+      - VPCID
+      - SubnetID
+      - RemoteAccessCIDR
+    - Label:
+        default: Autoscaling group configuration
+      Parameters:
+      - KeyPairName
+      - NodeInstanceType
+    ParameterLabels:
+      DestToolIP:
+        default: IP address of destination tool
+      KeyPairName:
+        default: SSH key name
+      RemoteAccessCIDR:
+        default: Allowed external access CIDR
+      SubnetID:
+        default: Subnet to deploy to
+      VPCID:
+        default: VPC ID
+      APIKey:
+        default: Nubeva Token
+      NodeInstanceType:
+        default: Node Instance Type
+
+Parameters:
+  KeyPairName:
+    Description: The name of an existing public/private key pair, which allows you
+      to securely connect to your instance after it launches
+    Type: AWS::EC2::KeyPair::KeyName
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: The CIDR IP range that is permitted to access the instances. We recommend that you set this value to a trusted IP range.
+    Type: String
+  NodeInstanceType:
+    Default: t3.medium
+    AllowedValues:
+    - t3.medium
+    - t3.large
+    - t3.xlarge
+    - t3.2xlarge
+    - m5.large
+    - m5.xlarge
+    - m5.2xlarge
+    - m5.4xlarge
+    - m5.12xlarge
+    - m5.24xlarge
+    - c5.large
+    - c5.xlarge
+    - c5.2xlarge
+    - c5.4xlarge
+    - c5.9xlarge
+    - c5.18xlarge
+    - i3.large
+    - i3.xlarge
+    - i3.2xlarge
+    - i3.4xlarge
+    - i3.8xlarge
+    - i3.16xlarge
+    - r5.large
+    - r5.xlarge
+    - r5.2xlarge
+    - r5.4xlarge
+    - r5.12xlarge
+    - r5.24xlarge
+    ConstraintDescription: Must be a valid EC2 instance type.
+    Description: The type of EC2 instance for the node instances.
+    Type: String
+  NumberOfNodes:
+    Default: 1
+    Description: The number of tool node instances. The default is one for each of the two Availability Zones.
+    Type: Number
+  MaximumNodes:
+    Default: 1
+    Description: The maximum number of EC2 instance nodes in the each Tool Autoscaling Group.
+    Type: String
+  APIKey:
+    Description: "The Token for your Prisms account"
+    Type: String
+  VPCID:
+    Type: "AWS::EC2::VPC::Id"
+    Description: The ID of your existing VPC (e.g., vpc-0343606e)
+  SubnetID:
+    Type: "AWS::EC2::Subnet::Id"
+    Description: The ID of a subnet in Availability Zone 1 in your existing VPC (e.g., subnet-fe9a8b32)
+
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      awslinux2: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    ap-northeast-1:
+      awslinux2: "ami-0c3fd0f5d33134a76"
+    ap-northeast-2:
+      awslinux2: "ami-095ca789e0549777d"
+    ap-south-1:
+      awslinux2: "ami-0d2692b6acea72ee6"
+    ap-southeast-1:
+      awslinux2: "ami-01f7527546b557442"
+    ap-southeast-2:
+      awslinux2: "ami-0dc96254d5535925f"
+    eu-central-1:
+      awslinux2: "ami-0cc293023f983ed53"
+    eu-north-1:
+      awslinux2: "ami-3f36be41"
+    eu-west-1:
+      awslinux2: "ami-0bbc25e23a7640b9b"
+    eu-west-2:
+      awslinux2: "ami-0d8e27447ec2c8410"
+    eu-west-3:
+      awslinux2: "ami-0adcddd3324248c4c"
+    us-east-1:
+      awslinux2: "ami-0b898040803850657"
+    us-east-2:
+      awslinux2: "ami-0d8f6eb4f641ef691"
+    us-west-1:
+      awslinux2: "ami-056ee704806822732"
+    us-west-2:
+      awslinux2: "ami-082b5a644766e0e6f"
+    ca-central-1:
+      awslinux2: "ami-0d4ae09ec9361d8ac"
+    sa-east-1:
+      awslinux2: "ami-058943e7d9b9cabfb"
+
+Resources:
+  DecryptorSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Tool Security Group
+      VpcId: !Ref 'VPCID'
+  # Inbound- allow ssh
+  DecryptorSecurityGroupSSHinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "DecryptorSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: !Ref "RemoteAccessCIDR"
+  # Inbound- allow VXLAN
+  DecryptorSecurityGroupVXLANinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "DecryptorSecurityGroup"
+      CidrIp: !Ref 'VPCCIDR'
+      IpProtocol: udp
+      FromPort: 4789
+      ToPort: 4789
+  # Outbound- allow all
+  ToolSecurityGroupOutbound:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref "ToolSecurityGroup"
+      CidrIp: 0.0.0.0/0
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+
+  InstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: '/'
+      Roles:
+      - !Ref DecryptorIAMRole
+
+  DecryptorIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - 'ec2.amazonaws.com'
+          Action:
+          - 'sts:AssumeRole'
+      Path: '/'
+      Policies:
+      - PolicyName: asg
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 'autoscaling:DescribeAutoScalingGroups'
+            - 'autoscaling:DescribeAutoScalingInstances'
+            - 'ec2:DescribeInstances'
+            Resource:
+            - '*'
+
+  DecryptorInboundInterface:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetID
+      Description: Interface for incoming traffic to be decrypted
+      GroupSet:
+      - !Ref DecryptorSecurityGroup
+
+  DecryptorOutboundInterface:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetID
+      Description: Interface for outgoing decrypted traffic to destination tool
+      GroupSet:
+      - !Ref DecryptorSecurityGroup
+
+  DecryptorAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+      - !Ref SubnetID
+      LaunchConfigurationName: !Ref DecryptorLaunchConfiguration
+      MinSize: '0'
+      MaxSize: !Ref 'MaximumNodes'
+      DesiredCapacity: !Ref 'NumberOfNodes'
+      MetricsCollection:
+      - Granularity: 1Minute
+        Metrics:
+        - GroupInServiceInstances
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}
+        PropagateAtLaunch: true
+    CreationPolicy:
+      ResourceSignal:
+        Count: 1
+        Timeout: PT10M
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: !Ref NumberOfNodes
+        MaxBatchSize: 1
+        PauseTime: PT5M
+        SuspendProcesses:
+        - AlarmNotification
+        WaitOnResourceSignals: true
+
+  DecryptorLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          Configure:
+            - "ConfigStartup"
+          Install:
+            - "InstallServices"
+            - "InstallNurxAgent"
+            - "InstallVXLANInterface"
+          Start:
+            - "StartDecryptor"
+
+        ConfigStartup:
+          commands:
+            01_updaterclocal:
+             command: "echo 'yum update -y' >> /etc/rc.local"
+            02_chmod:
+              command: "chmod +x /etc/rc.d/rc.local"
+        InstallServices:
+          packages:
+            yum:
+              wget: []
+              docker: []
+              iproute-tc: []
+          services:
+            sysvinit:
+              docker:
+                enabled: true
+                ensureRunning: true
+        InstallNurxAgent:
+          commands:
+            01_download_and_install:
+              command:
+                !Sub |
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey} --dint vxlan1
+        InstallVXLANInterface:
+          commands:
+            01_createVXLAN:
+              command: "ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth1 dstport 4789"
+              env:
+                ToolIP: !Ref DestToolIP
+            02_interfaceUp:
+              command: "ip link set vxlan2 up"
+            03_autoLaunchVXLAN:
+              command: "echo 'ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth0 dstport 4789' >> /etc/rc.local"
+              env:
+                ToolIP: !Ref DestToolIP
+            04_addsmorerclocalupdate:
+              command: "echo 'ip link set vxlan2 up' >> /etc/rc.local"
+        StartDecryptor:
+          commands:
+            01_MirrorVXLAN1toVXLAN2:
+              command: "tc qdisc add dev vxlan1 ingress; tc filter add dev vxlan1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; tc qdisc replace dev vxlan1 parent root handle 10: prio; tc filter add dev vxlan1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
+            02_UpdateRClocao:
+              command: "echo 'tc qdisc add dev vxlan1 ingress; tc filter add dev vxlan1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; tc qdisc replace dev vxlan1 parent root handle 10: prio; tc filter add dev vxlan1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
+
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          yum update -y
+          yum update -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
+      InstanceType: !Ref NodeInstanceType
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - awslinux2
+      SecurityGroups:
+      - !Ref "DecryptorSecurityGroup"
+      IamInstanceProfile: !Ref InstanceProfile
+      KeyName:
+        Ref: KeyPairName
+      NetworkInterfaces:
+        -
+          NetworkInterfaceId: !Ref DecryptorInboundInterface
+          DeviceIndex: 0
+        -
+          NetworkInterfaceId: !Ref DecryptorOutboundInterface
+          DeviceIndex: 1
+
+Outputs:
+  ToolConfig:
+    Description: Configure VXLAN2 on the Destination Tool
+    Value: !Sub
+        - "ip link add vxlan2 type vxlan id 2 remote ${DecryptorIP} dev eth0 dstport 4789;ifconfig vxlan2 up"
+        - DecryptorIP: !GetAtt DecryptorOutboundInterface.PrimaryPrivateIpAddress
