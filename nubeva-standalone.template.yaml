@@ -89,6 +89,10 @@ Parameters:
     Default: 1
     Description: The maximum number of EC2 instance nodes in the each Tool Autoscaling Group.
     Type: String
+  DestToolIP:
+    Default:
+    Description: The DNS/IP address of the destination tool or ELB
+    Type: String
   APIKey:
     Description: "The Token for your Prisms account"
     Type: String
