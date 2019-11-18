@@ -220,10 +220,8 @@ Resources:
       GroupSet:
       - !Ref DecryptorSecurityGroup
 
-
-
-  DecryptorLaunchConfiguration:
-    Type: AWS::AutoScaling::LaunchConfiguration
+  Decryptor:
+    Type: AWS::EC2::Instance
     Metadata:
       AWS::CloudFormation::Init:
         configSets:
@@ -235,7 +233,6 @@ Resources:
             - "InstallVXLANInterface"
           Start:
             - "StartDecryptor"
-
         ConfigStartup:
           commands:
             01_updaterclocal:
@@ -279,9 +276,6 @@ Resources:
               command: "tc qdisc add dev vxlan1 ingress; tc filter add dev vxlan1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; tc qdisc replace dev vxlan1 parent root handle 10: prio; tc filter add dev vxlan1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
             02_UpdateRClocao:
               command: "echo 'tc qdisc add dev vxlan1 ingress; tc filter add dev vxlan1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; tc qdisc replace dev vxlan1 parent root handle 10: prio; tc filter add dev vxlan1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
-
-  Decryptor:
-    Type: AWS::EC2::Instance
     Properties:
       UserData:
         Fn::Base64: !Sub |
@@ -289,7 +283,7 @@ Resources:
           yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
           yum update -y
           yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource DecryptorLaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource Decryptor --configsets Configure,Install,Start
           /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource Decryptor
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
