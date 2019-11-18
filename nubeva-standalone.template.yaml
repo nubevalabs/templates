@@ -290,8 +290,6 @@ Resources:
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
-      SecurityGroups:
-      - !Ref "DecryptorSecurityGroup"
       IamInstanceProfile: !Ref InstanceProfile
       KeyName:
         Ref: KeyPairName
