@@ -259,11 +259,11 @@ Resources:
         InstallVXLANInterface:
           commands:
             01_createVXLAN:
-              command: "ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth1 dstport 4789"
+              command: "/usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth1 dstport 4789"
               env:
                 ToolIP: !Ref DestToolIP
             02_interfaceUp:
-              command: "ip link set vxlan2 up"
+              command: "/usr/sbin/ip link set vxlan2 up"
             03_autoLaunchVXLAN:
               command: "echo 'ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth0 dstport 4789' >> /etc/rc.local"
               env:
