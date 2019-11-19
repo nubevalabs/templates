@@ -222,6 +222,10 @@ Resources:
 
   Decryptor:
     Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Count: '1'
+        Timeout: PT15M
     Metadata:
       AWS::CloudFormation::Init:
         configSets:
@@ -259,15 +263,17 @@ Resources:
         InstallVXLANInterface:
           commands:
             01_createVXLAN:
-              command: "/usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth1 dstport 4789"
+              command: "/usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} local ${LocalIP} dev eth1 dstport 4789"
               env:
                 ToolIP: !Ref DestToolIP
+                LocalIP: !GetAtt DecryptorOutboundInterface.PrimaryPrivateIpAddress
             02_interfaceUp:
               command: "/usr/sbin/ip link set vxlan2 up"
             03_autoLaunchVXLAN:
-              command: "echo 'ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth0 dstport 4789' >> /etc/rc.local"
+              command: "echo '/usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} local ${LocalIP} dev eth1 dstport 4789' >> /etc/rc.local"
               env:
                 ToolIP: !Ref DestToolIP
+                LocalIP: !GetAtt DecryptorOutboundInterface.PrimaryPrivateIpAddress
             04_addsmorerclocalupdate:
               command: "echo 'ip link set vxlan2 up' >> /etc/rc.local"
         StartDecryptor:
