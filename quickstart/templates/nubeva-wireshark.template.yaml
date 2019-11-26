@@ -410,7 +410,7 @@ Resources:
 Outputs:
   RDPLogin:
     Description: See documentation for tool acceess details.
-    Value: "https://docs.nubeva.com/en/cloudtools/tools/.html"
+    Value: "https://docs.nubeva.com/en/cloudtools/tools/wireshark.html"
   URL:
     Description: The RDP Connection for any instance's Wireshark
     Value: !Sub
