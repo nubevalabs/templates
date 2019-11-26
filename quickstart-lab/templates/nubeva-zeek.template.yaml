@@ -280,7 +280,6 @@ Resources:
       Name: ZeekELB
       Subnets:
           - !Ref PublicSubnet1ID
-          - !Ref PublicSubnet2ID
       Type: network
       Scheme: internal
 
