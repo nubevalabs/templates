@@ -244,7 +244,7 @@ Resources:
         InstanceType: t2.medium.elasticsearch
       EBSOptions:
         EBSEnabled: true
-        VolumeSize: 100
+        VolumeSize: 25
       SnapshotOptions:
         AutomatedSnapshotStartHour: 0
       AccessPolicies:
