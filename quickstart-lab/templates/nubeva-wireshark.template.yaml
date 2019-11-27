@@ -153,6 +153,15 @@ Resources:
     Properties:
       GroupDescription: Tool Security Group
       VpcId: !Ref 'VPCID'
+  # Inbound- allow all internal
+  SecurityGroupInternalinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "ToolSecurityGroup"
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+      CidrIp: 10.0.0.0/16
   # Inbound- allow ssh
   SecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
