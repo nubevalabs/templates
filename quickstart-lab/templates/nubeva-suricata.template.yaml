@@ -176,7 +176,7 @@ Resources:
   SecurityGroupInternalinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "SuricataSecurityGroup"
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
