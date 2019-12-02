@@ -278,7 +278,6 @@ Resources:
       VPCOptions:
         SubnetIds:
           - !Ref PrivateSubnet1ID
-          - !Ref PrivateSubnet2ID
         SecurityGroupIds:
           - !Ref ZeekESSecurityGroup
 
