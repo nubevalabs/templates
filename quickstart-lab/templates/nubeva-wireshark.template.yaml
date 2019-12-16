@@ -62,6 +62,7 @@ Parameters:
     Type: String
     Default: t3.large
     AllowedValues:
+    - t3.large
     - m5.large
     - m5.xlarge
     - m5.2xlarge
