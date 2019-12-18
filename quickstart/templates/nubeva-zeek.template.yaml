@@ -147,14 +147,14 @@ Mappings:
       awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
-  BaseESSLR:
-    Type: AWS::IAM::ServiceLinkedRole
-    Properties:
-      AWSServiceName: es.amazonaws.com
-      Description: Default ES Service Linked IAM Role
+  #BaseESSLR:
+  #  Type: AWS::IAM::ServiceLinkedRole
+  #  Properties:
+  #    AWSServiceName: es.amazonaws.com
+  #    Description: Default ES Service Linked IAM Role
   ZeekESSecurityGroup:
     Type: AWS::EC2::SecurityGroup
-    DependsOn: BaseESSLR
+  #  DependsOn: BaseESSLR
     Properties:
       GroupDescription: Zeek ElasticSearch Service Security Group
       VpcId: !Ref 'VPCID'
@@ -278,7 +278,7 @@ Resources:
 
   ZeekELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    DependsOn: BaseESSLR
+    #DependsOn: BaseESSLR
     Properties:
       Name: ZeekELB
       Subnets:
