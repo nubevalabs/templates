@@ -260,6 +260,8 @@ Resources:
               command:
                 !Sub |
                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx:master --accept-eula --nutoken ${APIKey} --dint vxlan1
+            02_Pause:
+              command: "sleep 30"              
         InstallVXLANInterface:
           commands:
             01_createVXLAN:
