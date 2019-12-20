@@ -152,16 +152,8 @@ Mappings:
       awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
-  BaseESSLR:
-    Type: AWS::IAM::ServiceLinkedRole
-    Properties:
-      AWSServiceName: es.amazonaws.com
-      Description: Default ES Service Linked IAM Role
-
-
   MolochESSecurityGroup:
     Type: AWS::EC2::SecurityGroup
-    DependsOn: BaseESSLR
     Properties:
       GroupDescription: Moloch ElasticSearch Service Security Group
       VpcId: !Ref 'VPCID'
@@ -287,7 +279,6 @@ Resources:
 
   MolochELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    DependsOn: BaseESSLR
     Properties:
       Name: MolochELB
       Subnets:
