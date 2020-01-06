@@ -242,9 +242,9 @@ Conditions:
   MolochInstallTrue: !Equals
     - !Ref MolochInstall
     - 'true'
-#  NtopInstallTrue: !Equals
-#    - !Ref NtopInstall
-#    - 'true'
+  NtopInstallTrue: !Equals
+    - !Ref NtopInstall
+    - 'true'
   WiresharkInstallTrue: !Equals
     - !Ref WiresharkInstall
     - 'true'
@@ -260,25 +260,25 @@ Conditions:
 
 
 Resources:
-  NtopStack:
-    Condition: NtopInstallTrue
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/nubeva-ntop.template.yaml'
-      Parameters:
-        KeyPairName: !Ref KeyPairName
-        PublicSubnet1ID: !Ref PublicSubnet1ID
-        PublicSubnet2ID: !Ref PublicSubnet2ID
-        PrivateSubnet1ID: !Ref PrivateSubnet1ID
-        PrivateSubnet2ID: !Ref PrivateSubnet2ID
-        NumberOfNodes: !Ref NumberOfNodes
-        MaximumNodes: !Ref MaximumNodes
-        NodeInstanceType: !Ref NodeInstanceType
-        RemoteAccessCIDR: !Ref RemoteAccessCIDR
-        VPCID: !Ref VPCID
-        APIKey: !Ref APIKey
-        ToolAdmin: !Ref ToolAdmin
-        ToolPassword: !Ref ToolPassword
+#  NtopStack:
+#    Condition: NtopInstallTrue
+#    Type: AWS::CloudFormation::Stack
+#    Properties:
+#      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/nubeva-ntop.template.yaml'
+#      Parameters:
+#        KeyPairName: !Ref KeyPairName
+#        PublicSubnet1ID: !Ref PublicSubnet1ID
+#        PublicSubnet2ID: !Ref PublicSubnet2ID
+#        PrivateSubnet1ID: !Ref PrivateSubnet1ID
+#        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+#        NumberOfNodes: !Ref NumberOfNodes
+#        MaximumNodes: !Ref MaximumNodes
+#        NodeInstanceType: !Ref NodeInstanceType
+#        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+#        VPCID: !Ref VPCID
+#        APIKey: !Ref APIKey
+#        ToolAdmin: !Ref ToolAdmin
+#        ToolPassword: !Ref ToolPassword
   MolochStack:
     Condition: MolochInstallTrue
     Type: AWS::CloudFormation::Stack
