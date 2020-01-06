@@ -1,5 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
+  APIKey:
+    Description: "The Token for your Prisms account"
+    Type: String
   KeyPairName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
@@ -42,6 +45,7 @@ Metadata:
         Parameters:
           - KeyPairName
           - ClientInstanceType
+          - APIKey
 
 
 Mappings:
@@ -331,7 +335,7 @@ Resources:
         - awslinux2
       SecurityGroups:
       - !Ref "ClientSecurityGroup"
-      IamInstanceProfile: !Ref tlsInstanceProfile
+      IamInstanceProfile: !Ref ClientInstanceProfile
       KeyName:
         Ref: KeyPairName
       AssociatePublicIpAddress: false
