@@ -276,6 +276,7 @@ Resources:
     Properties:
       BucketName: !Ref PCAPBucket
       AccessControl: Private
+
   MolochElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
     DependsOn: MolochELB
@@ -523,6 +524,10 @@ Resources:
               command: "rpm -Uvh /tmp/moloch-master.centos7.x86_64.rpm"
             03_installconfig:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/mastermolochs3config.ini -O /data/moloch/etc/config.ini"
+            03a_installconfig:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/GeoLite2-Country.mmdb -O /data/moloch/etc/GeoLite2-Country.mmdb"
+            03b_installconfig:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/GeoLite2-ASN.mmdb -O /data/moloch/etc/GeoLite2-ASN.mmdb"
             04_installStartScript:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/start_moloch.sh -O /data/moloch/start_moloch.sh"
             05_allowExecute:

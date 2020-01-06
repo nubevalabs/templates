@@ -346,6 +346,3 @@ Resources:
 
 
 #Outputs:
-#  Login:
-#    Description: The username & password defaults are in the documentation
-#    Value: "https://docs.nubeva.com/ntopng"
