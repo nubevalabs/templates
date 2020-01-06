@@ -248,11 +248,11 @@ Resources:
       - !Ref PrivateSubnet1ID
       - !Ref PrivateSubnet2ID
       LaunchConfigurationName: !Ref tlsLaunchConfiguration
-      MinSize: '2'
+      MinSize: '1'
       MaxSize: '10'
       TargetGroupARNs:
         - !Ref tlsTargetGroup
-      DesiredCapacity: !Ref 'NumberOfClients'
+      DesiredCapacity: '2'
       MetricsCollection:
       - Granularity: 1Minute
         Metrics:
@@ -263,11 +263,11 @@ Resources:
         PropagateAtLaunch: true
     CreationPolicy:
       ResourceSignal:
-        Count: !Ref 'NumberOfClients'
+        Count: '2'
         Timeout: PT10M
     UpdatePolicy:
       AutoScalingRollingUpdate:
-        MinInstancesInService: !Ref 'NumberOfClients'
+        MinInstancesInService: '1'
         MaxBatchSize: 1
         PauseTime: PT10M
         SuspendProcesses:
