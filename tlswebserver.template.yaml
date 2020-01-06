@@ -317,8 +317,12 @@ Resources:
           commands:
             01_installscript:
               command: "wget -nv https://nubevalabs.s3.amazonaws.com/100MB.zip -O /var/www/html/100MB.zip"
+            02_installscript:
+              command: "wget -nv https://nubevalabs.s3.amazonaws.com/testmyids.txt -O /var/www/html/index.html"
             03_allowExecute:
               command: "chmod 644 /var/www/html/100MB.zip"
+            04_allowExecute:
+              command: "chmod 644 /var/www/html/index.html"
     Properties:
       UserData:
         Fn::Base64: !Sub |
