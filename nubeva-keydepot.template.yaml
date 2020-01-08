@@ -18,7 +18,6 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
-​
   WriteCapacityScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
@@ -31,7 +30,6 @@ Resources:
       RoleARN: !GetAtt ScalingRole.Arn
       ScalableDimension: dynamodb:table:WriteCapacityUnits
       ServiceNamespace: dynamodb
-​
   ScalingRole:
     Type: AWS::IAM::Role
     Properties:
@@ -63,7 +61,6 @@ Resources:
                   - "cloudwatch:SetAlarmState"
                   - "cloudwatch:DeleteAlarms"
                 Resource: "*"
-​
   WriteScalingPolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
@@ -76,7 +73,6 @@ Resources:
         ScaleOutCooldown: 60
         PredefinedMetricSpecification:
           PredefinedMetricType: DynamoDBWriteCapacityUtilization
-​
   NubevaKeyAdministrator:
     Type: AWS::IAM::Group
     Properties :
@@ -84,8 +80,6 @@ Resources:
         - '-'
         - - 'NubevaKeyAdministrator'
           - !Ref DDBTable
-​
-​
   NubevaAgent:
     Type: AWS::IAM::User
     Properties:
@@ -94,7 +88,6 @@ Resources:
         - - 'NuAgent'
           - !Ref DDBTable
       Path: "/"
-​
   NubevaReceiver:
     Type: AWS::IAM::User
     Properties:
@@ -103,7 +96,6 @@ Resources:
         - - 'NuRx'
           - !Ref DDBTable
       Path: "/"
-​
   AgentAccessKey:
     Type: AWS::IAM::AccessKey
     Properties:
@@ -114,7 +106,6 @@ Resources:
     Properties:
       UserName:
         !Ref NubevaReceiver
-​
   KeyWriter:
     Type: AWS::IAM::Policy
     Properties:
@@ -133,7 +124,6 @@ Resources:
               - "dynamodb:PutItem"
               - "dynamodb:BatchWriteItem"
             Resource: !GetAtt DDBTable.Arn
-​
   KeyReader:
     Type: AWS::IAM::Policy
     Properties:
@@ -152,7 +142,6 @@ Resources:
               - "dynamodb:GetItem"
               - "dynamodb:BatchGetItem"
             Resource: !GetAtt DDBTable.Arn
-​
   KeyAdmin:
     Type: AWS::IAM::Policy
     Properties:
