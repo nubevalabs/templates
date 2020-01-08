@@ -4,7 +4,6 @@ Parameters:
     Type: String
   ProjectId:
     Type: String
-​
 Resources:
   DDBTable:
     Type: AWS::DynamoDB::Table
