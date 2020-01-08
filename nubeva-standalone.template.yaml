@@ -261,7 +261,7 @@ Resources:
                 !Sub |
                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx:master --accept-eula --nutoken ${APIKey} --dint vxlan1
             02_Pause:
-              command: "sleep 30"              
+              command: "sleep 30"
         InstallVXLANInterface:
           commands:
             01_createVXLAN:
@@ -288,7 +288,7 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
-          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          amazon-linux-extras install epel
           yum update -y
           yum update -y aws-cfn-bootstrap
           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource Decryptor --configsets Configure,Install,Start
