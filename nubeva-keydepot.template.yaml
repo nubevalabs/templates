@@ -154,7 +154,6 @@ Resources:
             Action:
               - "dynamodb:*"
             Resource: !GetAtt DDBTable.Arn
-​
 Outputs:
   SendToNubeva:
     Value: !Join
