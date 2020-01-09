@@ -233,8 +233,8 @@ Resources:
             - "ConfigStartup"
           Install:
             - "InstallServices"
-            - "InstallNurxAgent"
             - "InstallVXLANInterface"
+            - "InstallNurxAgent"
           Start:
             - "StartDecryptor"
         ConfigStartup:
@@ -254,14 +254,6 @@ Resources:
               docker:
                 enabled: true
                 ensureRunning: true
-        InstallNurxAgent:
-          commands:
-            01_download_and_install:
-              command:
-                !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx:master --accept-eula --nutoken ${APIKey} --dint vxlan1
-            02_Pause:
-              command: "sleep 30"
         InstallVXLANInterface:
           commands:
             01_createVXLAN:
@@ -278,6 +270,14 @@ Resources:
                 LocalIP: !GetAtt DecryptorOutboundInterface.PrimaryPrivateIpAddress
             04_addsmorerclocalupdate:
               command: "echo 'ip link set vxlan2 up' >> /etc/rc.local"
+        InstallNurxAgent:
+          commands:
+            01_download_and_install:
+              command:
+                !Sub |
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx:master --accept-eula --nutoken ${APIKey} --dint vxlan1
+            02_Pause:
+              command: "sleep 30"
         StartDecryptor:
           commands:
             01_MirrorVXLAN1toVXLAN2:
