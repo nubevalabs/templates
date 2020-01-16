@@ -257,14 +257,14 @@ Resources:
         InstallVXLANInterface:
           commands:
             01_createVXLAN:
-              command: "/usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} local ${LocalIP} dev eth1 dstport 4789"
+              command: "/usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} local ${LocalIP} dev eth1 dstport 47899"
               env:
                 ToolIP: !Ref DestToolIP
                 LocalIP: !GetAtt DecryptorOutboundInterface.PrimaryPrivateIpAddress
             02_interfaceUp:
               command: "/usr/sbin/ip link set vxlan2 up"
             03_autoLaunchVXLAN:
-              command: "echo '/usr/sbin/ip link add vxlan2 type vxlan id 2 remote '${ToolIP}' local '${LocalIP}' dev eth1 dstport 4789' >> /etc/rc.local"
+              command: "echo '/usr/sbin/ip link add vxlan2 type vxlan id 2 remote '${ToolIP}' local '${LocalIP}' dev eth1 dstport 47899' >> /etc/rc.local"
               env:
                 ToolIP: !Ref DestToolIP
                 LocalIP: !GetAtt DecryptorOutboundInterface.PrimaryPrivateIpAddress
@@ -275,15 +275,15 @@ Resources:
             01_download_and_install:
               command:
                 !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx:master --accept-eula --nutoken ${APIKey} --dint vxlan1
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx:master --accept-eula --nutoken ${APIKey}
             02_Pause:
               command: "sleep 30"
         StartDecryptor:
           commands:
-            01_MirrorVXLAN1toVXLAN2:
-              command: "tc qdisc add dev vxlan1 ingress; tc filter add dev vxlan1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; tc qdisc replace dev vxlan1 parent root handle 10: prio; tc filter add dev vxlan1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
+            01_Mirrornurx0toVXLAN2:
+              command: "tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
             02_UpdateRClocao:
-              command: "echo 'tc qdisc add dev vxlan1 ingress; tc filter add dev vxlan1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; tc qdisc replace dev vxlan1 parent root handle 10: prio; tc filter add dev vxlan1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
+              command: "echo 'tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
     Properties:
       UserData:
         Fn::Base64: !Sub |
