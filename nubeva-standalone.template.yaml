@@ -257,7 +257,9 @@ Resources:
         InstallVXLANInterface:
           commands:
             00_setnamespace:
-              command: "ip netns add outbound; ip link set eth1 netns outbound; ip link set eth1 up"
+              command: "ip netns add outbound; ip link set eth1 netns outbound; ip netns exec outbound ip link set eth1 up"
+            00a_setnamespace-always:
+              command: "echo 'ip netns add outbound; ip link set eth1 netns outbound; ip netns exec outbound ip link set eth1 up' >> /etc/rc.local"
             01_createVXLAN:
               command: "ip netns exec outbound ip link add vxlan2 type vxlan id 2 remote ${ToolIP} local ${LocalIP} dev eth1 dstport 47899"
               env:
