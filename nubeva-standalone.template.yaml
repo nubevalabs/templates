@@ -257,16 +257,16 @@ Resources:
         InstallVXLANInterface:
           commands:
             00_setnamespace:
-              command: "/usr/bin/ip netns add outbound; /usr/bin/ip link set eth1 netns outbound; /usr/bin/ip link set eth1 up"
+              command: "ip netns add outbound; ip link set eth1 netns outbound; ip link set eth1 up"
             01_createVXLAN:
-              command: "/usr/sbin/ip netns exec outbound ip link add vxlan2 type vxlan id 2 remote ${ToolIP} local ${LocalIP} dev eth1 dstport 47899"
+              command: "ip netns exec outbound ip link add vxlan2 type vxlan id 2 remote ${ToolIP} local ${LocalIP} dev eth1 dstport 47899"
               env:
                 ToolIP: !Ref DestToolIP
                 LocalIP: !GetAtt DecryptorOutboundInterface.PrimaryPrivateIpAddress
             02_interfaceUp:
-              command: "/usr/sbin/ip netns exec outbound ip link set vxlan2 up"
+              command: "ip netns exec outbound ip link set vxlan2 up"
             03_autoLaunchVXLAN:
-              command: "echo '/usr/sbin/ip netns exec outbound ip link add vxlan2 type vxlan id 2 remote '${ToolIP}' local '${LocalIP}' dev eth1 dstport 47899' >> /etc/rc.local"
+              command: "echo 'ip netns exec outbound ip link add vxlan2 type vxlan id 2 remote '${ToolIP}' local '${LocalIP}' dev eth1 dstport 47899' >> /etc/rc.local"
               env:
                 ToolIP: !Ref DestToolIP
                 LocalIP: !GetAtt DecryptorOutboundInterface.PrimaryPrivateIpAddress
