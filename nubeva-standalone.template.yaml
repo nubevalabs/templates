@@ -248,7 +248,6 @@ Resources:
             yum:
               wget: []
               docker: []
-              iproute-tc: []
           services:
             sysvinit:
               docker:
@@ -283,6 +282,9 @@ Resources:
             02_Pause:
               command: "sleep 30"
         StartDecryptor:
+          packages:
+            yum:
+              iproute-tc: []
           commands:
             01_Mirrornurx0toVXLAN2:
               command: "tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
