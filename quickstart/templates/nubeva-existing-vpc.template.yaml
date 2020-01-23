@@ -319,6 +319,7 @@ Resources:
         APIKey: !Ref APIKey
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
+        VPCCIDR: !Ref VPCCIDR
   SuricataStack:
     Condition: SuricataInstallTrue
     Type: AWS::CloudFormation::Stack
