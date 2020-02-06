@@ -264,9 +264,9 @@ Resources:
       Parameters:
         KeyPairName: !Ref KeyPairName
         PublicSubnet1ID: !Ref PublicSubnet1ID
-        PublicSubnet2ID: !Ref PublicSubnet2ID
+#        PublicSubnet2ID: !Ref PublicSubnet2ID
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
-        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+#        PrivateSubnet2ID: !Ref PrivateSubnet2ID
         NumberOfNodes: !Ref NumberOfNodes
         MaximumNodes: !Ref MaximumNodes
         NodeInstanceType: !Ref NodeInstanceType
@@ -283,9 +283,9 @@ Resources:
       Parameters:
         KeyPairName: !Ref KeyPairName
         PublicSubnet1ID: !Ref PublicSubnet1ID
-        PublicSubnet2ID: !Ref PublicSubnet2ID
+#        PublicSubnet2ID: !Ref PublicSubnet2ID
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
-        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+#        PrivateSubnet2ID: !Ref PrivateSubnet2ID
         NumberOfNodes: !Ref NumberOfNodes
         MaximumNodes: !Ref MaximumNodes
         NodeInstanceType: !Ref NodeInstanceType
@@ -303,9 +303,9 @@ Resources:
       Parameters:
         KeyPairName: !Ref KeyPairName
         PublicSubnet1ID: !Ref PublicSubnet1ID
-        PublicSubnet2ID: !Ref PublicSubnet2ID
+#        PublicSubnet2ID: !Ref PublicSubnet2ID
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
-        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+#        PrivateSubnet2ID: !Ref PrivateSubnet2ID
         NumberOfNodes: !Ref NumberOfNodes
         MaximumNodes: !Ref MaximumNodes
         NodeInstanceType: !Ref NodeInstanceType
@@ -323,9 +323,9 @@ Resources:
       Parameters:
         KeyPairName: !Ref KeyPairName
         PublicSubnet1ID: !Ref PublicSubnet1ID
-        PublicSubnet2ID: !Ref PublicSubnet2ID
+#        PublicSubnet2ID: !Ref PublicSubnet2ID
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
-        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+#        PrivateSubnet2ID: !Ref PrivateSubnet2ID
         NumberOfNodes: !Ref NumberOfNodes
         MaximumNodes: !Ref MaximumNodes
         NodeInstanceType: !Ref NodeInstanceType
@@ -341,9 +341,9 @@ Resources:
       Parameters:
         KeyPairName: !Ref KeyPairName
         PublicSubnet1ID: !Ref PublicSubnet1ID
-        PublicSubnet2ID: !Ref PublicSubnet2ID
+#        PublicSubnet2ID: !Ref PublicSubnet2ID
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
-        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+#        PrivateSubnet2ID: !Ref PrivateSubnet2ID
         NumberOfNodes: !Ref NumberOfNodes
         MaximumNodes: !Ref MaximumNodes
         NodeInstanceType: !Ref NodeInstanceType
@@ -359,7 +359,7 @@ Resources:
       Parameters:
         KeyPairName: !Ref KeyPairName
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
-        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+#        PrivateSubnet2ID: !Ref PrivateSubnet2ID
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
