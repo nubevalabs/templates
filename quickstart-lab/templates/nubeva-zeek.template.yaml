@@ -18,9 +18,9 @@ Parameters:
   PublicSubnet1ID:
     Description: Subnet Id for Public Subnet1
     Type: AWS::EC2::Subnet::Id
-  PublicSubnet2ID:
-    Description: Subnet Id for Public Subnet2
-    Type: AWS::EC2::Subnet::Id
+#  PublicSubnet2ID:
+#    Description: Subnet Id for Public Subnet2
+#    Type: AWS::EC2::Subnet::Id
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
