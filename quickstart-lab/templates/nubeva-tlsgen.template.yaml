@@ -18,19 +18,13 @@ Parameters:
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
-  #PrivateSubnet2ID:
-  #  Description: Subnet Id for Private Subnet2
-  #  Type: AWS::EC2::Subnet::Id
+#  PrivateSubnet2ID:
+#    Description: Subnet Id for Private Subnet2
+#    Type: AWS::EC2::Subnet::Id
   NumberOfClients:
     Description: 'The number of EC2 instances'
     Type: Number
     Default: 2
-  VPCCIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Default: 10.0.0.0/16
-    Description: CIDR block for the VPC
-    Type: String
   ClientInstanceType:
     Description: EC2 instance type
     Type: String
@@ -152,9 +146,8 @@ Resources:
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
-      #- !Ref PrivateSubnet2ID
       LaunchConfigurationName: !Ref ClientLaunchConfiguration
-      MinSize: '2'
+      MinSize: '0'
       MaxSize: !Ref 'NumberOfClients'
       DesiredCapacity: !Ref 'NumberOfClients'
       MetricsCollection:
@@ -228,7 +221,7 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
-          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          amazon-linux-extras install epel -y
           yum update -y
           yum update -y aws-cfn-bootstrap
           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ClientLaunchConfiguration --configsets Configure,Install,Start

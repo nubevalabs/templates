@@ -3,22 +3,6 @@ Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
     Type: String
-  ToolAdmin:
-    Description: The user name that is associated with the admin account for the tools that are being created.
-    Type: String
-    Default: tooladmin
-    MinLength: 4
-    MaxLength: 16
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    ConstraintDescription: must begin with a letter and contain only 4-16 alphanumeric characters.
-  ToolPassword:
-    Description: The password that is associated with the master user account for the cluster that is being created.
-    NoEcho: true
-    Type: String
-    MinLength: 8
-    MaxLength: 32
-    AllowedPattern: "[a-zA-Z0-9]*"
-    ConstraintDescription: must contain only 8-32 alphanumeric characters
   KeyPairName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
@@ -34,22 +18,22 @@ Parameters:
   PublicSubnet1ID:
     Description: Subnet Id for Public Subnet1
     Type: AWS::EC2::Subnet::Id
-  #PublicSubnet2ID:
-  #  Description: Subnet Id for Public Subnet2
-  #  Type: AWS::EC2::Subnet::Id
+  PublicSubnet2ID:
+    Description: Subnet Id for Public Subnet2
+    Type: AWS::EC2::Subnet::Id
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
-  #PrivateSubnet2ID:
-  #  Description: Subnet Id for Private Subnet2
-  #  Type: AWS::EC2::Subnet::Id
+#  PrivateSubnet2ID:
+#    Description: Subnet Id for Private Subnet2
+#    Type: AWS::EC2::Subnet::Id
   NumberOfNodes:
     Description: 'The number of EC2 instances'
     Type: Number
-    Default: 2
+    Default: 1
   MaximumNodes:
     Type: Number
-    Default: 6
+    Default: 1
     Description: Maximum number of instances that can be launched in your tool cluster.
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
@@ -60,12 +44,10 @@ Parameters:
   NodeInstanceType:
     Description: EC2 instance type
     Type: String
-    Default: t3.medium
+    Default: t3.large
     AllowedValues:
-    - t3.small
     - t3.medium
     - t3.large
-    - t3.xlarge
     - m5.large
     - m5.xlarge
     - m5.2xlarge
@@ -98,8 +80,6 @@ Metadata:
           default: Nubeva configuration
         Parameters:
         - APIKey
-        - ToolAdmin
-        - ToolPassword
       - Label:
           default: "Network Configuration"
         Parameters:
@@ -161,65 +141,56 @@ Resources:
           IpProtocol: tcp
           ToPort: 443
           CidrIp: !Ref 'VPCCIDR'
-  ToolSecurityGroup:
+  ZeekSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Tool Security Group
+      GroupDescription: Zeek Security Group
       VpcId: !Ref 'VPCID'
-  # Inbound- allow all internal
-  SecurityGroupInternalinbound:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref "ToolSecurityGroup"
-      IpProtocol: "-1"
-      FromPort: -1
-      ToPort: -1
-      CidrIp: 10.0.0.0/16
   # Inbound- allow ssh
-  SecurityGroupSSHinbound:
+  ZeekSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "ZeekSecurityGroup"
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
   # Inbound- allow VXLAN
-  ToolSecurityGroupVXLANinbound:
+  ZeekSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "ZeekSecurityGroup"
       CidrIp: !Ref 'VPCCIDR'
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
   # Inbound- allow Zeek
-  ToolSecurityGroupntopinbound:
+  ZeekSecurityGroupntopinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "ZeekSecurityGroup"
       IpProtocol: tcp
       FromPort: 8005
       ToPort: 8005
       CidrIp: !Ref "RemoteAccessCIDR"
   # Outbound- allow all
-  ToolSecurityGroupOutbound:
+  ZeekSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
-      GroupId: !Ref "ToolSecurityGroup"
+      GroupId: !Ref "ZeekSecurityGroup"
       CidrIp: 0.0.0.0/0
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
 
-  InstanceProfile:
+  ZeekInstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
       Path: '/'
       Roles:
-      - !Ref IAMRole
+      - !Ref ZeekIAMRole
 
-  IAMRole:
+  ZeekIAMRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -233,7 +204,7 @@ Resources:
           - 'sts:AssumeRole'
       Path: '/'
       Policies:
-      - PolicyName: asg
+      - PolicyName: ZeekASG
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -244,7 +215,6 @@ Resources:
             - 'ec2:DescribeInstances'
             Resource:
             - '*'
-
   ZeekElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
     DependsOn: ZeekELB
@@ -274,11 +244,9 @@ Resources:
           - !Ref PrivateSubnet1ID
         SecurityGroupIds:
           - !Ref ZeekESSecurityGroup
-
   ZeekELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: ZeekELB
       Subnets:
           - !Ref PublicSubnet1ID
       Type: network
@@ -314,14 +282,13 @@ Resources:
       Description: "ZeekELB"
       NetworkLoadBalancerArn: !Ref ZeekELB
 
-  AutoScalingGroup:
+  ZeekAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn: ZeekElasticsearchDomain
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
-      #- !Ref PrivateSubnet2ID
-      LaunchConfigurationName: !Ref LaunchConfiguration
+      LaunchConfigurationName: !Ref ZeekLaunchConfiguration
       MinSize: '0'
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
@@ -347,8 +314,63 @@ Resources:
         SuspendProcesses:
         - AlarmNotification
         WaitOnResourceSignals: true
-
-  LaunchConfiguration:
+  ZeekScaleOutPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref ZeekAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: 1
+  ZeekScaleOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'zeek-traffic-high'
+      AlarmActions:
+        - !Ref 'ZeekScaleOutPolicy'
+      AlarmDescription: 'This metric monitors high Zeek network utilization'
+      ComparisonOperator: 'GreaterThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 15000000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref ZeekAutoScalingGroup
+  ZeekScaleInPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref ZeekAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: -1
+  ZeekScaleInAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'zeek-traffic-low'
+      AlarmActions:
+        - !Ref 'ZeekScaleInPolicy'
+      AlarmDescription: 'This metric monitors Zeek network utilization'
+      ComparisonOperator: 'LessThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 7500000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref ZeekAutoScalingGroup
+  ZeekLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:
       AWS::CloudFormation::Init:
@@ -450,19 +472,19 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
-          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          amazon-linux-extras install epel -y
           yum update -y
           yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ZeekLaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource ZeekAutoScalingGroup
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
       SecurityGroups:
-      - !Ref "ToolSecurityGroup"
-      IamInstanceProfile: !Ref InstanceProfile
+      - !Ref "ZeekSecurityGroup"
+      IamInstanceProfile: !Ref ZeekInstanceProfile
       KeyName:
         Ref: KeyPairName
       BlockDeviceMappings:

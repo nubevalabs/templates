@@ -3,22 +3,6 @@ Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
     Type: String
-  ToolAdmin:
-    Description: The user name that is associated with the admin account for the tools that are being created.
-    Type: String
-    Default: tooladmin
-    MinLength: 4
-    MaxLength: 16
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    ConstraintDescription: must begin with a letter and contain only 4-16 alphanumeric characters.
-  ToolPassword:
-    Description: The password that is associated with the master user account for the cluster that is being created.
-    NoEcho: true
-    Type: String
-    MinLength: 8
-    MaxLength: 32
-    AllowedPattern: "[a-zA-Z0-9]*"
-    ConstraintDescription: must contain only 8-32 alphanumeric characters
   KeyPairName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
@@ -34,15 +18,15 @@ Parameters:
   PublicSubnet1ID:
     Description: Subnet Id for Public Subnet1
     Type: AWS::EC2::Subnet::Id
-  #PublicSubnet2ID:
-  #  Description: Subnet Id for Public Subnet2
-  #  Type: AWS::EC2::Subnet::Id
+#  PublicSubnet2ID:
+#    Description: Subnet Id for Public Subnet2
+#    Type: AWS::EC2::Subnet::Id
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
-  #PrivateSubnet2ID:
-  #  Description: Subnet Id for Private Subnet2
-  #  Type: AWS::EC2::Subnet::Id
+#  PrivateSubnet2ID:
+#    Description: Subnet Id for Private Subnet2
+#    Type: AWS::EC2::Subnet::Id
   NumberOfNodes:
     Description: 'The number of EC2 instances'
     Type: Number
@@ -62,10 +46,8 @@ Parameters:
     Type: String
     Default: t3.medium
     AllowedValues:
-    - t3.small
     - t3.medium
     - t3.large
-    - t3.xlarge
     - m5.large
     - m5.xlarge
     - m5.2xlarge
@@ -98,8 +80,6 @@ Metadata:
           default: Nubeva configuration
         Parameters:
         - APIKey
-        - ToolAdmin
-        - ToolPassword
       - Label:
           default: "Network Configuration"
         Parameters:
@@ -166,17 +146,8 @@ Resources:
     Properties:
       GroupDescription: Suricata Security Group
       VpcId: !Ref 'VPCID'
-  # Inbound- allow all internal
-  SecurityGroupInternalinbound:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref "SuricataSecurityGroup"
-      IpProtocol: "-1"
-      FromPort: -1
-      ToPort: -1
-      CidrIp: 10.0.0.0/16
   # Inbound- allow ssh
-  SecurityGroupSSHinbound:
+  SuricataSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref "SuricataSecurityGroup"
@@ -203,14 +174,14 @@ Resources:
       FromPort: -1
       ToPort: -1
 
-  InstanceProfile:
+  SuricataInstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
       Path: '/'
       Roles:
-      - !Ref IAMRole
+      - !Ref SuricataIAMRole
 
-  IAMRole:
+  SuricataIAMRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -224,7 +195,7 @@ Resources:
           - 'sts:AssumeRole'
       Path: '/'
       Policies:
-      - PolicyName: asg
+      - PolicyName: SuricataASG
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -260,20 +231,16 @@ Resources:
             Resource: '*'
       AdvancedOptions:
         rest.action.multi.allow_explicit_index: 'true'
-      #Stick w/VPC setup for ES. Reduces data transfer cost
       VPCOptions:
         SubnetIds:
           - !Ref PrivateSubnet1ID
         SecurityGroupIds:
           - !Ref SuricataESSecurityGroup
-
   SuricataELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: SuricataELB
       Subnets:
           - !Ref PublicSubnet1ID
-          #- !Ref PublicSubnet2ID
       Type: network
       Scheme: internal
 
@@ -306,14 +273,13 @@ Resources:
     Properties:
       Description: "SuricataLB"
       NetworkLoadBalancerArn: !Ref SuricataELB
-  AutoScalingGroup:
+  SuricataAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn: SuricataElasticsearchDomain
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
-      #- !Ref PrivateSubnet2ID
-      LaunchConfigurationName: !Ref LaunchConfiguration
+      LaunchConfigurationName: !Ref SuricataLaunchConfiguration
       MinSize: '0'
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
@@ -339,8 +305,63 @@ Resources:
         SuspendProcesses:
         - AlarmNotification
         WaitOnResourceSignals: true
-
-  LaunchConfiguration:
+  SuricataScaleOutPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref SuricataAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: 1
+  SuricataScaleOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'suricata-traffic-high'
+      AlarmActions:
+        - !Ref 'SuricataScaleOutPolicy'
+      AlarmDescription: 'This metric monitors high Suricata network utilization'
+      ComparisonOperator: 'GreaterThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 15000000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref SuricataAutoScalingGroup
+  SuricataScaleInPolicy:
+    Type : AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref SuricataAutoScalingGroup
+      AdjustmentType: 'ChangeInCapacity'
+      Cooldown: '120'
+      ScalingAdjustment: -1
+  SuricataScaleInAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - 'suricata-traffic-low'
+      AlarmActions:
+        - !Ref 'SuricataScaleInPolicy'
+      AlarmDescription: 'This metric monitors Suricata network utilization'
+      ComparisonOperator: 'LessThanOrEqualToThreshold'
+      EvaluationPeriods: 2
+      MetricName: 'NetworkIn'
+      Namespace: 'AWS/EC2'
+      Period: 60
+      Statistic: 'Average'
+      Threshold: 7500000000
+      Dimensions:
+        - Name: 'AutoScalingGroupName'
+          Value: !Ref SuricataAutoScalingGroup
+  SuricataLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:
       AWS::CloudFormation::Init:
@@ -446,11 +467,11 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
-          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          amazon-linux-extras install epel -y
           yum update -y
           yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource SuricataLaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource SuricataAutoScalingGroup
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
@@ -458,7 +479,7 @@ Resources:
         - awslinux2
       SecurityGroups:
       - !Ref "SuricataSecurityGroup"
-      IamInstanceProfile: !Ref InstanceProfile
+      IamInstanceProfile: !Ref SuricataInstanceProfile
       KeyName:
         Ref: KeyPairName
       BlockDeviceMappings:
