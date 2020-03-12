@@ -1,5 +1,6 @@
 #!/bin/bash
 cd /data/moloch/bin
+/data/moloch/bin/moloch_update_geo.sh
 /bin/rm -f /data/moloch/capture.log.old
 /bin/mv /data/moloch/logs/capture.log /data/moloch/logs/capture.log.old
 /data/moloch/bin/moloch-capture -c /data/moloch/etc/config.ini > /data/moloch/logs/capture.log 2>&1 &
