@@ -204,7 +204,7 @@ Resources:
             01_download_and_install:
               command:
                 !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host nubeva/nuagent --accept-eula --nutoken ${APIKey}
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host k.nuos.io/nuagent:master --kontroller k.nuos.io --contained on --accept-eula --nutoken ${APIKey}
         StartTLSGenerator:
           commands:
             01_createDirectory:
