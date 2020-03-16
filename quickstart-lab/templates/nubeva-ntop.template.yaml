@@ -291,7 +291,7 @@ Resources:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
       LaunchConfigurationName: !Ref NtopLaunchConfiguration
-      MinSize: '0'
+      MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
         - !Ref NtopWWWTargetGroup
