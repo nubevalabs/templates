@@ -205,13 +205,8 @@ Resources:
     Properties:
       ElasticsearchVersion: '6.8'
       ElasticsearchClusterConfig:
-        InstanceCount: !Ref NumberOfNodes
-        InstanceType: !Sub
-          - ${InstanceType}.elasticsearch
-          - InstanceType: !Ref NodeInstanceType
-        ZoneAwarenessEnabled: true
-        ZoneAwarenessConfig:
-          AvailabilityZoneCount: 2
+        InstanceCount: 1
+        InstanceType: t2.medium.elasticsearch
       EBSOptions:
         EBSEnabled: true
         VolumeSize: 100
