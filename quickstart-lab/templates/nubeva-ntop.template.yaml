@@ -35,9 +35,9 @@ Parameters:
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
-  PrivateSubnet2ID:
-    Description: Subnet Id for Private Subnet2
-    Type: AWS::EC2::Subnet::Id
+  #PrivateSubnet2ID:
+  #  Description: Subnet Id for Private Subnet2
+  #  Type: AWS::EC2::Subnet::Id
   NumberOfNodes:
     Description: 'The number of EC2 instances'
     Type: Number
@@ -219,7 +219,7 @@ Resources:
     Properties:
       Subnets:
           - !Ref PrivateSubnet1ID
-          - !Ref PrivateSubnet2ID
+          #- !Ref PrivateSubnet2ID
       Type: network
       Scheme: internal
 
@@ -281,7 +281,7 @@ Resources:
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
-      - !Ref PrivateSubnet2ID
+      #- !Ref PrivateSubnet2ID
       LaunchConfigurationName: !Ref NtopLaunchConfiguration
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
