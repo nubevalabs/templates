@@ -1,4 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
+Description: Deploys Suricata as part of the Nubeva TLS Decrypt & Open Source Tools
 Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
@@ -15,25 +16,19 @@ Parameters:
     Description: The CIDR IP range that is permitted to access the instances. We recommend
       that you set this value to a trusted IP range.
     Type: String
-  PublicSubnet1ID:
-    Description: Subnet Id for Public Subnet1
-    Type: AWS::EC2::Subnet::Id
-#  PublicSubnet2ID:
-#    Description: Subnet Id for Public Subnet2
-#    Type: AWS::EC2::Subnet::Id
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
-#  PrivateSubnet2ID:
-#    Description: Subnet Id for Private Subnet2
-#    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2ID:
+    Description: Subnet Id for Private Subnet2
+    Type: AWS::EC2::Subnet::Id
   NumberOfNodes:
     Description: 'The number of EC2 instances'
     Type: Number
     Default: 1
   MaximumNodes:
     Type: Number
-    Default: 1
+    Default: 6
     Description: Maximum number of instances that can be launched in your tool cluster.
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
@@ -146,7 +141,6 @@ Resources:
     Properties:
       GroupDescription: Suricata Security Group
       VpcId: !Ref 'VPCID'
-  # Inbound- allow ssh
   SuricataSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -155,7 +149,6 @@ Resources:
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
-  # Inbound- allow VXLAN
   SuricataSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -164,7 +157,6 @@ Resources:
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
-  # Outbound- allow all
   SuricataSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
@@ -211,14 +203,20 @@ Resources:
     Type: AWS::Elasticsearch::Domain
     DependsOn: SuricataELB
     Properties:
-      DomainName: suricata-es
       ElasticsearchVersion: '6.8'
       ElasticsearchClusterConfig:
-        InstanceCount: '1'
-        InstanceType: t2.medium.elasticsearch
+        InstanceCount: !Ref NumberOfNodes
+        InstanceType: !Sub
+          - ${InstanceType}.elasticsearch
+          - InstanceType: !Ref NodeInstanceType
+        ZoneAwarenessEnabled: true
+        ZoneAwarenessConfig:
+          AvailabilityZoneCount: 2
       EBSOptions:
         EBSEnabled: true
-        VolumeSize: 25
+        VolumeSize: 100
+      NodeToNodeEncryptionOptions:
+        Enabled: true
       SnapshotOptions:
         AutomatedSnapshotStartHour: 0
       AccessPolicies:
@@ -234,13 +232,16 @@ Resources:
       VPCOptions:
         SubnetIds:
           - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
         SecurityGroupIds:
           - !Ref SuricataESSecurityGroup
+
   SuricataELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Subnets:
-          - !Ref PublicSubnet1ID
+          - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
       Type: network
       Scheme: internal
 
@@ -279,6 +280,7 @@ Resources:
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
+      - !Ref PrivateSubnet2ID
       LaunchConfigurationName: !Ref SuricataLaunchConfiguration
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
@@ -406,7 +408,7 @@ Resources:
             01_download_and_install:
               command:
                 !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=always --net=host k.nuos.io/nurx:master --kontroller k.nuos.io --accept-eula --nutoken ${APIKey}
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
         #InstallVXLANInterface:
         #  commands:
         #    01_createVXLAN:

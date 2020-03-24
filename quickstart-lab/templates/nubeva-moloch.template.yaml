@@ -1,4 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
+Description: Deploys Moloch as part of the Nubeva TLS Decrypt & Open Source Tools
 Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
@@ -31,25 +32,19 @@ Parameters:
     Description: The CIDR IP range that is permitted to access the instances. We recommend
       that you set this value to a trusted IP range.
     Type: String
-  PublicSubnet1ID:
-    Description: Subnet Id for Public Subnet1
-    Type: AWS::EC2::Subnet::Id
-#  PublicSubnet2ID:
-#    Description: Subnet Id for Public Subnet2
-#    Type: AWS::EC2::Subnet::Id
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
-#  PrivateSubnet2ID:
-#    Description: Subnet Id for Private Subnet2
-#    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2ID:
+    Description: Subnet Id for Private Subnet2
+    Type: AWS::EC2::Subnet::Id
   NumberOfNodes:
     Description: 'The number of EC2 instances'
     Type: Number
     Default: 1
   MaximumNodes:
     Type: Number
-    Default: 1
+    Default: 6
     Description: Maximum number of instances that can be launched in your tool cluster.
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
@@ -165,7 +160,6 @@ Resources:
     Properties:
       GroupDescription: Moloch Security Group
       VpcId: !Ref 'VPCID'
-  # Inbound- allow ssh
   MolochSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -174,7 +168,6 @@ Resources:
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
-  # Inbound- allow VXLAN
   MolochSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -183,7 +176,6 @@ Resources:
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
-  # Inbound- allow moloch
   MolochSecurityGroupViewerinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -192,7 +184,6 @@ Resources:
       FromPort: 8005
       ToPort: 8005
       CidrIp: !Ref "RemoteAccessCIDR"
-  # Outbound- allow all
   MolochSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
@@ -222,10 +213,6 @@ Resources:
           Action:
           - 'sts:AssumeRole'
       Path: '/'
-#Add this back in when CloudWatch Services are complete for all suite#
-#I want to make this optional#
-#      ManagedPolicyArns:
-#      - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
       Policies:
       - PolicyName: MolochASGPolicy
         PolicyDocument:
@@ -238,82 +225,62 @@ Resources:
             - 'ec2:DescribeInstances'
             Resource:
             - '*'
-#      - PolicyName: MolochS3Policy
-#        PolicyDocument:
-#          Version: '2012-10-17'
-#          Statement:
-#          - Effect: Allow
-#            Action:
-#            - s3:ListAllMyBuckets
-#            - s3:GetBucketLocation
-#            Resource:
-#            - '*'
-#          - Effect: Allow
-#            Action:
-#            - s3:ListBucket
-#            Resource:
-#              Fn::Sub:
-#                - "arn:aws:s3:::${S3Bucket}"
-#                - S3Bucket: !Ref MolochPCAPBucket
-#          - Effect: Allow
-#            Action:
-#            - s3:PutObject
-#            - s3:GetObject
-#            - s3:DeleteObject
-#            Resource:
-#              Fn::Sub:
-#                - "arn:aws:s3:::${S3Bucket}/*"
-#                - S3Bucket: !Ref MolochPCAPBucket
+      - PolicyName: MolochS3Policy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:ListAllMyBuckets
+            - s3:GetBucketLocation
+            Resource:
+            - '*'
+          - Effect: Allow
+            Action:
+            - s3:ListBucket
+            Resource:
+              Fn::Sub:
+                - "arn:aws:s3:::${S3Bucket}"
+                - S3Bucket: !Ref MolochPCAPBucket
+          - Effect: Allow
+            Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:DeleteObject
+            Resource:
+              Fn::Sub:
+                - "arn:aws:s3:::${S3Bucket}/*"
+                - S3Bucket: !Ref MolochPCAPBucket
 
-#  MolochS3User:
-#    Type: AWS::IAM::User
-#    Properties:
-#      Path: "/"
-#      Policies:
-#      - PolicyName: MolochS3BucketAccess
-#        PolicyDocument:
-#          Version: '2012-10-17'
-#          Statement:
-#          - Effect: Allow
-#            Action:
-#            - s3:List*
-#            Resource:
-#              Fn::Sub:
-#                - "arn:aws:s3:::${S3Bucket}/*"
-#                - S3Bucket: !Ref MolochPCAPBucket
-#          - Effect: Allow
-#            Action:
-#            - s3:*
-#            Resource:
-#              Fn::Sub:
-#                - "arn:aws:s3:::${S3Bucket}/*"
-#                - S3Bucket: !Ref MolochPCAPBucket
-#  MolochS3AccessKey:
-#    Type: AWS::IAM::AccessKey
-#    Properties:
-#      UserName:
-#        !Ref MolochS3User
-#  MolochPCAPBucket:
-#    Type: AWS::S3::Bucket
-#    Properties:
-#      AccessControl: Private
-#      PublicAccessBlockConfiguration:
-#        BlockPublicAcls: true
-#        BlockPublicPolicy: true
-#        IgnorePublicAcls: true
-#        RestrictPublicBuckets: true
+
+  MolochPCAPBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
   MolochElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
     DependsOn: MolochELB
     Properties:
-      DomainName: moloch-es
       ElasticsearchVersion: '6.8'
       ElasticsearchClusterConfig:
-        InstanceCount: 1
-        InstanceType: t2.medium.elasticsearch
+        InstanceCount: !Ref NumberOfNodes
+        InstanceType: !Sub
+          - ${InstanceType}.elasticsearch
+          - InstanceType: !Ref NodeInstanceType
+        ZoneAwarenessEnabled: true
+        ZoneAwarenessConfig:
+          AvailabilityZoneCount: 2
       EBSOptions:
         EBSEnabled: true
-        VolumeSize: 25
+        VolumeSize: 100
+      NodeToNodeEncryptionOptions:
+        Enabled: true
       SnapshotOptions:
         AutomatedSnapshotStartHour: 0
       AccessPolicies:
@@ -329,13 +296,15 @@ Resources:
       VPCOptions:
         SubnetIds:
           - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
         SecurityGroupIds:
           - !Ref MolochESSecurityGroup
   MolochELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Subnets:
-          - !Ref PublicSubnet1ID
+          - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
       Type: network
       Scheme: internal
   MolochViewerListener:
@@ -392,6 +361,7 @@ Resources:
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
+      - !Ref PrivateSubnet2ID
       LaunchConfigurationName: !Ref MolochLaunchConfiguration
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
@@ -517,7 +487,7 @@ Resources:
             01_download_and_install:
               command:
                 !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=always --net=host k.nuos.io/nurx:master --kontroller k.nuos.io --accept-eula --nutoken ${APIKey}
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
         #InstallVXLANInterface:
         #  commands:
         #    01_createVXLAN:
@@ -535,7 +505,7 @@ Resources:
             02_install:
               command: "rpm -Uvh /tmp/moloch-master.centos7.x86_64.rpm"
             03_installconfig:
-              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/mastermolochconfig.ini -O /data/moloch/etc/config.ini"
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/mastermolochs3config.ini -O /data/moloch/etc/config.ini"
             03a_installoui:
               command: "wget -nv https://raw.githubusercontent.com/wireshark/wireshark/master/manuf -O /data/moloch/etc/oui.txt"
             04_installStartScript:
@@ -546,28 +516,18 @@ Resources:
               command: "echo 'elasticsearch=https://'${ESDomain} >> /data/moloch/etc/config.ini"
               env:
                 ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint
-            #06a_updateConfig:
-            #  command: !Sub "echo 's3Region='${AWS::Region} >> /data/moloch/etc/config.ini"
-            #06b_updateConfig:
-            #  command: !Sub
-            #    - "echo 's3Bucket='${bucket} >> /data/moloch/etc/config.ini"
-            #    - {bucket: !Ref MolochPCAPBucket}
-#            06c_updateConfig:
-#              command: !Sub
-#                - "echo 's3AccessKeyId='${S3IAMUser} >> /data/moloch/etc/config.ini"
-#                - {S3IAMUser: !Ref MolochS3AccessKey}
-#            06d_updateConfig:
-#              command: !Sub
-#                - "echo 's3SecretAccessKey='${S3IAMPass} >> /data/moloch/etc/config.ini"
-#                - {S3IAMPass: !GetAtt MolochS3AccessKey.SecretAccessKey}
+            06a_updateConfig:
+              command: !Sub "echo 's3Region='${AWS::Region} >> /data/moloch/etc/config.ini"
+            06b_updateConfig:
+              command: !Sub
+                - "echo 's3Bucket='${bucket} >> /data/moloch/etc/config.ini"
+                - {bucket: !Ref MolochPCAPBucket}
             07_randomSleep:
               command: "sleep $[ ( $RANDOM % 10 )  + 1 ]s"
             08_setupNewDB:
               command: !Sub
                 - "/data/moloch/db/db.pl https://${ESDomain} info | if grep -q '\\-1'; then /data/moloch/db/db.pl https://${ESDomain} init && /data/moloch/bin/moloch_add_user.sh ${admin} \"admin user\" ${password} --admin; else true; fi"
                 - {ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint, admin: !Ref ToolAdmin, password: !Ref ToolPassword}
-            #09_setupMolochGeoIP:
-            #  command: "/data/moloch/bin/moloch_update_geo.sh"
             10_setupMolochLogs:
               command: "mkdir /data/moloch/logs"
             11_setupMolochLogs:
@@ -615,8 +575,3 @@ Outputs:
     Value: !Sub
         - "http://${MolochDNS}:8005"
         - MolochDNS: !GetAtt MolochELB.DNSName
-#  MolochS3AccessKey:
-#    Value:
-#      !Ref MolochS3AccessKey
-#  MolochS3SecretKey:
-#    Value: !GetAtt MolochS3AccessKey.SecretAccessKey

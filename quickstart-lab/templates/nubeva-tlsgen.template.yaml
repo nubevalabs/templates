@@ -1,4 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploys TLSGen Client as part of the Nubeva TLS Decrypt & Open Source Tools
 Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
@@ -18,9 +19,9 @@ Parameters:
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
-#  PrivateSubnet2ID:
-#    Description: Subnet Id for Private Subnet2
-#    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2ID:
+    Description: Subnet Id for Private Subnet2
+    Type: AWS::EC2::Subnet::Id
   NumberOfClients:
     Description: 'The number of EC2 instances'
     Type: Number
@@ -83,13 +84,11 @@ Mappings:
       awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
-  # Security Groups
   ClientSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Client Security Group
       VpcId: !Ref 'VPCID'
-  # Inbound- allow ssh
   ClientSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -98,7 +97,6 @@ Resources:
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
-  # Outbound- allow all
   ClientSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
@@ -146,8 +144,9 @@ Resources:
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
+      - !Ref PrivateSubnet2ID
       LaunchConfigurationName: !Ref ClientLaunchConfiguration
-      MinSize: '0'
+      MinSize: '2'
       MaxSize: !Ref 'NumberOfClients'
       DesiredCapacity: !Ref 'NumberOfClients'
       MetricsCollection:
@@ -204,7 +203,7 @@ Resources:
             01_download_and_install:
               command:
                 !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host k.nuos.io/nuagent:master --kontroller k.nuos.io --contained on --accept-eula --nutoken ${APIKey}
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host nubeva/nuagent --accept-eula --nutoken ${APIKey}
         StartTLSGenerator:
           commands:
             01_createDirectory:
@@ -237,9 +236,3 @@ Resources:
       KeyName:
         Ref: KeyPairName
       AssociatePublicIpAddress: false
-
-
-#Outputs:
-#  Login:
-#    Description: The username & password defaults are in the documentation
-#    Value: "https://docs.nubeva.com/ntopng"
