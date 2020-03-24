@@ -406,7 +406,7 @@ Resources:
             01_download_and_install:
               command:
                 !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=always --net=host k.nuos.io/nurx:master --kontroller k.nuos.io --accept-eula --nutoken ${APIKey}
             01_addsrclocalupdate:
               command: "echo 'apt-get update -y' >> /etc/rc.local"
             02_addsmorerclocalupdate:
