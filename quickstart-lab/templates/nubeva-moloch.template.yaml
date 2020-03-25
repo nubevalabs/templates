@@ -225,43 +225,6 @@ Resources:
             - 'ec2:DescribeInstances'
             Resource:
             - '*'
-      - PolicyName: MolochS3Policy
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-            - s3:ListAllMyBuckets
-            - s3:GetBucketLocation
-            Resource:
-            - '*'
-          - Effect: Allow
-            Action:
-            - s3:ListBucket
-            Resource:
-              Fn::Sub:
-                - "arn:aws:s3:::${S3Bucket}"
-                - S3Bucket: !Ref MolochPCAPBucket
-          - Effect: Allow
-            Action:
-            - s3:PutObject
-            - s3:GetObject
-            - s3:DeleteObject
-            Resource:
-              Fn::Sub:
-                - "arn:aws:s3:::${S3Bucket}/*"
-                - S3Bucket: !Ref MolochPCAPBucket
-
-
-  MolochPCAPBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      AccessControl: Private
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
 
   MolochElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
@@ -500,7 +463,7 @@ Resources:
             02_install:
               command: "rpm -Uvh /tmp/moloch-master.centos7.x86_64.rpm"
             03_installconfig:
-              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/mastermolochs3config.ini -O /data/moloch/etc/config.ini"
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/mastermolochconfig.ini -O /data/moloch/etc/config.ini"
             03a_installoui:
               command: "wget -nv https://raw.githubusercontent.com/wireshark/wireshark/master/manuf -O /data/moloch/etc/oui.txt"
             04_installStartScript:
@@ -511,12 +474,7 @@ Resources:
               command: "echo 'elasticsearch=https://'${ESDomain} >> /data/moloch/etc/config.ini"
               env:
                 ESDomain: !GetAtt MolochElasticsearchDomain.DomainEndpoint
-            06a_updateConfig:
-              command: !Sub "echo 's3Region='${AWS::Region} >> /data/moloch/etc/config.ini"
-            06b_updateConfig:
-              command: !Sub
-                - "echo 's3Bucket='${bucket} >> /data/moloch/etc/config.ini"
-                - {bucket: !Ref MolochPCAPBucket}
+
             07_randomSleep:
               command: "sleep $[ ( $RANDOM % 10 )  + 1 ]s"
             08_setupNewDB:
