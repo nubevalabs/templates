@@ -136,6 +136,32 @@ Resources:
           IpProtocol: tcp
           ToPort: 443
           CidrIp: !Ref 'VPCCIDR'
+
+  ZeekESSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Zeek ElasticSearch Service Security Group
+      VpcId: !Ref 'VPCID'
+  ZeekESSecurityGroupLocalinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "ZeekESSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: !Ref 'VPCCIDR'
+  ZeekESSecurityGroupRemoteinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "ZeekESSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: !Ref "RemoteAccessCIDR"
+
+
+
+
   ZeekSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
