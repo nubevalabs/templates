@@ -131,11 +131,23 @@ Resources:
     Properties:
       GroupDescription: Suricata ElasticSearch Service Security Group
       VpcId: !Ref 'VPCID'
-      SecurityGroupIngress:
-        - FromPort: 443
-          IpProtocol: tcp
-          ToPort: 443
-          CidrIp: !Ref 'VPCCIDR'
+  SuricataESSecurityGroupLocalinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "SuricataESSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: !Ref 'VPCCIDR'
+  SuricataESSecurityGroupRemoteinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "SuricataESSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: !Ref "RemoteAccessCIDR"
+
   SuricataSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
