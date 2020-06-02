@@ -125,8 +125,8 @@ def getkey():
     return rets
 
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-context.load_verify_locations("/rest/nubedge.ca")
-context.load_cert_chain("/rest/nubedge.pem", "/rest/nubedge.key")
+context.load_verify_locations("/opt/nubevaTools/nubedge.ca")
+context.load_cert_chain("/opt/nubevaTools/nubedge.pem", "/opt/nubevaTools/nubedge.key")
 WSGIRequestHandler.protocol_version = "HTTP/1.1"
 
 # Keep connections alive
