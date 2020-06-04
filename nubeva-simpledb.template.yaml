@@ -305,8 +305,3 @@ Resources:
 
 
 Outputs:
-  ToolConfig:
-    Description: Configure VXLAN2 on the Destination Tool
-    Value: !Sub
-        - "ip link add vxlan2 type vxlan id 2 remote ${SourceIP} dev eth0 dstport 4789;ifconfig vxlan2 up"
-        - SourceIP: !GetAtt SourceOutboundInterface.PrimaryPrivateIpAddress
