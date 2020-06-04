@@ -1,0 +1,1 @@
+* * * * * ec2-user docker run -dti nubevalab/tlsgenerator
