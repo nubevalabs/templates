@@ -286,19 +286,21 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
-          amazon-linux-extras install epel
+          amazon-linux-extras install epel -y
           yum update -y
           yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource Source --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource Source
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ClientLaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource ClientAutoScalingGroup
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
+      SecurityGroups:
+      - !Ref "SourceSecurityGroup"
       IamInstanceProfile: !Ref InstanceProfile
       KeyName:
         Ref: KeyPairName
-
+      AssociatePublicIpAddress: false
 
 #Outputs:
