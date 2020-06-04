@@ -301,6 +301,5 @@ Resources:
       IamInstanceProfile: !Ref InstanceProfile
       KeyName:
         Ref: KeyPairName
-      AssociatePublicIpAddress: false
 
 #Outputs:
