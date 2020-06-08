@@ -287,7 +287,7 @@ Resources:
             03_install_sensor:
               command: !Sub
                 - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --add-host key.nubedge.com:${SKdbIP} --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host nubeva/nuagent --accept-eula --contained on --nutoken ${token} -sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbSIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo="
-                - {token: !Ref APIKey, SKdbIP: !GetAtt SimpleKeyDB.PrimaryPrivateIp}
+                - {token: !Ref APIKey, SKdbIP: !GetAtt SimpleKeyDB.PrivateIp}
 
         StartSource:
           commands:
