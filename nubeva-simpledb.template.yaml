@@ -97,6 +97,14 @@ Parameters:
     Default: 10.0.0.0/16
     Description: CIDR block for the VPC.
     Type: String
+  NumberOfNodes:
+    Default: 1
+    Description: The number of tool node instances. The default is one for each of the two Availability Zones.
+    Type: Number
+  MaximumNodes:
+    Default: 1
+    Description: The maximum number of EC2 instance nodes in the each Tool Autoscaling Group.
+    Type: String
 
 Mappings:
   AWSAMIRegionMap:
