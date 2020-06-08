@@ -275,21 +275,19 @@ Resources:
         InstallNubevaSensor:
           commands:
             00_dockergroup:
-              command: "sudo usermod -a -G docker ec2-user"
+              command: "usermod -a -G docker ec2-user"
             00a_etchosts:
               command: "echo ${SKdbIP}'    key.nubedge.com' >> /etc/hosts"
               env:
                 SKdbIP: !GetAtt SimpleKeyDB.PrivateIpAddress
-            01_download_and_install:
-              command:
-                !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --add-host key.nubedge.com:127.0.0.1 --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host nubeva/nuagent --accept-eula --contained on --nutoken ${APIKey} -sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbSIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=
+#            01_download_and_install:
+#              command:
+#                !Sub |
+#                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --add-host key.nubedge.com:127.0.0.1 --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host nubeva/nuagent --accept-eula --contained on --nutoken ${APIKey} -sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbSIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=
             03_install_sensor:
               command: !Sub
                 - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --add-host key.nubedge.com:${SKdbIP} --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host nubeva/nuagent --accept-eula --contained on --nutoken ${token} -sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbSIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo="
-                -  "/data/moloch/db/db.pl https://${ESDomain} info | if grep -q '\\-1'; then /data/moloch/db/db.pl https://${ESDomain} init && /data/moloch/bin/moloch_add_user.sh ${admin} \"admin user\" ${password} --admin; else true; fi"
                 - {token: !Ref APIKey, SKdbIP: !GetAtt SimpleKeyDB.PrivateIpAddress}
-
 
         StartSource:
           commands:
@@ -363,7 +361,7 @@ Resources:
         StartSimpleKeyDB:
           commands:
             00_etc-hosts:
-              command: "echo '127.0.0.1    key.nubedge.com' >> /etc/hosts
+              command: "echo '127.0.0.1    key.nubedge.com' >> /etc/hosts"
             01_wireshark:
               command: "docker run -p 14500:14500 --restart unless-stopped -dti --cap-add NET_ADMIN --net=host --name wireshark  ffeldhaus/wireshark"
             02_simplekeydb:
