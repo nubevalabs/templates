@@ -296,7 +296,8 @@ Resources:
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
-      SecurityGroupIds: !GetAtt SourceSecurityGroup.GroupId
+      SecurityGroupIds:
+          - !GetAtt "SourceSecurityGroup.GroupId"
       IamInstanceProfile: !Ref InstanceProfile
       KeyName:
         Ref: KeyPairName
