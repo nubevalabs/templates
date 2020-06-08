@@ -20,7 +20,7 @@ Metadata:
         default: Instance configuration
       Parameters:
       - KeyPairName
-      - NodeInstanceType
+#      - NodeInstanceType
     ParameterLabels:
       KeyPairName:
         default: SSH key name
@@ -81,14 +81,6 @@ Parameters:
     - r5.24xlarge
     ConstraintDescription: Must be a valid EC2 instance type.
     Description: The type of EC2 instance for the node instances.
-    Type: String
-  NumberOfNodes:
-    Default: 1
-    Description: The number of tool node instances. The default is one for each of the two Availability Zones.
-    Type: Number
-  MaximumNodes:
-    Default: 1
-    Description: The maximum number of EC2 instance nodes in the each Tool Autoscaling Group.
     Type: String
   APIKey:
     Description: "The Token for your Prisms account"
@@ -276,7 +268,7 @@ Resources:
             01_download_and_install:
               command:
                 !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --add-host key.nubedge.com:10.0.74.89 --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host nubeva/nuagent --accept-eula --contained on --nutoken ${APIKey} -sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbSIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --add-host key.nubedge.com:127.0.0.1 --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host nubeva/nuagent --accept-eula --contained on --nutoken ${APIKey} -sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbSIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=
         StartSource:
           commands:
             01_copycrontab:
@@ -301,5 +293,7 @@ Resources:
       IamInstanceProfile: !Ref InstanceProfile
       KeyName:
         Ref: KeyPairName
+      SubnetID: !Ref SubnetID
+
 
 #Outputs:
