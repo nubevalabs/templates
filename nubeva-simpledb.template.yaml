@@ -301,7 +301,7 @@ Resources:
       IamInstanceProfile: !Ref InstanceProfile
       KeyName:
         Ref: KeyPairName
-      SubnetID: !Ref SubnetID
+      SubnetId: !Ref SubnetID
 
 
 #Outputs:
