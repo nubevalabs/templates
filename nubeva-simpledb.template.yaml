@@ -188,6 +188,14 @@ Resources:
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
+  SimpleKeyDBSecurityGroupWiresharkinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "SimpleKeyDBSecurityGroup"
+      CidrIp: !Ref "RemoteAccessCIDR"
+      IpProtocol: tcp
+      FromPort: 14500
+      ToPort: 14500
   SimpleKeyDBSecurityGroupAPIinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
