@@ -247,12 +247,12 @@ Resources:
             03_install_sensor:
               command:
                 !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host nubeva/nuagent --accept-eula --contained on --nutoken ${APIKey} -sslcredobj --sslcredobj eyJ0eXBlIjoibGNsIiwicmVnaW9uIjoiL2hvc3QvdG1wLyIsImRvbWFpbiI6ImtleXMubG9nIn0K
+                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host nubeva/nuagent --accept-eula --contained on --nutoken ${APIKey} --sslcredobj eyJ0eXBlIjoibGNsIiwicmVnaW9uIjoiL2hvc3QvdG1wLyIsImRvbWFpbiI6ImtleXMubG9nIn0K
 
         StartSimpleSensor:
           commands:
             01_wireshark:
-              command: "docker run -p 14500:14500 --restart unless-stopped -dti --cap-add NET_ADMIN --net=host --name wireshark  ffeldhaus/wireshark"
+              command: "docker run -v /tmp:/keys -p 14500:14500 --restart unless-stopped -dti --cap-add NET_ADMIN --net=host --name wireshark  ffeldhaus/wireshark"
             02_copycrontab:
               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/tlsgencronjob -O /etc/cron.d/tlscronjob"
 
@@ -284,7 +284,7 @@ Resources:
 
 Outputs:
   URL:
-    Description: Wireshark URL - Keys located at /tmp/key.log
+    Description: Wireshark URL - Keys located at /keys/keys.log
     Value: !Sub
         - "https://${ipaddress}:14500"
         - ipaddress: !GetAtt SimpleSensor.PrivateIp
