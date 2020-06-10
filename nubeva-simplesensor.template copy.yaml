@@ -144,32 +144,32 @@ Mappings:
       awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
-  SimpleSourceSecurityGroup:
+  SimpleSensorSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: SimpleSource Security Group
+      GroupDescription: SimpleSensor Security Group
       VpcId: !Ref 'VPCID'
-  SimpleSourceSecurityGroupSSHinbound:
+  SimpleSensorSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "SimpleSourceSecurityGroup"
+      GroupId: !Ref "SimpleSensorSecurityGroup"
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
-  SimpleSourceSecurityGroupWiresharkinbound:
+  SimpleSensorSecurityGroupWiresharkinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "SimpleSourceSecurityGroup"
+      GroupId: !Ref "SimpleSensorSecurityGroup"
       CidrIp: !Ref "RemoteAccessCIDR"
       IpProtocol: tcp
       FromPort: 14500
       ToPort: 14500
   # Outbound- allow all
-  SimpleSourceSecurityGroupOutbound:
+  SimpleSensorSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
-      GroupId: !Ref "SimpleSourceSecurityGroup"
+      GroupId: !Ref "SimpleSensorSecurityGroup"
       CidrIp: 0.0.0.0/0
       IpProtocol: "-1"
       FromPort: -1
@@ -208,7 +208,7 @@ Resources:
             - '*'
 
 
-  SimpleSource:
+  SimpleSensor:
     Type: AWS::EC2::Instance
     CreationPolicy:
       ResourceSignal:
@@ -223,7 +223,7 @@ Resources:
             - "InstallServices"
             - "InstallSensor"
           Start:
-            - "StartSimpleSource"
+            - "StartSimpleSensor"
         ConfigStartup:
           commands:
             01_updaterclocal:
@@ -249,7 +249,7 @@ Resources:
                 !Sub |
                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host nubeva/nuagent --accept-eula --contained on --nutoken ${APIKey} -sslcredobj --sslcredobj eyJ0eXBlIjoibGNsIiwicmVnaW9uIjoiL2hvc3QvdG1wLyIsImRvbWFpbiI6ImtleXMubG9nIn0K
 
-        StartSimpleSource:
+        StartSimpleSensor:
           commands:
             01_wireshark:
               command: "docker run -p 14500:14500 --restart unless-stopped -dti --cap-add NET_ADMIN --net=host --name wireshark  ffeldhaus/wireshark"
@@ -264,15 +264,15 @@ Resources:
           amazon-linux-extras install epel -y
           yum update -y
           yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource SimpleSource --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource SimpleSource
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource SimpleSensor --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource SimpleSensor
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
       SecurityGroupIds:
-          - !GetAtt "SimpleSourceSecurityGroup.GroupId"
+          - !GetAtt "SimpleSensorSecurityGroup.GroupId"
       IamInstanceProfile: !Ref InstanceProfile
       KeyName:
         Ref: KeyPairName
@@ -287,4 +287,4 @@ Outputs:
     Description: Wireshark URL - Keys located at /tmp/key.log
     Value: !Sub
         - "https://${ipaddress}:14500"
-        - ipaddress: !GetAtt SimpleSource.PrivateIp
+        - ipaddress: !GetAtt SimpleSensor.PrivateIp
