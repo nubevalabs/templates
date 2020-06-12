@@ -2,6 +2,7 @@ from __future__ import print_function
 import sys
 import flask
 from flask import request
+from flask import Response
 import ssl
 import json
 import pprint
@@ -92,6 +93,22 @@ def dumpkeys():
 #    eprint(pprint.pformat(gkeys))
     return 'Keys Count: ' + str(len(gkeys)) + '\n' + pprint.pformat(gkeys) + '\n'
 
+# Dump keys is NSS file format
+# Do we want to dump TLS 1.3? Do we want to include in the same function? 
+@app.route('/dumpnsskeys')
+def dumpnsskeys():
+    def generate():
+        for k in gkeys:
+            key = gkeys[k]
+            yield("#NU_METADATA " + key["CR"] + " host:" + key["MD"]["hostname"] + ", instance:" + key["MD"]["instance"] + ", pid:" + str(key["MD"]["pid"]) + ", command:" + key["MD"]["command"] + '\n')
+            if (key["Type"] == "1.2"): 
+                yield("CLIENT_RANDOM " + k + " " + key["MK"] + '\n')
+            else:
+                yield("CLIENT_EARLY_TRAFFIC_SECRET " + k + " " + key["CTS0"] + '\n')
+                yield("EXPORTER_SECRET " + k + " " + key["XS"] + '\n')
+#               continue
+
+    return Response(generate(), mimetype='text/plain')
 
 
 @app.route('/api/1.1/kdb/test/get', methods=['GET'])
