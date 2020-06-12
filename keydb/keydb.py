@@ -100,13 +100,13 @@ def dumpnsskeys():
     def generate():
         for k in gkeys:
             key = gkeys[k]
-            yield("#NU_METADATA " + key["CR"] + " host:" + key["MD"]["hostname"] + ", instance:" + key["MD"]["instance"] + ", pid:" + str(key["MD"]["pid"]) + ", command:" + key["MD"]["command"] + '\n')
+            yield("#NU_METADATA " + key["CR"] + " host:" + key["MD"]["hostname"] + ", instance:" + key["MD"]["instance"] + ", pid:" + str(key["MD"]["pid"]) + ", command:" + key["MD"]["command"] + ", type:" + key["Type"] + '\n')
             if (key["Type"] == "1.2"): 
                 yield("CLIENT_RANDOM " + k + " " + key["MK"] + '\n')
             else:
-                yield("CLIENT_EARLY_TRAFFIC_SECRET " + k + " " + key["CTS0"] + '\n')
-                yield("EXPORTER_SECRET " + k + " " + key["XS"] + '\n')
-#               continue
+#               yield("CLIENT_EARLY_TRAFFIC_SECRET " + k + " " + key["CTS0"] + '\n')
+#               yield("EXPORTER_SECRET " + k + " " + key["XS"] + '\n')
+                continue
 
     return Response(generate(), mimetype='text/plain')
 
