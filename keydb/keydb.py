@@ -105,9 +105,12 @@ def dumpnsskeys():
             if (key["Type"] == "1.2"): 
                 yield("CLIENT_RANDOM " + k + " " + key["MK"] + '\n')
             else:
-#               yield("CLIENT_EARLY_TRAFFIC_SECRET " + k + " " + key["CTS0"] + '\n')
-#               yield("EXPORTER_SECRET " + k + " " + key["XS"] + '\n')
-                continue
+                yield("CLIENT_EARLY_TRAFFIC_SECRET " + k + " " + key["CETS"] + '\n')
+                yield("CLIENT_HANDSHAKE_TRAFFIC_SECRET " + k + " " + key["CHTS"] + '\n')
+                yield("SERVER_HANDSHAKE_TRAFFIC_SECRET " + k + " " + key["SHTS"] + '\n')
+                yield("CLIENT_TRAFFIC_SECRET_0 " + k + " " + key["CTS0"] + '\n')
+                yield("SERVER_TRAFFIC_SECRET_0 " + k + " " + key["STS0"] + '\n')
+                yield("EXPORTER_SECRET " + k + " " + key["XS"] + '\n')
 
     return Response(generate(), mimetype='text/plain')
 
