@@ -365,7 +365,8 @@ Resources:
             01_download_and_install:
               command:
                 !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --add-host key.nubedge.com:127.0.0.1 --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host --pid host nubeva/nurx --accept-eula --nutoken ${APIKey} --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbSIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=
+                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock  --cap-add NET_ADMIN --add-host key.nubedge.com:127.0.0.1 --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey} --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbSIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=
+#                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --add-host key.nubedge.com:127.0.0.1 --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host --pid host nubeva/nurx --accept-eula --nutoken ${APIKey} --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbSIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=
         StartSimpleKeyDB:
           commands:
             00_etc-hosts:
