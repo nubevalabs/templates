@@ -77,6 +77,12 @@ def storebatch():
     eprint('Keys(New): ' + str(len(gkeys)) + '(' + str(cnt) + ')' + ' Hits: ' + str(ghits) + ' Missed: ' + str(len(gmissed)))
     return ''
 
+@app.route('/countkeys', methods=['GET'])
+def countkeys():
+    global gkeys
+    return 'Keys Count: ' + str(len(gkeys))
+
+
 @app.route('/dumpmissed', methods=['GET'])
 def dumpmissed():
     global gmissed
@@ -114,6 +120,22 @@ def dumpnsskeys():
 
     return Response(generate(), mimetype='text/plain')
 
+@app.route('/flushkeys', methods=['GET'])
+def flushkeys():
+    global gkeys
+    count = len(gkeys)
+    gkeys.clear()
+    return 'Flushed: ' + str(count) + ' keys, Current count: ' + str(len(gkeys))
+
+# loadtest() is a driver function that loads sample key structures.
+# Input: name of a json file. The file is loaded from the base directory of the Flask server
+@app.route('/loadtest/<fname>', methods=['GET'])
+def loadtest(fname):
+    global gkeys
+    if (fname != ''):
+        keyfile = os.path.join(os.path.abspath(os.path.dirname(__file__)), str(fname))
+        gkeys = json.load(open(keyfile, "r"))
+    return 'Keys Count: ' + str(len(gkeys))
 
 @app.route('/api/1.1/kdb/test/get', methods=['GET'])
 def getkey():
