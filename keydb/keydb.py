@@ -1,5 +1,6 @@
 from __future__ import print_function
 import sys
+#import os
 import flask
 from flask import request
 from flask import Response
@@ -129,6 +130,7 @@ def flushkeys():
 
 # loadtest() is a driver function that loads sample key structures.
 # Input: name of a json file. The file is loaded from the base directory of the Flask server
+"""
 @app.route('/loadtest/<fname>', methods=['GET'])
 def loadtest(fname):
     global gkeys
@@ -136,6 +138,7 @@ def loadtest(fname):
         keyfile = os.path.join(os.path.abspath(os.path.dirname(__file__)), str(fname))
         gkeys = json.load(open(keyfile, "r"))
     return 'Keys Count: ' + str(len(gkeys))
+"""
 
 @app.route('/api/1.1/kdb/test/get', methods=['GET'])
 def getkey():
