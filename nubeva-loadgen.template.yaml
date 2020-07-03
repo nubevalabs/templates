@@ -231,7 +231,7 @@ Resources:
           amazon-linux-extras install epel
           yum update -y
           yum update -y aws-cfn-bootstrap
-          ip route add 10.0.60.78/32 via 10.0.23.251 dev eth0
+          ip route add 10.0.60.83/32 via 10.0.23.251 dev eth0
           echo '10.0.60.78    nubevalabs.com' | tee -a /etc/hosts
           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ClientLaunchConfiguration --configsets Configure,Install,Start
           /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource ClientAutoScalingGroup
