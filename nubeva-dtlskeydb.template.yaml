@@ -298,7 +298,7 @@ Resources:
                 SKdbIP: !GetAtt DTLSKeyDB.PrivateIp
             03_install_sensor:
               command: !Sub
-                - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --add-host key.nubedge.com:${SKdbIP} --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host nubeva/nuagent:master --accept-eula --contained on --nutoken ${token} -sslcredobj eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo="
+                - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --add-host key.nubedge.com:${SKdbIP} --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host nubeva/nuagent:master --accept-eula --contained on --nutoken ${token} --sslcredobj eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo="
                 - {token: !Ref APIKey, SKdbIP: !GetAtt DTLSKeyDB.PrivateIp}
 
         StartSource:
