@@ -378,7 +378,7 @@ Resources:
 #            01_wireshark:
 #              command: "docker run -p 14500:14500 --restart unless-stopped -dti --cap-add NET_ADMIN --net=host --name wireshark  ffeldhaus/wireshark"
             02_dtlskeydb:
-              command: "docker run -p 4433:4433 -dti  --name dtlskeydb nubevalab/dtlskeydb"
+              command: "docker run -p 4433:4433/TCP -p 4433:4433/UDP -dti  --name dtlskeydb nubevalab/dtlskeydb"
 
     Properties:
       UserData:
