@@ -26,7 +26,7 @@ def auth():
     else:
         eprint('Invalid Version, we only support version '+nver)
         return 'Invalid Version, we only support version '+nver, 400
-    
+
 gkeys={}
 ghits = 0
 
@@ -41,7 +41,7 @@ def storebatch():
             cnt = cnt + 1
         else:
             eprint('***** EMPTY POST IN STOREBATCH *****')
-        
+
     eprint('Keys(New): ' + str(len(gkeys)) + '(' + str(cnt) + ')' + ' Hits: ' + str(ghits))
     return ''
 
@@ -51,15 +51,15 @@ def dumpkeys():
     return 'Keys Count: ' + str(len(gkeys)) + '\n' + pprint.pformat(gkeys) + '\n'
 
 # Dump keys is NSS file format
-# Do we want to dump TLS 1.3? 
-# Do we want to include  TLS 1.3 in the same function? 
+# Do we want to dump TLS 1.3?
+# Do we want to include  TLS 1.3 in the same function?
 @app.route('/dumpnsskeys')
 def dumpnsskeys():
     def generate():
         for k in gkeys:
             key = gkeys[k]
             yield("#NU_METADATA " + key["CR"] + " host:" + key["MD"]["hostname"] + ", instance:" + key["MD"]["instance"] + ", pid:" + str(key["MD"]["pid"]) + ", command:" + key["MD"]["command"] + ", type:" + key["Type"] + '\n')
-            if (key["Type"] == "1.2"): 
+            if (key["Type"] == "1.2"):
                 yield("CLIENT_RANDOM " + k + " " + key["MK"] + '\n')
             else:
                 yield("CLIENT_EARLY_TRAFFIC_SECRET " + k + " " + key["CETS"] + '\n')
@@ -76,7 +76,7 @@ def dumpnsskeys():
 def getkey():
     global gkeys
     global ghits
-    
+
     ret = []
     crs = request.args.getlist('cr')
     found = 0
@@ -87,12 +87,12 @@ def getkey():
             ghits = ghits + 1
     rets = json.dumps(ret)
     eprint('Keys: ' + str(len(gkeys)) + ' Hits: ' + str(ghits))
-    
+
     return rets
 
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-context.load_verify_locations("nubedge.ca")
-context.load_cert_chain("nubedge.pem", "nubedge.key")
+context.load_verify_locations("/opt/nubevaTools/nubedge.ca")
+context.load_cert_chain("/opt/nubevaTools/nubedge.pem", "/opt/nubevaTools/nubedge.key")
 context.set_ecdh_curve("prime256v1")
 WSGIRequestHandler.protocol_version = "HTTP/1.1" # Keep connections alive
 
@@ -156,7 +156,7 @@ def readdtls(conn):
         else:
             print ("Exiting dlts read...")
             break
-    
+
 def dtls():
     sck = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sck.bind(("0.0.0.0", 4433))
@@ -167,7 +167,7 @@ def dtls():
         z = threading.Thread(target=readdtls, args=(conn,))
         z.start()
 
-        
+
 x = threading.Thread(target=dtls)
 x.start()  # Start DTLS
 
