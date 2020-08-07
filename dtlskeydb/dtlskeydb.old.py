@@ -6,6 +6,7 @@ from __future__ import print_function
 import sys
 import flask
 from flask import request
+from flask import Response
 import ssl
 import json
 import pprint
@@ -49,6 +50,28 @@ def storebatch():
 def dumpkeys():
     global gkeys
     return 'Keys Count: ' + str(len(gkeys)) + '\n' + pprint.pformat(gkeys) + '\n'
+
+# Dump keys is NSS file format
+# Do we want to dump TLS 1.3?
+# Do we want to include  TLS 1.3 in the same function?
+#@app.route('/dumpnsskeys')
+#def dumpnsskeys():
+#    def generate():
+#        for k in gkeys:
+#            key = gkeys[k]
+#            yield("#NU_METADATA " + key["CR"] + " host:" + key["MD"]["hostname"] + ", instance:" + key["MD"]["instance"] + ", pid:" + str(key["MD"]["pid"]) + ", command:" + key["MD"]["command"] + ", type:" + key["Type"] + '\n')
+#            if (key["Type"] == "1.2"):
+#                yield("CLIENT_RANDOM " + k + " " + key["MK"] + '\n')
+#            else:
+#                yield("CLIENT_EARLY_TRAFFIC_SECRET " + k + " " + key["CETS"] + '\n')
+#                yield("CLIENT_HANDSHAKE_TRAFFIC_SECRET " + k + " " + key["CHTS"] + '\n')
+#                yield("SERVER_HANDSHAKE_TRAFFIC_SECRET " + k + " " + key["SHTS"] + '\n')
+#                yield("CLIENT_TRAFFIC_SECRET_0 " + k + " " + key["CTS0"] + '\n')
+#                yield("SERVER_TRAFFIC_SECRET_0 " + k + " " + key["STS0"] + '\n')
+#                yield("EXPORTER_SECRET " + k + " " + key["XS"] + '\n')
+#
+#    return Response(generate(), mimetype='text/plain')
+
 
 @app.route('/api/1.1/dtls/test/get', methods=['GET'])
 def getkey():
@@ -138,7 +161,7 @@ def readdtls(conn):
 def dtls():
     sck = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sck.bind(("0.0.0.0", 4433))
-    scn = SSLConnection(sck, keyfile="/opt/nubevaTools/nubedge.key", certfile="/opt/nubevaTools/nubedge.pem", server_side=True, ca_certs="/opt/nubevaTools/nubedge.ca", do_handshake_on_connect=False, cb_user_config_ssl_ctx=ssl_ctx_cb)
+    scn = SSLConnection(sck, keyfile="nubedge.key", certfile="nubedge.pem", server_side=True, ca_certs="nubedge.ca", do_handshake_on_connect=False, cb_user_config_ssl_ctx=ssl_ctx_cb)
     while True:
         peer_address = scn.listen()
         conn = scn.accept()[0]
