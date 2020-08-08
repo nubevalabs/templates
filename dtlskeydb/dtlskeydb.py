@@ -1,6 +1,6 @@
 # Copyright (C) 2020 Nubeva, Inc.  All Rights Reserved
 # This is the external facing version
-# Version 8/5/2020 protocol version 1
+# Version 8/7/2020 protocol version 1
 
 from __future__ import print_function
 import sys
@@ -18,8 +18,13 @@ def eprint(*args, **kwargs):
 app = flask.Flask(__name__)
 nver = '1'
 
-@app.route('/api/1.1/dtls/test/connect', methods=['GET', 'POST'])
+@app.route('/api/1.1/kdb/test/connect', methods=['GET', 'POST'])
 def auth():
+    content = request.json
+    return '{"token":"somebearertoken"}'
+
+@app.route('/api/1.1/dtls/test/connect', methods=['GET', 'POST'])
+def auth2():
     content = request.json
     if 'Version' in content and content['Version'] == nver :
         return '{"token":"somebearertoken"}'
@@ -50,28 +55,7 @@ def dumpkeys():
     global gkeys
     return 'Keys Count: ' + str(len(gkeys)) + '\n' + pprint.pformat(gkeys) + '\n'
 
-# Dump keys is NSS file format
-@app.route('/dumpnsskeys')
-def dumpnsskeys():
-    def generate():
-        for k in gkeys:
-            key = gkeys[k]
-            yield("#NU_METADATA " + key["CR"] + " host:" + key["MD"]["hostname"] + ", instance:" + key["MD"]["instance"] + ", pid:" + str(key["MD"]["pid"]) + ", command:" + key["MD"]["command"] + ", type:" + key["Type"] + '\n')
-            if (key["Type"] == "1.2"):
-                yield("CLIENT_RANDOM " + k + " " + key["MK"] + '\n')
-            else:
-                yield("CLIENT_EARLY_TRAFFIC_SECRET " + k + " " + key["CETS"] + '\n')
-                yield("CLIENT_HANDSHAKE_TRAFFIC_SECRET " + k + " " + key["CHTS"] + '\n')
-                yield("SERVER_HANDSHAKE_TRAFFIC_SECRET " + k + " " + key["SHTS"] + '\n')
-                yield("CLIENT_TRAFFIC_SECRET_0 " + k + " " + key["CTS0"] + '\n')
-                yield("SERVER_TRAFFIC_SECRET_0 " + k + " " + key["STS0"] + '\n')
-                yield("EXPORTER_SECRET " + k + " " + key["XS"] + '\n')
-
-    return Response(generate(), mimetype='text/plain')
-
-
-
-@app.route('/api/1.1/dtls/test/get', methods=['GET'])
+@app.route('/api/1.1/kdb/test/get', methods=['GET'])
 def getkey():
     global gkeys
     global ghits
