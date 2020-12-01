@@ -1,9 +1,25 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Suricata as part of the Nubeva TLS Decrypt & Open Source Tools
+Description: Deploys Arkime as part of the Nubeva TLS Decrypt & Open Source Tools
 Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
     Type: String
+  ToolAdmin:
+    Description: The user name that is associated with the admin account for the tools that are being created.
+    Type: String
+    Default: tooladmin
+    MinLength: 4
+    MaxLength: 16
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only 4-16 alphanumeric characters.
+  ToolPassword:
+    Description: The password that is associated with the master user account for the cluster that is being created.
+    NoEcho: true
+    Type: String
+    MinLength: 8
+    MaxLength: 32
+    AllowedPattern: "[a-zA-Z0-9]*"
+    ConstraintDescription: must contain only 8-32 alphanumeric characters
   KeyPairName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Name of an existing EC2 KeyPair to enable SSH access to the ECS instances.
@@ -73,6 +89,8 @@ Metadata:
           default: Nubeva configuration
         Parameters:
         - APIKey
+        - ToolAdmin
+        - ToolPassword
       - Label:
           default: "Network Configuration"
         Parameters:
@@ -85,6 +103,7 @@ Metadata:
           - NodeInstanceType
           - NumberOfNodes
           - MaximumNodes
+
 
 Mappings:
   AWSAMIRegionMap:
@@ -124,54 +143,62 @@ Mappings:
       awslinux2: "ami-058943e7d9b9cabfb"
 
 Resources:
-  SuricataESSecurityGroup:
+  ArkimeESSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Suricata ElasticSearch Service Security Group
+      GroupDescription: Arkime ElasticSearch Service Security Group
       VpcId: !Ref 'VPCID'
       SecurityGroupIngress:
         - FromPort: 443
           IpProtocol: tcp
           ToPort: 443
           CidrIp: !Ref 'VPCCIDR'
-  SuricataSecurityGroup:
+  ArkimeSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Suricata Security Group
+      GroupDescription: Arkime Security Group
       VpcId: !Ref 'VPCID'
-  SuricataSecurityGroupSSHinbound:
+  ArkimeSecurityGroupSSHinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "SuricataSecurityGroup"
+      GroupId: !Ref "ArkimeSecurityGroup"
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
-  SuricataSecurityGroupVXLANinbound:
+  ArkimeSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref "SuricataSecurityGroup"
+      GroupId: !Ref "ArkimeSecurityGroup"
       CidrIp: !Ref 'VPCCIDR'
       IpProtocol: udp
       FromPort: 4789
       ToPort: 4789
-  SuricataSecurityGroupOutbound:
+  ArkimeSecurityGroupViewerinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "ArkimeSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 8005
+      ToPort: 8005
+      CidrIp: !Ref "RemoteAccessCIDR"
+  ArkimeSecurityGroupOutbound:
     Type: AWS::EC2::SecurityGroupEgress
     Properties:
-      GroupId: !Ref "SuricataSecurityGroup"
+      GroupId: !Ref "ArkimeSecurityGroup"
       CidrIp: 0.0.0.0/0
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
 
-  SuricataInstanceProfile:
+  ArkimeInstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
       Path: '/'
       Roles:
-      - !Ref SuricataIAMRole
+      - !Ref ArkimeIAMRole
 
-  SuricataIAMRole:
+  ArkimeIAMRole:
     Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
@@ -185,7 +212,7 @@ Resources:
           - 'sts:AssumeRole'
       Path: '/'
       Policies:
-      - PolicyName: SuricataASG
+      - PolicyName: ArkimeASGPolicy
         PolicyDocument:
           Version: '2012-10-17'
           Statement:
@@ -196,12 +223,49 @@ Resources:
             - 'ec2:DescribeInstances'
             Resource:
             - '*'
+      - PolicyName: ArkimeS3Policy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:ListAllMyBuckets
+            - s3:GetBucketLocation
+            Resource:
+            - '*'
+          - Effect: Allow
+            Action:
+            - s3:ListBucket
+            Resource:
+              Fn::Sub:
+                - "arn:aws:s3:::${S3Bucket}"
+                - S3Bucket: !Ref ArkimePCAPBucket
+          - Effect: Allow
+            Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:DeleteObject
+            Resource:
+              Fn::Sub:
+                - "arn:aws:s3:::${S3Bucket}/*"
+                - S3Bucket: !Ref ArkimePCAPBucket
 
-  SuricataElasticsearchDomain:
-    Type: AWS::Elasticsearch::Domain
-    DependsOn: SuricataELB
+
+  ArkimePCAPBucket:
+    Type: AWS::S3::Bucket
     Properties:
-      ElasticsearchVersion: '6.8'
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  ArkimeElasticsearchDomain:
+    Type: AWS::Elasticsearch::Domain
+    DependsOn: ArkimeELB
+    Properties:
+      ElasticsearchVersion: '7.9'
       ElasticsearchClusterConfig:
         InstanceCount: !Ref NumberOfNodes
         InstanceType: !Sub
@@ -232,9 +296,8 @@ Resources:
           - !Ref PrivateSubnet1ID
           - !Ref PrivateSubnet2ID
         SecurityGroupIds:
-          - !Ref SuricataESSecurityGroup
-
-  SuricataELB:
+          - !Ref ArkimeESSecurityGroup
+  ArkimeELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Subnets:
@@ -242,18 +305,37 @@ Resources:
           - !Ref PrivateSubnet2ID
       Type: network
       Scheme: internal
-
-  SuricataCaptureListener:
+  ArkimeViewerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
-      LoadBalancerArn: !Ref SuricataELB
+      LoadBalancerArn: !Ref ArkimeELB
+      Port: 8005
+      Protocol: TCP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ArkimeViewerTargetGroup
+  ArkimeCaptureListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ArkimeELB
       Port: 4789
       Protocol: UDP
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref SuricataVXLANTargetGroup
-
-  SuricataVXLANTargetGroup:
+          TargetGroupArn: !Ref ArkimeVXLANTargetGroup
+  ArkimeViewerTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Port: 8005
+      Protocol: TCP_UDP
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: TCP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
+  ArkimeVXLANTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref VPCID
@@ -265,25 +347,25 @@ Resources:
       HealthCheckTimeoutSeconds: 10
       HealthyThresholdCount: 3
       UnhealthyThresholdCount: 3
-      HealthCheckPort: '22'
-
-  SuricataELBTrafficMirrorTarget:
+      HealthCheckPort: '8005'
+  ArkimeELBTrafficMirrorTarget:
     Type: AWS::EC2::TrafficMirrorTarget
     Properties:
-      Description: "SuricataLB"
-      NetworkLoadBalancerArn: !Ref SuricataELB
-  SuricataAutoScalingGroup:
+      Description: "ArkimeELB"
+      NetworkLoadBalancerArn: !Ref ArkimeELB
+  ArkimeAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
-    DependsOn: SuricataElasticsearchDomain
+    DependsOn: ArkimeElasticsearchDomain
     Properties:
       VPCZoneIdentifier:
       - !Ref PrivateSubnet1ID
       - !Ref PrivateSubnet2ID
-      LaunchConfigurationName: !Ref SuricataLaunchConfiguration
+      LaunchConfigurationName: !Ref ArkimeLaunchConfiguration
       MinSize: '1'
       MaxSize: !Ref 'MaximumNodes'
       TargetGroupARNs:
-        - !Ref SuricataVXLANTargetGroup
+        - !Ref ArkimeVXLANTargetGroup
+        - !Ref ArkimeViewerTargetGroup
       DesiredCapacity: !Ref 'NumberOfNodes'
       MetricsCollection:
       - Granularity: 1Minute
@@ -296,7 +378,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Count: 1
-        Timeout: PT20M
+        Timeout: PT10M
     UpdatePolicy:
       AutoScalingRollingUpdate:
         MinInstancesInService: !Ref NumberOfNodes
@@ -305,24 +387,25 @@ Resources:
         SuspendProcesses:
         - AlarmNotification
         WaitOnResourceSignals: true
-  SuricataScaleOutPolicy:
+
+  ArkimeScaleOutPolicy:
     Type : AWS::AutoScaling::ScalingPolicy
     Properties:
-      AutoScalingGroupName: !Ref SuricataAutoScalingGroup
+      AutoScalingGroupName: !Ref ArkimeAutoScalingGroup
       AdjustmentType: 'ChangeInCapacity'
       Cooldown: '120'
       ScalingAdjustment: 1
-  SuricataScaleOutAlarm:
+  ArkimeScaleOutAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName:
         Fn::Join:
         - '-'
         - - !Ref 'AWS::StackName'
-          - 'suricata-traffic-high'
+          - 'arkime-traffic-high'
       AlarmActions:
-        - !Ref 'SuricataScaleOutPolicy'
-      AlarmDescription: 'This metric monitors high Suricata network utilization'
+        - !Ref 'ArkimeScaleOutPolicy'
+      AlarmDescription: 'This metric monitors high Arkime network utilization'
       ComparisonOperator: 'GreaterThanOrEqualToThreshold'
       EvaluationPeriods: 2
       MetricName: 'NetworkIn'
@@ -332,25 +415,25 @@ Resources:
       Threshold: 15000000000
       Dimensions:
         - Name: 'AutoScalingGroupName'
-          Value: !Ref SuricataAutoScalingGroup
-  SuricataScaleInPolicy:
+          Value: !Ref ArkimeAutoScalingGroup
+  ArkimeScaleInPolicy:
     Type : AWS::AutoScaling::ScalingPolicy
     Properties:
-      AutoScalingGroupName: !Ref SuricataAutoScalingGroup
+      AutoScalingGroupName: !Ref ArkimeAutoScalingGroup
       AdjustmentType: 'ChangeInCapacity'
       Cooldown: '120'
       ScalingAdjustment: -1
-  SuricataScaleInAlarm:
+  ArkimeScaleInAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName:
         Fn::Join:
         - '-'
         - - !Ref 'AWS::StackName'
-          - 'suricata-traffic-low'
+          - 'arkime-traffic-low'
       AlarmActions:
-        - !Ref 'SuricataScaleInPolicy'
-      AlarmDescription: 'This metric monitors Suricata network utilization'
+        - !Ref 'ArkimeScaleInPolicy'
+      AlarmDescription: 'This metric monitors low Arkime network utilization'
       ComparisonOperator: 'LessThanOrEqualToThreshold'
       EvaluationPeriods: 2
       MetricName: 'NetworkIn'
@@ -360,8 +443,9 @@ Resources:
       Threshold: 7500000000
       Dimensions:
         - Name: 'AutoScalingGroupName'
-          Value: !Ref SuricataAutoScalingGroup
-  SuricataLaunchConfiguration:
+          Value: !Ref ArkimeAutoScalingGroup
+
+  ArkimeLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Metadata:
       AWS::CloudFormation::Init:
@@ -370,37 +454,32 @@ Resources:
             - "ConfigStartup"
           Install:
             - "InstallServices"
-            - "SetupElastic"
             - "InstallNurxAgent"
-            - "InstallSuricata"
+            - "InstallArkime"
           Start:
-            - "StartSuricata"
+            - "StartArkime"
 
         ConfigStartup:
           commands:
-            01_chmod:
+            01_updaterclocal:
+             command: "echo 'yum update -y' >> /etc/rc.local"
+            02_chmod:
               command: "chmod +x /etc/rc.d/rc.local"
-            02_InstallLibraries:
-              command: "amazon-linux-extras install epel"
-
         InstallServices:
           packages:
             yum:
-              java-1.8.0-openjdk: []
+              perl-JSON: []
+              perl-libwww-perl: []
+              libyaml-devel: []
               wget: []
+              perl-LWP-Protocol-https: []
+              perl-Crypt-SSLeay: []
               docker: []
           services:
             sysvinit:
               docker:
                 enabled: true
                 ensureRunning: true
-
-        SetupElastic:
-          commands:
-            01_setES_pubkeys:
-              command: "rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch"
-            02_get_repo_info:
-              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/elastic.repo -O /etc/yum.repos.d/elastic.repo"
         InstallNurxAgent:
           commands:
             01_download_and_install:
@@ -410,60 +489,61 @@ Resources:
         #InstallVXLANInterface:
         #  commands:
         #    01_createVXLAN:
-        #      command: "ip link add vxlan777 type vxlan id 777 remote 0.0.0.0 dstport 4789"
+        #      command: "ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789"
         #    02_interfaceUp:
-        #      command: "ip link set vxlan777 up"
+        #      command: "ip link set vxlan555 up"
         #    03_autoLaunchVXLAN:
-        #      command: "echo 'ip link add vxlan777 type vxlan id 777 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
+        #      command: "echo 'ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
         #    04_addsmorerclocalupdate:
-        #      command: "echo 'ip link set vxlan777 up' >> /etc/rc.local"
-        InstallSuricata:
-          packages:
-            yum:
-              suricata: []
-              logstash: []
+        #      command: "echo 'ip link set vxlan555 up' >> /etc/rc.local"
+
+######START REVIEW HERE
+        InstallArkime:
           commands:
-            01_configLogstash:
-              command: "/usr/share/logstash/bin/system-install"
-            02_setLogstashRegion:
-              command:
-                !Sub |
-                  echo 'REGION='${AWS::Region} >> /etc/default/logstash
-            03_setLogstashES:
-              command: "echo 'ES_HOST='${ESDomain} >> /etc/default/logstash"
+            01_wget:
+              command: "wget -nv https://s3.amazonaws.com/files.molo.ch/moloch-master.centos7.x86_64.rpm -O /tmp/moloch-master.centos7.x86_64.rpm"
+            02_install:
+              command: "rpm -Uvh /tmp/moloch-master.centos7.x86_64.rpm"
+            03_installconfig:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/mastermolochs3config.ini -O /data/moloch/etc/config.ini"
+            03a_installoui:
+              command: "wget -nv https://raw.githubusercontent.com/wireshark/wireshark/master/manuf -O /data/moloch/etc/oui.txt"
+            04_installStartScript:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/start_moloch.sh -O /data/moloch/start_moloch.sh"
+            05_allowExecute:
+              command: "chmod +x /data/moloch/start_moloch.sh"
+            06_updateConfig:
+              command: "echo 'elasticsearch=https://'${ESDomain} >> /data/moloch/etc/config.ini"
               env:
-                ESDomain: !GetAtt SuricataElasticsearchDomain.DomainEndpoint
-            04_installConfig:
-              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/logstash-suricata.conf -O /etc/logstash/conf.d/logstash-suricata.conf"
-            05_installTempLAte:
-              command: "mkdir /etc/logstash/templates && wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/suricata_template.json -O /etc/logstash/templates/suricata_template.json"
-            06_setupLogstash:
-              command: "/usr/share/logstash/bin/logstash-plugin install logstash-filter-geoip && /usr/share/logstash/bin/logstash-plugin install logstash-output-amazon_es && /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate"
-            07_suricataAccess:
-              command: "usermod -a -G suricata logstash"
-          services:
-            sysvinit:
-              logstash:
-                enabled: true
-                ensureRunning: true
-        StartSuricata:
+                ESDomain: !GetAtt ArkimeElasticsearchDomain.DomainEndpoint
+            06a_updateConfig:
+              command: !Sub "echo 's3Region='${AWS::Region} >> /data/Arkime/etc/config.ini"
+            06b_updateConfig:
+              command: !Sub
+                - "echo 's3Bucket='${bucket} >> /data/moloch/etc/config.ini"
+                - {bucket: !Ref ArkimePCAPBucket}
+            07_randomSleep:
+              command: "sleep $[ ( $RANDOM % 10 )  + 1 ]s"
+            08_setupNewDB:
+              command: !Sub
+                - "/data/moloch/db/db.pl https://${ESDomain} info | if grep -q '\\-1'; then /data/moloch/db/db.pl https://${ESDomain} init && /data/moloch/bin/moloch_add_user.sh ${admin} \"admin user\" ${password} --admin; else true; fi"
+                - {ESDomain: !GetAtt ArkimeElasticsearchDomain.DomainEndpoint, admin: !Ref ToolAdmin, password: !Ref ToolPassword}
+            10_setupArkimeLogs:
+              command: "mkdir /data/moloch/logs"
+            11_setupArkimeLogs:
+              command: "mkdir /data/moloch/raw"
+            12_cleanup:
+              command: "rm /tmp/moloch-master.centos7.x86_64.rpm"
+        StartArkime:
           commands:
-            01_DownloadRules:
-              command: "suricata-update update-sources && suricata-update enable-source oisf/trafficid && suricata-update enable-source sslbl/ssl-fp-blacklist && suricata-update enable-source ptresearch/attackdetection"
-            02_UpdateRules:
-              command: "suricata-update"
-            03_addUpdaterclocal:
-              command: "echo 'yum update -y' >> /etc/rc.local"
-            04_updateSuricata:
-              command: "echo 'suricata-update' >> /etc/rc.local"
-            05_autoStartSuricata:
-              command: "echo 'suricata -D -c /etc/suricata/suricata.yaml -i nurx0 --user suricata --group suricata' >> /etc/rc.local"
-            06_startSuricata:
-              command: "suricata -D -c /etc/suricata/suricata.yaml -i nurx0 --user suricata --group suricata"
-            07_addEC2todockergroup:
+            01_adddelayrclocal:
+              command: "echo 'sleep 30' >> /etc/rc.local"
+            02_addArkimerclocal:
+              command: "echo '/data/moloch/start_moloch.sh' >> /etc/rc.local"
+            03_addEC2todockergroup:
               command: "usermod -aG docker ec2-user"
-
-
+            04_startArkime:
+              command: "/data/moloch/start_moloch.sh"
 
     Properties:
       UserData:
@@ -472,16 +552,16 @@ Resources:
           amazon-linux-extras install epel -y
           yum update -y
           yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource SuricataLaunchConfiguration --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource SuricataAutoScalingGroup
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ArkimeLaunchConfiguration --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource ArkimeAutoScalingGroup
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
       SecurityGroups:
-      - !Ref "SuricataSecurityGroup"
-      IamInstanceProfile: !Ref SuricataInstanceProfile
+      - !Ref "ArkimeSecurityGroup"
+      IamInstanceProfile: !Ref ArkimeInstanceProfile
       KeyName:
         Ref: KeyPairName
       BlockDeviceMappings:
@@ -491,9 +571,9 @@ Resources:
 Outputs:
   Login:
     Description: The username & password defaults are in the documentation
-    Value: "https://docs.nubeva.com/en/cloudtools/tools/suricata.html"
+    Value: "https://docs.nubeva.com/en/cloudtools/tools/moloch.html"
   URL:
-    Description: The URL for the Suricata Kibana Dashboard
+    Description: The URL for any instance's Moloch Dashboard
     Value: !Sub
-        - "https://${SuricataES}/_plugin/kibana/"
-        - SuricataES: !GetAtt SuricataElasticsearchDomain.DomainEndpoint
+        - "http://${ArkimeDNS}:8005"
+        - ArkimeDNS: !GetAtt ArkimeELB.DNSName

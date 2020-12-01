@@ -19,7 +19,7 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
-      - MolochInstall
+      - ArkimeInstall
       - NtopInstall
       - WiresharkInstall
       - SuricataInstall
@@ -27,6 +27,7 @@ Metadata:
       - ClientInstall
       - ToolAdmin
       - ToolPassword
+      - AddESRole
     - Label:
         default: Auto Scaling group configuration
       Parameters:
@@ -41,8 +42,8 @@ Metadata:
       - QSS3BucketRegion
       - QSS3KeyPrefix
     ParameterLabels:
-      MolochInstall:
-        default: Install Moloch ASG
+      ArkimeInstall:
+        default: Install Arkime ASG
       NtopInstall:
         default: Install ntop ASG
       WiresharkInstall:
@@ -53,10 +54,12 @@ Metadata:
         default: Install Zeek ASG
       ClientInstall:
         default: Install TLS generation clients
+      AddESRole:
+        default: Install Elasticsearch Service Linked Role
       ToolAdmin:
-        default: User name for tool administration
+        default: Administrator name
       ToolPassword:
-        default: Password for tool administration
+        default: Administrator password
       AvailabilityZones:
         default: Availability Zones
       APIKey:
@@ -74,13 +77,13 @@ Metadata:
       QSS3BucketName:
         default: Quick Start S3 bucket name
       QSS3BucketRegion:
-        default: Quick Start S3 bucket region
+        default: Quick Start S3 bucket Region
       QSS3KeyPrefix:
         default: Quick Start S3 key prefix
       RemoteAccessCIDR:
         default: Allowed external access CIDR
       BastionAMIOS:
-        default: Bastion Amazon Machine Image (AMI) operating system
+        default: Bastion AMI operating system
       BastionInstanceType:
         default: Bastion instance type
       VPCCIDR:
@@ -88,16 +91,16 @@ Metadata:
       NodeInstanceType:
         default: Tool instance type
       NumberOfNodes:
-        default: Desired number of nodes per tool
+        default: Desired nodes per tool
       MaximumNodes:
-        default: Maximum number of nodes per tool
+        default: Maximum nodes per tool
 Parameters:
-  MolochInstall:
+  ArkimeInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Choose to install Moloch.
+    Description: Choose to install Arkime.
     Type: String
   NtopInstall:
     Default: true
@@ -133,6 +136,13 @@ Parameters:
     - true
     - false
     Description: Choose to install TLS generation clients.
+    Type: String
+  AddESRole:
+    Default: false
+    AllowedValues:
+    - true
+    - false
+    Description: Choose to install Elasticsearch Service Linked Role.
     Type: String
   ToolAdmin:
     Description: User name associated with the administrator account for the created tools.
@@ -342,7 +352,7 @@ Resources:
   NubevaStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 
+      TemplateURL:
         !Sub
           - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-existing-vpc.template.yaml'
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
@@ -358,7 +368,7 @@ Resources:
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
-        MolochInstall: !Ref MolochInstall
+        ArkimeInstall: !Ref ArkimeInstall
         NtopInstall: !Ref NtopInstall
         WiresharkInstall: !Ref WiresharkInstall
         SuricataInstall: !Ref SuricataInstall
@@ -369,3 +379,4 @@ Resources:
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
         ClientInstall: !Ref ClientInstall
+        AddESRole: !Ref AddESRole

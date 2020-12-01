@@ -15,7 +15,7 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
-      - MolochInstall
+      - ArkimeInstall
       - NtopInstall
       - WiresharkInstall
       - SuricataInstall
@@ -23,6 +23,7 @@ Metadata:
       - ClientInstall
       - ToolAdmin
       - ToolPassword
+      - AddESRole
     - Label:
         default: Auto Scaling group configuration
       Parameters:
@@ -37,8 +38,8 @@ Metadata:
       - QSS3BucketRegion
       - QSS3KeyPrefix
     ParameterLabels:
-      MolochInstall:
-        default: Install Moloch ASG
+      ArkimeInstall:
+        default: Install Arkime ASG
       NtopInstall:
         default: Install ntop ASG
       WiresharkInstall:
@@ -49,26 +50,28 @@ Metadata:
         default: Install Zeek ASG
       ClientInstall:
         default: Install TLS generation clients
+      AddESRole:
+        default: Install Elasticsearch Service Linked Role
       ToolAdmin:
-        default: User name for tool administration
+        default: Administrator name
       ToolPassword:
-        default: Password for tool administration
+        default: Administrator password
       KeyPairName:
         default: SSH key name
       QSS3BucketName:
         default: Quick Start S3 bucket name
       QSS3BucketRegion:
-        default: Quick Start S3 bucket region
+        default: Quick Start S3 bucket Region
       QSS3KeyPrefix:
         default: Quick Start S3 key prefix
       RemoteAccessCIDR:
         default: Allowed external access CIDR
       NodeInstanceType:
-        default: Nodes instance type
+        default: Node instance type
       NumberOfNodes:
         default: Number of nodes
       MaximumNodes:
-        default: Maximum number of nodes per tool
+        default: Maximum nodes per tool
       PrivateSubnet1ID:
         default: Private subnet 1 ID
       PrivateSubnet2ID:
@@ -81,12 +84,12 @@ Metadata:
         default: Nubeva token
 
 Parameters:
-  MolochInstall:
+  ArkimeInstall:
     Default: true
     AllowedValues:
     - true
     - false
-    Description: Choose to install Moloch.
+    Description: Choose to install Arkime.
     Type: String
   NtopInstall:
     Default: true
@@ -122,6 +125,13 @@ Parameters:
     - true
     - false
     Description: Choose to install TLS generation clients.
+    Type: String
+  AddESRole:
+    Default: false
+    AllowedValues:
+    - true
+    - false
+    Description: Choose to install Elasticsearch Service Linked Role.
     Type: String
   KeyPairName:
     Description: Name of an existing key pair, which allows you
@@ -230,8 +240,8 @@ Parameters:
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-  MolochInstallTrue: !Equals
-    - !Ref MolochInstall
+  ArkimeInstallTrue: !Equals
+    - !Ref ArkimeInstall
     - 'true'
   NtopInstallTrue: !Equals
     - !Ref NtopInstall
@@ -248,14 +258,25 @@ Conditions:
   ClientInstallTrue: !Equals
     - !Ref ClientInstall
     - 'true'
+  ESRoleInstallTrue: !Equals
+    - !Ref AddESRole
+    - 'true'
+
 
 
 Resources:
+  BaseESSLR:
+    Condition: ESRoleInstallTrue
+    Type: AWS::IAM::ServiceLinkedRole
+    Properties:
+      AWSServiceName: es.amazonaws.com
+      Description: Default ES Service Linked IAM Role
+
   NtopStack:
     Condition: NtopInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 
+      TemplateURL:
         !Sub
           - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-ntop.template.yaml'
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
@@ -273,13 +294,13 @@ Resources:
         APIKey: !Ref APIKey
         ToolAdmin: !Ref ToolAdmin
         ToolPassword: !Ref ToolPassword
-  MolochStack:
-    Condition: MolochInstallTrue
+  ArkimeStack:
+    Condition: ArkimeInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 
+      TemplateURL:
         !Sub
-          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-moloch.template.yaml'
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-arkime.template.yaml'
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
             S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
@@ -299,7 +320,7 @@ Resources:
     Condition: WiresharkInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 
+      TemplateURL:
         !Sub
           - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-wireshark.template.yaml'
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
@@ -315,13 +336,13 @@ Resources:
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
         ToolAdmin: !Ref ToolAdmin
-        #ToolPassword: !Ref ToolPassword
+        ToolPassword: !Ref ToolPassword
         VPCCIDR: !Ref VPCCIDR
   SuricataStack:
     Condition: SuricataInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 
+      TemplateURL:
         !Sub
           - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-suricata.template.yaml'
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
@@ -341,7 +362,7 @@ Resources:
     Condition: ZeekInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 
+      TemplateURL:
         !Sub
           - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-zeek.template.yaml'
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
@@ -361,7 +382,7 @@ Resources:
     Condition: ClientInstallTrue
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: 
+      TemplateURL:
         !Sub
           - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-tlsgen.template.yaml'
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
