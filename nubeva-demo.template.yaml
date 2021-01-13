@@ -1,0 +1,424 @@
+
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Deploys Nubeva Kety Server/Signature Server Instance & Source Instance
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Nubeva configuration
+      Parameters:
+      - APIKey
+    - Label:
+        default: Network configuration
+      Parameters:
+      - VPCID
+      - VPCCIDR
+      - SubnetID
+      - RemoteAccessCIDR
+    - Label:
+        default: Instance configuration
+      Parameters:
+      - KeyPairName
+#      - NodeInstanceType
+    ParameterLabels:
+      KeyPairName:
+        default: SSH key name
+      RemoteAccessCIDR:
+        default: Allowed external access CIDR
+      SubnetID:
+        default: Subnet to deploy to
+      VPCID:
+        default: VPC ID
+      APIKey:
+        default: Nubeva Token
+      NodeInstanceType:
+        default: Node Instance Type
+      VPCCIDR:
+        default: VPC CIDR
+
+
+Parameters:
+  KeyPairName:
+    Description: The name of an existing public/private key pair, which allows you
+      to securely connect to your instance after it launches
+    Type: AWS::EC2::KeyPair::KeyName
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: The CIDR IP range that is permitted to access the instances. We recommend that you set this value to a trusted IP range.
+    Type: String
+  NodeInstanceType:
+    Default: t3.medium
+    AllowedValues:
+    - t3.medium
+    - t3.large
+    - t3.xlarge
+    - t3.2xlarge
+    - m5.large
+    - m5.xlarge
+    - m5.2xlarge
+    - m5.4xlarge
+    - m5.12xlarge
+    - m5.24xlarge
+    - c5.large
+    - c5.xlarge
+    - c5.2xlarge
+    - c5.4xlarge
+    - c5.9xlarge
+    - c5.18xlarge
+    - i3.large
+    - i3.xlarge
+    - i3.2xlarge
+    - i3.4xlarge
+    - i3.8xlarge
+    - i3.16xlarge
+    - r5.large
+    - r5.xlarge
+    - r5.2xlarge
+    - r5.4xlarge
+    - r5.12xlarge
+    - r5.24xlarge
+    ConstraintDescription: Must be a valid EC2 instance type.
+    Description: The type of EC2 instance for the node instances.
+    Type: String
+  APIKey:
+    Description: "The Token for your Prisms account"
+    Type: String
+  VPCID:
+    Type: "AWS::EC2::VPC::Id"
+    Description: The ID of your existing VPC (e.g., vpc-0343606e)
+  SubnetID:
+    Type: "AWS::EC2::Subnet::Id"
+    Description: The ID of a subnet in Availability Zone 1 in your existing VPC (e.g., subnet-fe9a8b32)
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Description: CIDR block for the VPC.
+    Type: String
+  NumberOfNodes:
+    Default: 1
+    Description: The number of tool node instances. The default is one for each of the two Availability Zones.
+    Type: Number
+  MaximumNodes:
+    Default: 1
+    Description: The maximum number of EC2 instance nodes in the each Tool Autoscaling Group.
+    Type: String
+
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      awslinux2: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    ap-northeast-1:
+      awslinux2: "ami-0c3fd0f5d33134a76"
+    ap-northeast-2:
+      awslinux2: "ami-095ca789e0549777d"
+    ap-south-1:
+      awslinux2: "ami-0d2692b6acea72ee6"
+    ap-southeast-1:
+      awslinux2: "ami-01f7527546b557442"
+    ap-southeast-2:
+      awslinux2: "ami-0dc96254d5535925f"
+    eu-central-1:
+      awslinux2: "ami-0cc293023f983ed53"
+    eu-north-1:
+      awslinux2: "ami-3f36be41"
+    eu-west-1:
+      awslinux2: "ami-0bbc25e23a7640b9b"
+    eu-west-2:
+      awslinux2: "ami-0d8e27447ec2c8410"
+    eu-west-3:
+      awslinux2: "ami-0adcddd3324248c4c"
+    us-east-1:
+      awslinux2: "ami-0b898040803850657"
+    us-east-2:
+      awslinux2: "ami-0d8f6eb4f641ef691"
+    us-west-1:
+      awslinux2: "ami-056ee704806822732"
+    us-west-2:
+      awslinux2: "ami-082b5a644766e0e6f"
+    ca-central-1:
+      awslinux2: "ami-0d4ae09ec9361d8ac"
+    sa-east-1:
+      awslinux2: "ami-058943e7d9b9cabfb"
+
+Resources:
+  SourceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Source Security Group
+      VpcId: !Ref 'VPCID'
+  # Inbound- allow ssh
+  SourceSecurityGroupSSHinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "SourceSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: !Ref "RemoteAccessCIDR"
+  # Outbound- allow all
+  SourceSecurityGroupOutbound:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref "SourceSecurityGroup"
+      CidrIp: 0.0.0.0/0
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+  KeyServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: KeyServer Security Group
+      VpcId: !Ref 'VPCID'
+  KeyServerSecurityGroupSSHinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "KeyServerSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: !Ref "RemoteAccessCIDR"
+  KeyServerSecurityGroupVXLANinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "KeyServerSecurityGroup"
+      CidrIp: !Ref 'VPCCIDR'
+      IpProtocol: udp
+      FromPort: 4789
+      ToPort: 4789
+  KeyServerSecurityGroupWiresharkinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "KeyServerSecurityGroup"
+      CidrIp: !Ref "RemoteAccessCIDR"
+      IpProtocol: tcp
+      FromPort: 14500
+      ToPort: 14500
+  KeyServerSecurityGroupAPIinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "KeyServerSecurityGroup"
+      CidrIp: !Ref 'VPCCIDR'
+      IpProtocol: tcp
+      FromPort: 4433
+      ToPort: 4433
+  KeyServerSecurityGroupDTLSinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "KeyServerSecurityGroup"
+      CidrIp: !Ref 'VPCCIDR'
+      IpProtocol: udp
+      FromPort: 4433
+      ToPort: 4433
+  KeyServerSecurityGroupSiginbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "KeyServerSecurityGroup"
+      CidrIp: !Ref 'VPCCIDR'
+      IpProtocol: tcp
+      FromPort: 8080
+      ToPort: 8080
+  # Outbound- allow all
+  KeyServerSecurityGroupOutbound:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref "KeyServerSecurityGroup"
+      CidrIp: 0.0.0.0/0
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+
+
+  InstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: '/'
+      Roles:
+      - !Ref SourceIAMRole
+
+  SourceIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - 'ec2.amazonaws.com'
+          Action:
+          - 'sts:AssumeRole'
+      Path: '/'
+      Policies:
+      - PolicyName: asg
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 'ec2:DescribeInstances'
+            Resource:
+            - '*'
+
+
+
+  Source:
+    Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Count: '1'
+        Timeout: PT15M
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          Configure:
+            - "ConfigStartup"
+          Install:
+            - "InstallServices"
+            - "InstallNubevaSensor"
+          Start:
+            - "StartSource"
+        ConfigStartup:
+          commands:
+            01_updaterclocal:
+             command: "echo 'yum update -y' >> /etc/rc.local"
+            02_chmod:
+              command: "chmod +x /etc/rc.d/rc.local"
+        InstallServices:
+          packages:
+            yum:
+              wget: []
+              docker: []
+          services:
+            sysvinit:
+              docker:
+                enabled: true
+                ensureRunning: true
+        InstallNubevaSensor:
+          commands:
+            00_dockergroup:
+              command: "usermod -a -G docker ec2-user"
+            00a_etchosts:
+              command: "echo ${SKdbIP}'    key.nubedge.com' >> /etc/hosts"
+              env:
+                SKdbIP: !GetAtt KeyServer.PrivateIp
+#            01_download_and_install:
+#              command:
+#                !Sub |
+#                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --add-host key.nubedge.com:127.0.0.1 --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host nubeva/nuagent --accept-eula --contained on --nutoken ${APIKey} -sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbSIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=
+            03_install_sensor:
+              command: !Sub
+#                - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --add-host key.nubedge.com:${SKdbIP} --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host nubeva/nuagent --accept-eula --contained on --nutoken ${token} -sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbSIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo="
+                - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --add-host key.nubedge.com:${SKdbIP} --cap-add NET_ADMIN --cap-add SYS_ADMIN --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always --net=host --pid host nubeva/nuagent --accept-eula --contained on --nutoken ${token} -noautoupdate --nocloudwatch  --debug=none --disable metrics --sslcredobj eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo= --baseurl https://key.nubedge.com:4433/ --ssl-baseurl http://key.nubedge.com:8080/"
+                - {token: !Ref APIKey, SKdbIP: !GetAtt KeyServer.PrivateIp}
+
+        StartSource:
+          commands:
+            01_copycrontab:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/tlsgencronjob -O /etc/cron.d/tlscronjob"
+
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          amazon-linux-extras install epel -y
+          yum update -y
+          yum update -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource Source --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource Source
+      InstanceType: !Ref NodeInstanceType
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - awslinux2
+      SecurityGroupIds:
+          - !GetAtt "SourceSecurityGroup.GroupId"
+      IamInstanceProfile: !Ref InstanceProfile
+      KeyName:
+        Ref: KeyPairName
+      SubnetId: !Ref SubnetID
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}
+
+  KeyServer:
+    Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Count: '1'
+        Timeout: PT15M
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          Configure:
+            - "ConfigStartup"
+          Install:
+            - "InstallServices"
+            - "InstallNurxAgent"
+          Start:
+            - "StartKeyServer"
+        ConfigStartup:
+          commands:
+            01_updaterclocal:
+             command: "echo 'yum update -y' >> /etc/rc.local"
+            02_chmod:
+              command: "chmod +x /etc/rc.d/rc.local"
+        InstallServices:
+          packages:
+            yum:
+              wget: []
+              docker: []
+          services:
+            sysvinit:
+              docker:
+                enabled: true
+                ensureRunning: true
+        InstallNurxAgent:
+          commands:
+            00_dockergroup:
+              command: "sudo usermod -a -G docker ec2-user"
+            01_download_and_install:
+              command:
+                !Sub |
+                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock  --cap-add NET_ADMIN --add-host key.nubedge.com:127.0.0.1 --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey} --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbSIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=
+#                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --add-host key.nubedge.com:127.0.0.1 --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host --pid host nubeva/nurx --accept-eula --nutoken ${APIKey} --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoidGVzdCIsInJlZ2lvbiI6ImtleS5udWJlZGdlLmNvbSIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=
+        StartKeyServer:
+          commands:
+            00_etc-hosts:
+              command: "echo '127.0.0.1    key.nubedge.com' >> /etc/hosts"
+            01_wireshark:
+              command: "docker run -p 14500:14500 --restart unless-stopped -dti --cap-add NET_ADMIN --net=host --name wireshark  ffeldhaus/wireshark"
+            02_KeyServer:
+              command: "docker run -p 4433:4433/TCP -p 4433:4433/UDP --name nubeva-ks -dit  nubevalab/nubeva-ks"
+            03_SigServer:
+              command: "docker run -p 8080:8080/tcp --name nubeva-sig -dit nubevalab/sigserver"
+
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          amazon-linux-extras install epel -y
+          yum update -y
+          yum update -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource KeyServer --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource KeyServer
+      InstanceType: !Ref NodeInstanceType
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - awslinux2
+      SecurityGroupIds:
+          - !GetAtt "KeyServerSecurityGroup.GroupId"
+      IamInstanceProfile: !Ref InstanceProfile
+      KeyName:
+        Ref: KeyPairName
+      SubnetId: !Ref SubnetID
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}
+
+
+
+#Outputs:
