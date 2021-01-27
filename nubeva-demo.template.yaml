@@ -238,39 +238,6 @@ Resources:
       FromPort: -1
       ToPort: -1
 
-  InstanceProfile:
-    Type: 'AWS::IAM::InstanceProfile'
-    Properties:
-      Path: '/'
-      Roles:
-      - !Ref SourceIAMRole
-
-  SourceIAMRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - 'ec2.amazonaws.com'
-          Action:
-          - 'sts:AssumeRole'
-      Path: '/'
-      Policies:
-      - PolicyName: asg
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-            - 'ec2:DescribeInstances'
-            Resource:
-            - '*'
-
-
-
   Source:
     Type: AWS::EC2::Instance
     CreationPolicy:
@@ -334,7 +301,6 @@ Resources:
         - awslinux2
       SecurityGroupIds:
           - !GetAtt "SourceSecurityGroup.GroupId"
-      IamInstanceProfile: !Ref InstanceProfile
       KeyName:
         Ref: KeyPairName
       SubnetId: !Ref SubnetID
@@ -402,7 +368,6 @@ Resources:
         - awslinux2
       SecurityGroupIds:
           - !GetAtt "KeyServerSecurityGroup.GroupId"
-      IamInstanceProfile: !Ref InstanceProfile
       KeyName:
         Ref: KeyPairName
       SubnetId: !Ref SubnetID
@@ -474,7 +439,6 @@ Resources:
         - awslinux2
       SecurityGroupIds:
           - !GetAtt "DecryptorSecurityGroup.GroupId"
-      IamInstanceProfile: !Ref InstanceProfile
       KeyName:
         Ref: KeyPairName
       SubnetId: !Ref SubnetID
