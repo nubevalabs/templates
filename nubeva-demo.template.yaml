@@ -482,7 +482,7 @@ Resources:
         - !Ref 'AWS::Region'
         - awslinux2
       SecurityGroupIds:
-          - !GetAtt "KeyServerSecurityGroup.GroupId"
+          - !GetAtt "DecryptorSecurityGroup.GroupId"
       IamInstanceProfile: !Ref InstanceProfile
       KeyName:
         Ref: KeyPairName
