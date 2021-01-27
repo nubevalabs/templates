@@ -489,6 +489,6 @@ Resources:
       SubnetId: !Ref SubnetID
       Tags:
       - Key: Name
-        Value: !Sub ${AWS::StackName}
+        Value: !Sub "${AWS::StackName}-Decryptor"
 
 #Outputs:
