@@ -6,10 +6,6 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
-        default: Nubeva configuration
-      Parameters:
-      - APIKey
-    - Label:
         default: Network configuration
       Parameters:
       - VPCID
@@ -29,8 +25,6 @@ Metadata:
         default: Subnet to deploy to
       VPCID:
         default: VPC ID
-      APIKey:
-        default: Nubeva Token
       NodeInstanceType:
         default: Node Instance Type
       VPCCIDR:
@@ -80,9 +74,6 @@ Parameters:
     - r5.24xlarge
     ConstraintDescription: Must be a valid EC2 instance type.
     Description: The type of EC2 instance for the node instances.
-    Type: String
-  APIKey:
-    Description: "The Token for your Prisms account"
     Type: String
   VPCID:
     Type: "AWS::EC2::VPC::Id"
@@ -349,7 +340,7 @@ Resources:
       SubnetId: !Ref SubnetID
       Tags:
       - Key: Name
-        Value: !Sub ${AWS::StackName}
+        Value: !Sub "${AWS::StackName}-Source"
 
   KeyServer:
     Type: AWS::EC2::Instance
@@ -417,7 +408,7 @@ Resources:
       SubnetId: !Ref SubnetID
       Tags:
       - Key: Name
-        Value: !Sub ${AWS::StackName}
+        Value: !Sub "${AWS::StackName}-Key & Sig Server"
 
   DecryptorServer:
     Type: AWS::EC2::Instance
