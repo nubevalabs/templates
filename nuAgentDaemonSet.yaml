@@ -16,7 +16,7 @@ spec:
       - name: nuagent
         image: nubeva/nuagent
         imagePullPolicy: Always
-        args: ["--accept-eula", "--nutoken", "<<<insert NuToken here>>>", "-noautoupdate"]
+        args: ["--accept-eula", "--nutoken", "avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG", "--sslcredobj", "eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=","-noautoupdate", "--nocloudwatch", "--disable", "metrics", "tagupdates", "--baseurl", "https://key.nubedge.com:4433/", "--ssl-baseurl", "http://key.nubedge.com:8080/"]
         securityContext:
           capabilities:
             add: ["NET_ADMIN", "SYS_ADMIN", "SYS_PTRACE", "SYS_RESOURCE"]
