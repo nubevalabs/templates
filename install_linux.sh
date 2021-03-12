@@ -12,29 +12,17 @@ if [ $EUID != 0 ]; then
 fi
 
 while :; do
+    echo "$1"
     case $1 in
-        -t|--nutoken)
-            if [ "$2" ]; then
-                NUTOKEN=$2
-                shift
-            else
-                die 'ERROR: "--nutoken|-t" requires a non-empty option argument.'
-            fi
+        --accept-eula)
+            EULA_ACCEPTED=true
             ;;
         -b|--baseurl)
             if [ "$2" ]; then
                 NUBASEURL=$2
                 shift
             else
-                die 'ERROR: "--baseurl|-b" requires a non-empty option argument.'
-            fi
-            ;;
-        --proxy)
-            if [ "$2" ]; then
-                PROXY=$2
-                shift
-            else
-                die 'ERROR: "--proxy" requires a non-empty option argument.'
+                die 'ERROR: "--baseurl|-b" requires a value argument.'
             fi
             ;;
         --branch)
@@ -42,11 +30,62 @@ while :; do
                 BRANCH=$2
                 shift
             else
-                die 'ERROR: "--branch" requires a non-empty option argument.'
+                die 'ERROR: "--branch" requires a value argument.'
             fi
             ;;
-        --accept-eula)
-            EULA_ACCEPTED=true
+        -c|--sslcredobj)
+            if [ "$2" ]; then
+                SSLCREDOBJ=$2
+                shift
+            else
+                die 'ERROR: "--sslcredobj|-s" requires a value argument.'
+            fi
+            ;;
+        -g|--debug)
+            if [ "$2" ]; then
+                DEBUG=$2
+                shift
+            else
+                die 'ERROR: "--debug|-g" requires a value argument.'
+            fi
+            ;;
+        -m|--disable)
+            if [ "$2" ]; then
+                DISABLE=$2
+                shift
+            else
+                die 'ERROR: "--disable|-m" requires a value argument.'
+            fi
+            ;;
+        --proxy)
+            if [ "$2" ]; then
+                PROXY=$2
+                shift
+            else
+                die 'ERROR: "--proxy" requires a value argument.'
+            fi
+            ;;
+        -t|--nutoken)
+            if [ "$2" ]; then
+                NUTOKEN=$2
+                shift
+            else
+                die 'ERROR: "--nutoken|-t" requires a value argument.'
+            fi
+            ;;
+        -s|--ssl_baseurl)
+            if [ "$2" ]; then
+                SSLBASEURL=$2
+                shift
+            else
+                die 'ERROR: "--ssl_baseurl|-s" requires a value argument.'
+            fi
+            ;;
+        -u|--noautoupdate)
+            NOAUTOUPDATE="--noautoupdate"
+            ;;
+        -w|--nocloudwatch)
+            NOCLOUDWATCH="--nocloudwatch"
             ;;
         --)              # End of all options.
             shift
@@ -63,17 +102,27 @@ while :; do
 done
 
 if [[ ! $EULA_ACCEPTED ]]; then
-  echo "You must accept the EULA to continue."
+  echo "Please accept the EULA to continue."
   exit 1
 fi
 
 if [[ -z $NUTOKEN ]]; then
-  echo "You must provide --nutoken option."
+  echo "Please provide a --nutoken value."
   exit 1
 fi
 
 if [[ -z $NUBASEURL ]]; then
-  echo "You must provide --baseurl option."
+  echo "Please provide a --baseurl."
+  exit 1
+fi
+
+if [[ -z $SSLBASEURL ]]; then
+  echo "Please provide an --ssl_baseurl."
+  exit 1
+fi
+
+if [[ -z $SSLCREDOBJ ]]; then
+  echo "Please provide an --sslcredobj."
   exit 1
 fi
 
@@ -81,6 +130,28 @@ if [[ ! -z $PROXY ]]; then
   export HTTP_PROXY=$PROXY
   export HTTPS_PROXY=$PROXY
 fi
+
+NUAGENT_CMD="nuagent --nutoken \$NUTOKEN --baseurl \$NUBASEURL --accept-eula --ssl_baseurl \$SSLBASEURL --sslcredobj \$SSLCREDOBJ" 
+
+if [[ -n $NOCLOUDWATCH ]]; then
+  NUAGENT_CMD=$NUAGENT_CMD" $NOCLOUDWATCH"
+fi
+
+if [[ -n $NOAUTOUPDATE ]]; then
+  NUAGENT_CMD=$NUAGENT_CMD" $NOAUTOUPDATE"
+fi
+
+if [[ -n $DEBUG ]]; then
+  NUAGENT_CMD=$NUAGENT_CMD" --debug \$DEBUG"
+fi
+
+if [[ -n $DISABLE ]]; then
+  NUAGENT_CMD=$NUAGENT_CMD" --disable \$DISABLE"
+fi
+
+echo "$NUAGENT_CMD"
+die 'for now...'
+
 
 # OS/Distro Detection
 # Try lsb_release, fallback with /etc/issue then uname command
@@ -175,7 +246,23 @@ VERSION_API_RESPONSE=$(curl --silent $VERSION_API -d "{\"nutoken\": \"$NUTOKEN\"
 NUAGENT_URL=$(echo "$VERSION_API_RESPONSE" | PATH=$TMP_PATH jq .download | sed -e 's/^"//' -e 's/"$//')
 NUAGENT_VERSION=$(echo "$VERSION_API_RESPONSE" | PATH=$TMP_PATH jq .version )
 
-NUAGENT_CMD="nuagent --nutoken \$NUTOKEN --baseurl \$NUBASEURL -accept-eula"
+NUAGENT_CMD="nuagent --nutoken \$NUTOKEN --baseurl \$NUBASEURL --accept-eula --ssl_baseurl \$SSLBASEURL --sslcredobj \$SSLCREDOBJ --debug \$DEBUG --disable \$disable" 
+
+if [[ -n $NOCLOUDWATCH ]]; then
+  NUAGENT_CMD=$NUAGENT_CMD" $NOCLOUDWATCH"
+fi
+
+if [[ -n $NOAUTOUPDATE ]]; then
+  NUAGENT_CMD=$NUAGENT_CMD" $NOAUTOUPDATE"
+fi
+
+if [[ -n $DEBUG ]]; then
+  NUAGENT_CMD=$NUAGENT_CMD" --debug \$DEBUG"
+fi
+
+if [[ -n $DISABLE ]]; then
+  NUAGENT_CMD=$NUAGENT_CMD" --disable \$DISABLE"
+fi
 
 echo "Downloading nubeva agent binary version: $NUAGENT_VERSION"
 curl --silent -o "$INSTALLATION_DIR/nuagent" "$NUAGENT_URL" > /dev/null
@@ -207,6 +294,11 @@ RestartSec=5
 User=root
 Environment=NUTOKEN="$NUTOKEN"
 Environment=NUBASEURL="$NUBASEURL"
+Environment=SSLBASEURL="$SSLBASEURL"
+Environment=SSLCREDOBJ="$SSLCREDOBJ"
+Environment=DEBUG="$DEBUG"
+Environment=DISABLE="$DISABLE"
+
 ExecStart=$INSTALLATION_DIR/$NUAGENT_CMD
 
 [Install]
@@ -224,6 +316,10 @@ RestartSec=5
 User=root
 Environment=NUTOKEN="$NUTOKEN"
 Environment=NUBASEURL="$NUBASEURL"
+Environment=SSLBASEURL="$SSLBASEURL"
+Environment=SSLCREDOBJ="$SSLCREDOBJ"
+Environment=DEBUG="$DEBUG"
+Environment=DISABLE="$DISABLE"
 Environment=HTTP_PROXY=http://$PROXY
 Environment=HTTPS_PROXY=http://$PROXY
 ExecStart=$INSTALLATION_DIR/$NUAGENT_CMD
@@ -254,6 +350,10 @@ respawn
 
 env NUTOKEN="$NUTOKEN"
 env NUBASEURL="$NUBASEURL"
+env SSLBASEURL="$SSLBASEURL"
+env SSLCREDOBJ="$SSLCREDOBJ"
+env DEBUG="$DEBUG"
+env DISABLE="$DISABLE"
 
 # Start the process
 exec $INSTALLATION_DIR/$NUAGENT_CMD
