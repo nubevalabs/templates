@@ -12,7 +12,6 @@ if [ $EUID != 0 ]; then
 fi
 
 while :; do
-    echo "$1"
     case $1 in
         --accept-eula)
             EULA_ACCEPTED=true
