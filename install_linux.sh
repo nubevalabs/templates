@@ -73,16 +73,24 @@ while :; do
                 die 'ERROR: "--nutoken|-t" requires a value argument.'
             fi
             ;;
-        -s|--ssl_baseurl)
+        -s|--ssl-baseurl)
             if [ "$2" ]; then
                 SSLBASEURL=$2
                 shift
             else
-                die 'ERROR: "--ssl_baseurl|-s" requires a value argument.'
+                die 'ERROR: "--ssl-baseurl|-s" requires a value argument.'
             fi
             ;;
         -u|--noautoupdate)
             NOAUTOUPDATE="--noautoupdate"
+            ;;
+        -v|--versionurl)
+            if [ "$2" ]; then
+                NUVERSIONURL=$2
+                shift
+            else
+                die 'ERROR: "--versionurl|-v" requires a value argument.'
+            fi
             ;;
         -w|--nocloudwatch)
             NOCLOUDWATCH="--nocloudwatch"
@@ -117,7 +125,7 @@ if [[ -z $NUBASEURL ]]; then
 fi
 
 if [[ -z $SSLBASEURL ]]; then
-  echo "Please provide an --ssl_baseurl."
+  echo "Please provide an --ssl-baseurl."
   exit 1
 fi
 
@@ -130,27 +138,6 @@ if [[ ! -z $PROXY ]]; then
   export HTTP_PROXY=$PROXY
   export HTTPS_PROXY=$PROXY
 fi
-
-NUAGENT_CMD="nuagent --nutoken \$NUTOKEN --baseurl \$NUBASEURL --accept-eula --ssl_baseurl \$SSLBASEURL --sslcredobj \$SSLCREDOBJ" 
-
-if [[ -n $NOCLOUDWATCH ]]; then
-  NUAGENT_CMD=$NUAGENT_CMD" $NOCLOUDWATCH"
-fi
-
-if [[ -n $NOAUTOUPDATE ]]; then
-  NUAGENT_CMD=$NUAGENT_CMD" $NOAUTOUPDATE"
-fi
-
-if [[ -n $DEBUG ]]; then
-  NUAGENT_CMD=$NUAGENT_CMD" --debug \$DEBUG"
-fi
-
-if [[ -n $DISABLE ]]; then
-  NUAGENT_CMD=$NUAGENT_CMD" --disable \$DISABLE"
-fi
-
-echo "$NUAGENT_CMD"
-die 'for now...'
 
 
 # OS/Distro Detection
@@ -225,7 +212,7 @@ fi
 } &> /dev/null
 
 INSTALLATION_DIR=/nubeva
-VERSION_API="${NUBASEURL}bp/nuagent_version"
+VERSION_API="${NUVERSIONURL}bp/nuagent_version"
 
 if [[ -z $BRANCH ]]; then
   if [[ $NUBASEURL =~ "version-test" ]]; then
@@ -246,7 +233,7 @@ VERSION_API_RESPONSE=$(curl --silent $VERSION_API -d "{\"nutoken\": \"$NUTOKEN\"
 NUAGENT_URL=$(echo "$VERSION_API_RESPONSE" | PATH=$TMP_PATH jq .download | sed -e 's/^"//' -e 's/"$//')
 NUAGENT_VERSION=$(echo "$VERSION_API_RESPONSE" | PATH=$TMP_PATH jq .version )
 
-NUAGENT_CMD="nuagent --nutoken \$NUTOKEN --baseurl \$NUBASEURL --accept-eula --ssl_baseurl \$SSLBASEURL --sslcredobj \$SSLCREDOBJ --debug \$DEBUG --disable \$disable" 
+NUAGENT_CMD="nuagent --nutoken \$NUTOKEN --baseurl \$NUBASEURL --accept-eula --ssl-baseurl \$SSLBASEURL --sslcredobj \$SSLCREDOBJ" 
 
 if [[ -n $NOCLOUDWATCH ]]; then
   NUAGENT_CMD=$NUAGENT_CMD" $NOCLOUDWATCH"
