@@ -48,6 +48,14 @@ while :; do
                 die 'ERROR: "--debug|-g" requires a value argument.'
             fi
             ;;
+        -l|--int-blacklist)
+            if [ "$2" ]; then
+                BLACKLIST=$2
+                shift
+            else
+                die 'ERROR: "--disable|-m" requires a value argument.'
+            fi
+            ;;
         -m|--disable)
             if [ "$2" ]; then
                 DISABLE=$2
@@ -56,7 +64,7 @@ while :; do
                 die 'ERROR: "--disable|-m" requires a value argument.'
             fi
             ;;
-        --proxy)
+        -p|--proxy)
             if [ "$2" ]; then
                 PROXY=$2
                 shift
@@ -250,6 +258,10 @@ if [[ -n $DISABLE ]]; then
   NUAGENT_CMD=$NUAGENT_CMD" --disable \$DISABLE"
 fi
 
+if [[ -n $BLACKLIST ]]; then
+  NUAGENT_CMD=$NUAGENT_CMD" --int-blacklist \$BLACKLIST"
+fi
+
 echo "Downloading nubeva agent binary version: $NUAGENT_VERSION"
 curl --silent -o "$INSTALLATION_DIR/nuagent" "$NUAGENT_URL" > /dev/null
 
@@ -284,6 +296,7 @@ Environment=SSLBASEURL="$SSLBASEURL"
 Environment=SSLCREDOBJ="$SSLCREDOBJ"
 Environment=DEBUG="$DEBUG"
 Environment=DISABLE="$DISABLE"
+Environment=BLACKLIST="$BLACKLIST"
 
 ExecStart=$INSTALLATION_DIR/$NUAGENT_CMD
 
@@ -306,6 +319,7 @@ Environment=SSLBASEURL="$SSLBASEURL"
 Environment=SSLCREDOBJ="$SSLCREDOBJ"
 Environment=DEBUG="$DEBUG"
 Environment=DISABLE="$DISABLE"
+Environment=BLACKLIST="$BLACKLIST"
 Environment=HTTP_PROXY=http://$PROXY
 Environment=HTTPS_PROXY=http://$PROXY
 ExecStart=$INSTALLATION_DIR/$NUAGENT_CMD
@@ -340,6 +354,7 @@ env SSLBASEURL="$SSLBASEURL"
 env SSLCREDOBJ="$SSLCREDOBJ"
 env DEBUG="$DEBUG"
 env DISABLE="$DISABLE"
+env BLACKLIST="$BLACKLIST"
 
 # Start the process
 exec $INSTALLATION_DIR/$NUAGENT_CMD
