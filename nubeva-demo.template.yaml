@@ -346,10 +346,12 @@ Resources:
           commands:
             00_etc-hosts:
               command: "echo '127.0.0.1    key.nubedge.com' >> /etc/hosts"
-            02_KeyServer:
-              command: "docker run -p 4433:4433/TCP -p 4433:4433/UDP --name nubeva-ks -dit  nubevalab/nubeva-ks"
-            03_SigServer:
-              command: "docker run -p 8080:8080/tcp --name nubeva-sig -dit nubevalab/sigserver"
+            02_FastKeyServer:
+              command: "docker run --name nubeva-ks -d -p4433:4433/tcp -p4433:4433/udp  -v $(pwd)/../certs:/certs nubeva/fastkey --cert /certs/yourcert.pem --key /certs/yourkey.pem"
+#            02_KeyServer:
+#              command: "docker run -p 4433:4433/TCP -p 4433:4433/UDP --name nubeva-ks -dit  nubevalab/nubeva-ks"
+#            03_SigServer:
+#              command: "docker run -p 8080:8080/tcp --name nubeva-sig -dit nubevalab/sigserver"
 
 
     Properties:

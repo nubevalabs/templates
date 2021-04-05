@@ -1,0 +1,16 @@
+{
+  "status": "success",
+  "response": {
+    "SslCredObj": "eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=",
+    "SrcGroups": [
+      {
+        "_type": "custom.srcgroup",
+        "sensorlist_list_custom_sensor": [
+          "i-0216d54994df6bcc1x631140662218946579075626"
+        ],
+        "ssl": true,
+        "_id": "1234567890AAAA"
+      }
+    ]
+    }
+  }
