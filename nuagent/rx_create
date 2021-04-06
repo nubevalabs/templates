@@ -1,0 +1,9 @@
+{
+    "status": "success",
+    "response": {
+        "rxid": "1234567890",
+        "account_id": "default",
+        "plan_id": "default",
+        "message": "Hello"
+    }
+}

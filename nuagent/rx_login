@@ -1,0 +1,8 @@
+{
+    "status": "success",
+    "response": {
+        "user_id": "default",
+        "token": "default",
+        "expires": 31536000
+    }
+}
