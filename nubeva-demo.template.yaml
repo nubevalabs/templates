@@ -358,7 +358,7 @@ Resources:
             01_copynudemobundle:
               command: "mkdir /opt/nubevaTools && curl -o /opt/nubevaTools/nudemo-bundle.tar.gz https://github.com/ejfree/dockerfiles/blob/1ebf101668f7a3a57ed98153433d7a1b7a5aef1b/nudemo-bundle.tar.gz"
             01a_installcerts:
-              command: "tar -xzvf nudemo-bundle.tar.gz"
+              command: "tar -xzvf /opt/nubevaTools/nudemo-bundle.tar.gz"
             02_FastKeyServer:
               command: "docker run --name nubeva-ks -d -p4433:4433/tcp -p4433:4433/udp  -v /opt/nubevaTools:/certs nubeva/fastkey --cert /certs/nubedge.pem --key /certs/nubedge.key"
 #            02_KeyServer:
