@@ -358,7 +358,7 @@ Resources:
             01_createdirectory:
               command: "mkdir /opt/nubevaTools"
             01a_downloadnudemobundle:
-              command: "https://raw.githubusercontent.com/ejfree/dockerfiles/master/nudemo-bundle.tar.gz"
+              command: "curl -o /opt/nubevaTools/nudemo-bundle.tar.gz https://raw.githubusercontent.com/ejfree/dockerfiles/master/nudemo-bundle.tar.gz"
             01b_installcerts:
               command: "tar -xzvf /opt/nubevaTools/nudemo-bundle.tar.gz -C /opt/nubevaTools"
             02_FastKeyServer:
