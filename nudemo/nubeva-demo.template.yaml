@@ -237,6 +237,63 @@ Resources:
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
+  DecryptorTrafficMirrorTarget:
+    Type: AWS::EC2::TrafficMirrorTarget
+    DependsOn: DecryptorServer
+    Properties:
+      Description: "Decryptor"
+      NetworkInterfaceId: !Ref DecryptorInboundInterface
+  DecryptorTrafficMirrorSession:
+    Type: "AWS::EC2::TrafficMirrorSession"
+    DependsOn: Source
+    Properties:
+      Description: "Source to Decryptor"
+      NetworkInterfaceId: !Ref SourceInterface
+      TrafficMirrorTargetId: !Ref DecryptorTrafficMirrorTarget
+      TrafficMirrorFilterId: !Ref AllTrafficMirrorFilter
+      SessionNumber: 1
+  AllTrafficMirrorFilter:
+    Type: "AWS::EC2::TrafficMirrorFilter"
+    Properties:
+      Description: "All traffic mirror filter"
+  AllIngressTrafficMirrorFilterRule:
+    Type: "AWS::EC2::TrafficMirrorFilterRule"
+    Properties:
+      Description: "Filter for ALL ingress traffic"
+      TrafficMirrorFilterId: !Ref AllTrafficMirrorFilter
+      TrafficDirection: "ingress"
+      RuleNumber: 10
+      DestinationCidrBlock: "0.0.0.0/0"
+      SourceCidrBlock: "0.0.0.0/0"
+      RuleAction: "accept"
+  AllEgressTrafficMirrorFilterRule:
+    Type: "AWS::EC2::TrafficMirrorFilterRule"
+    Properties:
+      Description: "Filter for ALL egress traffic"
+      TrafficMirrorFilterId: !Ref AllTrafficMirrorFilter
+      TrafficDirection: "egress"
+      RuleNumber: 20
+      DestinationCidrBlock: "0.0.0.0/0"
+      SourceCidrBlock: "0.0.0.0/0"
+      RuleAction: "accept"
+
+  SourceInterface:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetID
+      Description: Outbounf Interface on Source
+      GroupSet:
+      - !Ref SourceSecurityGroup
+
+
+  DecryptorInboundInterface:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetID
+      Description: Interface for incoming traffic to be decrypted
+      GroupSet:
+      - !Ref DecryptorSecurityGroup
+
 
   Source:
     Type: AWS::EC2::Instance
@@ -308,11 +365,12 @@ Resources:
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
-      SecurityGroupIds:
-          - !GetAtt "SourceSecurityGroup.GroupId"
+      NetworkInterfaces:
+        -
+          NetworkInterfaceId: !Ref SourceInterface
+          DeviceIndex: '0'
       KeyName:
         Ref: KeyPairName
-      SubnetId: !Ref SubnetID
       Tags:
       - Key: Name
         Value: !Sub "${AWS::StackName}-Source"
@@ -463,11 +521,15 @@ Resources:
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
-      SecurityGroupIds:
-          - !GetAtt "DecryptorSecurityGroup.GroupId"
+      NetworkInterfaces:
+        -
+          NetworkInterfaceId: !Ref DecryptorInboundInterface
+          DeviceIndex: '0'
+#      SecurityGroupIds:
+#          - !GetAtt "DecryptorSecurityGroup.GroupId"
       KeyName:
         Ref: KeyPairName
-      SubnetId: !Ref SubnetID
+#      SubnetId: !Ref SubnetID
       Tags:
       - Key: Name
         Value: !Sub "${AWS::StackName}-Decryptor"
