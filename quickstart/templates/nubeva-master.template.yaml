@@ -1,6 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Nubeva TLS Decrypt & Open-Source Tools in a new VPC.
+Description: Deploys Nubeva TLS Decrypt & Open-Source Tools in a new VPC (qs-1qsdipn35).
 Metadata:
+  QuickStartDocumentation:
+    EntrypointName: "Launch into a new VPC"
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
@@ -19,8 +21,7 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
-      - ArkimeInstall
-      - NtopInstall
+#      - ArkimeInstall
       - WiresharkInstall
       - SuricataInstall
       - ZeekInstall
@@ -42,10 +43,8 @@ Metadata:
       - QSS3BucketRegion
       - QSS3KeyPrefix
     ParameterLabels:
-      ArkimeInstall:
-        default: Install Arkime ASG
-      NtopInstall:
-        default: Install ntop ASG
+#      ArkimeInstall:
+#        default: Install Arkime ASG
       WiresharkInstall:
         default: Install Wireshark ASG
       SuricataInstall:
@@ -95,20 +94,13 @@ Metadata:
       MaximumNodes:
         default: Maximum nodes per tool
 Parameters:
-  ArkimeInstall:
-    Default: true
-    AllowedValues:
-    - true
-    - false
-    Description: Choose to install Arkime.
-    Type: String
-  NtopInstall:
-    Default: true
-    AllowedValues:
-    - true
-    - false
-    Description: Choose to install ntop.
-    Type: String
+#  ArkimeInstall:
+#    Default: true
+#    AllowedValues:
+#    - true
+#    - false
+#    Description: Choose to install Arkime.
+#    Type: String
   WiresharkInstall:
     Default: true
     AllowedValues:
@@ -163,9 +155,10 @@ Parameters:
   BastionAMIOS:
     AllowedValues:
     - Amazon-Linux-HVM
-    - CentOS-7-HVM
-    - Ubuntu-Server-14.04-LTS-HVM
-    - Ubuntu-Server-16.04-LTS-HVM
+#restricting choice to fix bug
+#    - CentOS-7-HVM
+#    - Ubuntu-Server-14.04-LTS-HVM
+#    - Ubuntu-Server-16.04-LTS-HVM
     Default: Amazon-Linux-HVM
     Description: Linux distribution for the Amazon Machine Image (AMI) to be used for the bastion instances.
     Type: String
@@ -291,6 +284,10 @@ Parameters:
   APIKey:
     Description: Token for your Nubeva account.
     Type: String
+  FastKeyDNS:
+    Description: FastKey Server Domain Name
+    Type: String
+    Default: key.nubedge.com
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
@@ -301,14 +298,13 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template'
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template.yaml'
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
             S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         AvailabilityZones: !Join
           - ','
           - !Ref AvailabilityZones
-        KeyPairName: !Ref 'KeyPairName'
         NumberOfAZs: '2'
         PrivateSubnet1ACIDR: !Ref PrivateSubnet1CIDR
         PrivateSubnet2ACIDR: !Ref PrivateSubnet2CIDR
@@ -368,8 +364,7 @@ Resources:
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         VPCCIDR: !Ref VPCCIDR
         APIKey: !Ref APIKey
-        ArkimeInstall: !Ref ArkimeInstall
-        NtopInstall: !Ref NtopInstall
+#        ArkimeInstall: !Ref ArkimeInstall
         WiresharkInstall: !Ref WiresharkInstall
         SuricataInstall: !Ref SuricataInstall
         ZeekInstall: !Ref ZeekInstall
@@ -380,3 +375,4 @@ Resources:
         ToolPassword: !Ref ToolPassword
         ClientInstall: !Ref ClientInstall
         AddESRole: !Ref AddESRole
+        FastKeyDNS: !Ref FastKeyDNS

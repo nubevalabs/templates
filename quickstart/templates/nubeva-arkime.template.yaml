@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Arkime as part of the Nubeva TLS Decrypt & Open Source Tools
+Description: Deploys Arkime as part of the Nubeva TLS Decrypt & Open Source Tools. (qs-1qsdipn5n)
 Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
@@ -81,6 +81,12 @@ Parameters:
     - r5.12xlarge
     - r5.24xlarge
     ConstraintDescription: Please choose a valid instance type.
+  FastKeyIP:
+    Description: IP Address of FastKey Server
+    Type: String
+  FastKeyDNS:
+    Description: FastKey Server Domain Name
+    Type: String
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -373,7 +379,7 @@ Resources:
         - GroupInServiceInstances
       Tags:
       - Key: Name
-        Value: !Sub ${AWS::StackName}
+        Value: !Sub "Arkime-${AWS::StackName}"
         PropagateAtLaunch: true
     CreationPolicy:
       ResourceSignal:
@@ -480,24 +486,54 @@ Resources:
               docker:
                 enabled: true
                 ensureRunning: true
-        InstallNurxAgent:
-          commands:
-            01_download_and_install:
-              command:
-                !Sub |
-                  docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --nutoken ${APIKey}
-        #InstallVXLANInterface:
-        #  commands:
-        #    01_createVXLAN:
-        #      command: "ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789"
-        #    02_interfaceUp:
-        #      command: "ip link set vxlan555 up"
-        #    03_autoLaunchVXLAN:
-        #      command: "echo 'ip link add vxlan555 type vxlan id 555 remote 0.0.0.0 dstport 4789' >> /etc/rc.local"
-        #    04_addsmorerclocalupdate:
-        #      command: "echo 'ip link set vxlan555 up' >> /etc/rc.local"
 
-######START REVIEW HERE
+        InstallNubevaDecryptor:
+          files:
+            /opt/nurx/rx_create:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "rxid": "rx-1234567890",
+                        "account_id": "default",
+                        "plan_id": "default"
+                    }
+                }
+            /opt/nurx/rx_login:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "user_id": "default",
+                        "token": "default",
+                        "expires": 31536000,
+                    }
+                }
+            /opt/nurx/rx_get:
+              content: |
+                {
+                    "status": "success",
+                    "response": {
+                        "SslCredObj": "eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=",
+                        "Mtu": 65535
+                    }
+                }
+          commands:
+            01_dockergroup:
+              command: "sudo usermod -a -G docker ec2-user"
+            02_etchosts:
+              command: "echo ${FastkeyIP}'    key.nubedge.com' >> /etc/hosts"
+            03_install_decryptor:
+              command: !Join
+                - ''
+                - - "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken "
+                  - !Ref APIKey
+                  - " --sslcredobj "
+                  - Fn::Base64: !Sub
+                      - '{"type":"kdb","domain":"${Domain}:4433","region":"test","ak":"user","sk":"password"}'
+                      - Domain: !Ref FastKeyDNS
+
+
         InstallArkime:
           commands:
             01_wget:
@@ -517,7 +553,7 @@ Resources:
               env:
                 ESDomain: !GetAtt ArkimeElasticsearchDomain.DomainEndpoint
             06a_updateConfig:
-              command: !Sub "echo 's3Region='${AWS::Region} >> /data/Arkime/etc/config.ini"
+              command: !Sub "echo 's3Region='${AWS::Region} >> /data/moloch/etc/config.ini"
             06b_updateConfig:
               command: !Sub
                 - "echo 's3Bucket='${bucket} >> /data/moloch/etc/config.ini"
