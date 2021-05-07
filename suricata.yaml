@@ -568,6 +568,10 @@ logging:
       # type: json
   - syslog:
       enabled: no
+      facility: local5
+      format: "[%i] <%d> -- "
+      # type: json
+
 
 ##
 ## Step 3: Configure common capture settings
@@ -655,10 +659,8 @@ af-packet:
     #threads: auto
     #use-mmap: no
     #tpacket-v3: yes
-    #Nubeva Addition for decryptor-nurx0 support##
     tpacket-v3: yes
     block-size: 131072
-
 
 # Cross platform libpcap capture support
 pcap:
