@@ -51,7 +51,7 @@ def debugFast(msg):
 ##########
 
 
-nver = '1'
+nver = '2'
 NSS_FILE_NAME = "keys.log"
 NSS_FILE_PATH = ""
 CERTS_PATH = ""
@@ -76,7 +76,6 @@ app = flask.Flask(__name__)
 def auth():
     content = request.json
     return '{"token":"somebearertoken"}'
-
 
 @app.route('/api/1.1/dtls/test/connect', methods=['GET', 'POST'])
 def auth2():
