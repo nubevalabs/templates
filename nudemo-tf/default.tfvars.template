@@ -1,0 +1,5 @@
+aws_region="" # e.g. ap-southeast-2
+nutoken="" # Obtain at nubeva.com
+key_pair_name="" # AWS Key Pair name
+subnet_ids="" #Subnet Id
+vpc_id="" #VPC ID

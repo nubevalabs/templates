@@ -1,5 +1,0 @@
-cluster_name="" # e.g. nubevaeks
-aws_region="" # e.g. ap-southeast-2
-ssh_public_key="" # e.g. $HOME/.ssh/id_rsa.pub
-ssh_private_key="" # e.g. $HOME/.ssh/id_rsa
-nuconfig_file_location="../../tmp" # location of the nuconfig.yaml file
