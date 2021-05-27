@@ -12,3 +12,6 @@ variable "aws_region" {
 
 variable "nutoken" {
 }
+
+variable "remote_cidr" {
+}
