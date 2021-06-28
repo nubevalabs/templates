@@ -247,7 +247,6 @@ Resources:
 
   SuricataElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
-    DependsOn: SuricataELB
     Properties:
       ElasticsearchVersion: '6.8'
       ElasticsearchClusterConfig:
