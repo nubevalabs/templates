@@ -1,0 +1,159 @@
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-9d15c1
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                LogicalResourceId         ResourceStatusReason
+--------------------------------  ------------------  --------------------------  ------------------------  ---------------------------
+2021-06-28 21:20:09.483000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack  tCaT-existing-VPC-9d15c1
+2021-06-28 21:20:08.209000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack  WiresharkStack
+2021-06-28 21:15:39.934000+00:00  CREATE_COMPLETE     AWS::IAM::Policy            NubevaKeyReader
+2021-06-28 21:15:38.989000+00:00  CREATE_COMPLETE     AWS::IAM::Policy            NubevaKeyAdmin
+2021-06-28 21:15:38.818000+00:00  CREATE_COMPLETE     AWS::IAM::Policy            NubevaKeyWriter
+2021-06-28 21:15:30.583000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  WiresharkStack            Resource creation Initiated
+2021-06-28 21:15:29.673000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  WiresharkStack
+2021-06-28 21:15:26.733000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyReader           Resource creation Initiated
+2021-06-28 21:15:26.276000+00:00  CREATE_COMPLETE     AWS::IAM::AccessKey         NubevaDecryptorAccessKey
+2021-06-28 21:15:26.064000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaDecryptorAccessKey  Resource creation Initiated
+2021-06-28 21:15:25.805000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyAdmin            Resource creation Initiated
+2021-06-28 21:15:25.788000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyReader
+2021-06-28 21:15:25.744000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaDecryptorAccessKey
+2021-06-28 21:15:25.610000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyWriter           Resource creation Initiated
+2021-06-28 21:15:24.949000+00:00  CREATE_COMPLETE     AWS::IAM::AccessKey         NubevaSensorAccessKey
+2021-06-28 21:15:24.947000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyAdmin
+2021-06-28 21:15:24.744000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaSensorAccessKey     Resource creation Initiated
+2021-06-28 21:15:24.648000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyWriter
+2021-06-28 21:15:24.372000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaSensorAccessKey
+2021-06-28 21:15:22.182000+00:00  CREATE_COMPLETE     AWS::IAM::User              NubevaSKIDecryptorUser
+2021-06-28 21:15:21.692000+00:00  CREATE_COMPLETE     AWS::IAM::Group             NubevaSKIAdministrator
+2021-06-28 21:15:21.143000+00:00  CREATE_COMPLETE     AWS::IAM::User              NubevaSKISensorUser
+2021-06-28 21:15:16.718000+00:00  CREATE_COMPLETE     AWS::DynamoDB::Table        NubevaDDBTable
+2021-06-28 21:14:46.544000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKIDecryptorUser    Resource creation Initiated
+2021-06-28 21:14:46.213000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Group             NubevaSKIAdministrator    Resource creation Initiated
+2021-06-28 21:14:45.989000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKIDecryptorUser
+2021-06-28 21:14:45.854000+00:00  CREATE_IN_PROGRESS  AWS::DynamoDB::Table        NubevaDDBTable            Resource creation Initiated
+2021-06-28 21:14:45.737000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKISensorUser       Resource creation Initiated
+2021-06-28 21:14:45.481000+00:00  CREATE_IN_PROGRESS  AWS::DynamoDB::Table        NubevaDDBTable
+2021-06-28 21:14:45.437000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Group             NubevaSKIAdministrator
+2021-06-28 21:14:45.116000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKISensorUser
+2021-06-28 21:14:38.877000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  tCaT-existing-VPC-9d15c1  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 28. June 2021 02:20PM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-9d15c1-WiresharkStack-TZA2LS08FCCT
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                    LogicalResourceId                                     ResourceStatusReason
+--------------------------------  ------------------  ------------------------------  ----------------------------------------------------  ---------------------------------------------------------
+2021-06-28 21:19:42.140000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack      tCaT-existing-VPC-9d15c1-WiresharkStack-TZA2LS08FCCT
+2021-06-28 21:19:39.785000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack      WiresharkClientStack
+2021-06-28 21:19:16.021000+00:00  CREATE_COMPLETE     AWS::EC2::Instance              WiresharkLaunchConfiguration
+2021-06-28 21:19:15.168000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkLaunchConfiguration                          Received SUCCESS signal with UniqueId i-068d1fc0ed6598c51
+2021-06-28 21:16:05.204000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkLaunchConfiguration                          Resource creation Initiated
+2021-06-28 21:16:02.824000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkLaunchConfiguration
+2021-06-28 21:16:00.163000+00:00  CREATE_COMPLETE     AWS::EC2::NetworkInterface      WiresharkInterface
+2021-06-28 21:15:44.621000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress   WiresharkSecurityGroupOutbound
+2021-06-28 21:15:44.527000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupVXLANinbound
+2021-06-28 21:15:44.338000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupSSHinbound
+2021-06-28 21:15:44.053000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupWebhookinbound
+2021-06-28 21:15:44.046000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      WiresharkInterface                                    Resource creation Initiated
+2021-06-28 21:15:43.953000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupVXLANinbound                    Resource creation Initiated
+2021-06-28 21:15:43.840000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   WiresharkSecurityGroupOutbound                        Resource creation Initiated
+2021-06-28 21:15:43.736000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupVXLANinbound
+2021-06-28 21:15:43.703000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupSSHinbound                      Resource creation Initiated
+2021-06-28 21:15:43.465000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupWebhookinbound                  Resource creation Initiated
+2021-06-28 21:15:43.451000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupSSHinbound
+2021-06-28 21:15:43.340000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      WiresharkInterface
+2021-06-28 21:15:43.319000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   WiresharkSecurityGroupOutbound
+2021-06-28 21:15:43.274000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupWebhookinbound
+2021-06-28 21:15:41.190000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup         WiresharkSecurityGroup
+2021-06-28 21:15:40.488000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         WiresharkSecurityGroup                                Resource creation Initiated
+2021-06-28 21:15:36.760000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      WiresharkClientStack                                  Resource creation Initiated
+2021-06-28 21:15:35.958000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      WiresharkClientStack
+2021-06-28 21:15:35.504000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         WiresharkSecurityGroup
+2021-06-28 21:15:30.403000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      tCaT-existing-VPC-9d15c1-WiresharkStack-TZA2LS08FCCT  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 28. June 2021 02:20PM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-9d15c1-WiresharkStack-TZA2LS08FCCT-WiresharkClientStack-123N95SDT5ZLA
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                    LogicalResourceId                                                                        ResourceStatusReason
+--------------------------------  ------------------  ------------------------------  ---------------------------------------------------------------------------------------  ---------------------------------------------------------
+2021-06-28 21:19:10.570000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack      tCaT-existing-VPC-9d15c1-WiresharkStack-TZA2LS08FCCT-WiresharkClientStack-123N95SDT5ZLA
+2021-06-28 21:19:09.351000+00:00  CREATE_COMPLETE     AWS::EC2::Instance              WiresharkClient
+2021-06-28 21:19:08.809000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkClient                                                                          Received SUCCESS signal with UniqueId i-024c5e5de1c3e792c
+2021-06-28 21:16:10.614000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkClient                                                                          Resource creation Initiated
+2021-06-28 21:16:08.163000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkClient
+2021-06-28 21:16:05.284000+00:00  CREATE_COMPLETE     AWS::EC2::NetworkInterface      WiresharkClientInterface
+2021-06-28 21:15:50.297000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress   WiresharkClientSecurityGroupOutbound
+2021-06-28 21:15:49.727000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  WiresharkClientSecurityGroupSSHinbound
+2021-06-28 21:15:49.598000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   WiresharkClientSecurityGroupOutbound                                                     Resource creation Initiated
+2021-06-28 21:15:49.250000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      WiresharkClientInterface                                                                 Resource creation Initiated
+2021-06-28 21:15:49.126000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkClientSecurityGroupSSHinbound                                                   Resource creation Initiated
+2021-06-28 21:15:49.102000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   WiresharkClientSecurityGroupOutbound
+2021-06-28 21:15:48.868000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkClientSecurityGroupSSHinbound
+2021-06-28 21:15:48.618000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      WiresharkClientInterface
+2021-06-28 21:15:46.889000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup         WiresharkClientSecurityGroup
+2021-06-28 21:15:46.257000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         WiresharkClientSecurityGroup                                                             Resource creation Initiated
+2021-06-28 21:15:41.469000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         WiresharkClientSecurityGroup
+2021-06-28 21:15:36.642000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      tCaT-existing-VPC-9d15c1-WiresharkStack-TZA2LS08FCCT-WiresharkClientStack-123N95SDT5ZLA  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 28. June 2021 02:20PM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-9d15c1-WiresharkStack-TZA2LS08FCCT-WiresharkClientStack-123N95SDT5ZLA
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                    LogicalResourceId                                                                        ResourceStatusReason
+--------------------------------  ------------------  ------------------------------  ---------------------------------------------------------------------------------------  ---------------------------------------------------------
+2021-06-28 21:19:10.570000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack      tCaT-existing-VPC-9d15c1-WiresharkStack-TZA2LS08FCCT-WiresharkClientStack-123N95SDT5ZLA
+2021-06-28 21:19:09.351000+00:00  CREATE_COMPLETE     AWS::EC2::Instance              WiresharkClient
+2021-06-28 21:19:08.809000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkClient                                                                          Received SUCCESS signal with UniqueId i-024c5e5de1c3e792c
+2021-06-28 21:16:10.614000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkClient                                                                          Resource creation Initiated
+2021-06-28 21:16:08.163000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkClient
+2021-06-28 21:16:05.284000+00:00  CREATE_COMPLETE     AWS::EC2::NetworkInterface      WiresharkClientInterface
+2021-06-28 21:15:50.297000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress   WiresharkClientSecurityGroupOutbound
+2021-06-28 21:15:49.727000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  WiresharkClientSecurityGroupSSHinbound
+2021-06-28 21:15:49.598000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   WiresharkClientSecurityGroupOutbound                                                     Resource creation Initiated
+2021-06-28 21:15:49.250000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      WiresharkClientInterface                                                                 Resource creation Initiated
+2021-06-28 21:15:49.126000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkClientSecurityGroupSSHinbound                                                   Resource creation Initiated
+2021-06-28 21:15:49.102000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   WiresharkClientSecurityGroupOutbound
+2021-06-28 21:15:48.868000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkClientSecurityGroupSSHinbound
+2021-06-28 21:15:48.618000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      WiresharkClientInterface
+2021-06-28 21:15:46.889000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup         WiresharkClientSecurityGroup
+2021-06-28 21:15:46.257000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         WiresharkClientSecurityGroup                                                             Resource creation Initiated
+2021-06-28 21:15:41.469000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         WiresharkClientSecurityGroup
+2021-06-28 21:15:36.642000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      tCaT-existing-VPC-9d15c1-WiresharkStack-TZA2LS08FCCT-WiresharkClientStack-123N95SDT5ZLA  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 28. June 2021 02:20PM
+-----------------------------------------------------------------------------
+

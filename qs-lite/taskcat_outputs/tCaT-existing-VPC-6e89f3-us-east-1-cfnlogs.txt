@@ -1,0 +1,48 @@
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-6e89f3
+*****************************************************************************
+ResourceStatusReason:  
+The following resource(s) failed to create: [NubevaKeyReader, WiresharkStack,
+NubevaKeyWriter, NubevaKeyAdmin].
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                LogicalResourceId         ResourceStatusReason
+--------------------------------  ------------------  --------------------------  ------------------------  -----------------------------------------------------------------------------------------------------------------------------
+2021-06-28 21:00:29.986000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack  tCaT-existing-VPC-6e89f3  The following resource(s) failed to create: [NubevaKeyReader, WiresharkStack, NubevaKeyWriter, NubevaKeyAdmin].
+2021-06-28 21:00:28.952000+00:00  CREATE_FAILED       AWS::IAM::Policy            NubevaKeyAdmin            Resource creation cancelled
+2021-06-28 21:00:28.940000+00:00  CREATE_FAILED       AWS::IAM::Policy            NubevaKeyWriter           Resource creation cancelled
+2021-06-28 21:00:28.933000+00:00  CREATE_FAILED       AWS::IAM::Policy            NubevaKeyReader           Resource creation cancelled
+2021-06-28 21:00:28.529000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack  WiresharkStack            Template format error: Unresolved resource dependencies [WiresharkTrafficMirrorTarget] in the Resources block of the template
+2021-06-28 21:00:27.865000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  WiresharkStack
+2021-06-28 21:00:24.783000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyWriter           Resource creation Initiated
+2021-06-28 21:00:24.382000+00:00  CREATE_COMPLETE     AWS::IAM::AccessKey         NubevaSensorAccessKey
+2021-06-28 21:00:24.373000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyAdmin            Resource creation Initiated
+2021-06-28 21:00:24.277000+00:00  CREATE_COMPLETE     AWS::IAM::AccessKey         NubevaDecryptorAccessKey
+2021-06-28 21:00:24.161000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaSensorAccessKey     Resource creation Initiated
+2021-06-28 21:00:24.042000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaDecryptorAccessKey  Resource creation Initiated
+2021-06-28 21:00:23.875000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyWriter
+2021-06-28 21:00:23.856000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyReader           Resource creation Initiated
+2021-06-28 21:00:23.826000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaSensorAccessKey
+2021-06-28 21:00:23.680000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaDecryptorAccessKey
+2021-06-28 21:00:23.476000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyAdmin
+2021-06-28 21:00:23.075000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyReader
+2021-06-28 21:00:20.262000+00:00  CREATE_COMPLETE     AWS::IAM::User              NubevaSKISensorUser
+2021-06-28 21:00:20.009000+00:00  CREATE_COMPLETE     AWS::IAM::Group             NubevaSKIAdministrator
+2021-06-28 21:00:19.956000+00:00  CREATE_COMPLETE     AWS::IAM::User              NubevaSKIDecryptorUser
+2021-06-28 21:00:15.223000+00:00  CREATE_COMPLETE     AWS::DynamoDB::Table        NubevaDDBTable
+2021-06-28 20:59:44.937000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKISensorUser       Resource creation Initiated
+2021-06-28 20:59:44.640000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Group             NubevaSKIAdministrator    Resource creation Initiated
+2021-06-28 20:59:44.592000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKIDecryptorUser    Resource creation Initiated
+2021-06-28 20:59:44.399000+00:00  CREATE_IN_PROGRESS  AWS::DynamoDB::Table        NubevaDDBTable            Resource creation Initiated
+2021-06-28 20:59:44.120000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKISensorUser
+2021-06-28 20:59:44.042000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Group             NubevaSKIAdministrator
+2021-06-28 20:59:43.996000+00:00  CREATE_IN_PROGRESS  AWS::DynamoDB::Table        NubevaDDBTable
+2021-06-28 20:59:43.966000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKIDecryptorUser
+2021-06-28 20:59:37.666000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  tCaT-existing-VPC-6e89f3  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 28. June 2021 02:00PM
+-----------------------------------------------------------------------------
+

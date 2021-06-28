@@ -1,0 +1,71 @@
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-98c515
+*****************************************************************************
+ResourceStatusReason:  
+The following resource(s) failed to create: [WiresharkStack].
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                LogicalResourceId         ResourceStatusReason
+--------------------------------  ------------------  --------------------------  ------------------------  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+2021-06-28 21:11:48.175000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack  tCaT-existing-VPC-98c515  The following resource(s) failed to create: [WiresharkStack].
+2021-06-28 21:11:47.192000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack  WiresharkStack            Embedded stack arn:aws:cloudformation:us-east-1:942578988601:stack/tCaT-existing-VPC-98c515-WiresharkStack-151XZQ9F2YTM2/6c12e710-d855-11eb-9194-0e2cde586d07 was not successfully created: The following resource(s) failed to create: [WiresharkSecurityGroup, WiresharkClientStack].
+2021-06-28 21:11:44.455000+00:00  CREATE_COMPLETE     AWS::IAM::Policy            NubevaKeyWriter
+2021-06-28 21:11:43.594000+00:00  CREATE_COMPLETE     AWS::IAM::Policy            NubevaKeyAdmin
+2021-06-28 21:11:43.412000+00:00  CREATE_COMPLETE     AWS::IAM::Policy            NubevaKeyReader
+2021-06-28 21:11:36.615000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  WiresharkStack            Resource creation Initiated
+2021-06-28 21:11:35.291000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  WiresharkStack
+2021-06-28 21:11:31.285000+00:00  CREATE_COMPLETE     AWS::IAM::AccessKey         NubevaSensorAccessKey
+2021-06-28 21:11:31.253000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyWriter           Resource creation Initiated
+2021-06-28 21:11:31.069000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaSensorAccessKey     Resource creation Initiated
+2021-06-28 21:11:30.724000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaSensorAccessKey
+2021-06-28 21:11:30.420000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyAdmin            Resource creation Initiated
+2021-06-28 21:11:30.208000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyReader           Resource creation Initiated
+2021-06-28 21:11:30.187000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyWriter
+2021-06-28 21:11:29.840000+00:00  CREATE_COMPLETE     AWS::IAM::AccessKey         NubevaDecryptorAccessKey
+2021-06-28 21:11:29.611000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaDecryptorAccessKey  Resource creation Initiated
+2021-06-28 21:11:29.507000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyAdmin
+2021-06-28 21:11:29.279000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaDecryptorAccessKey
+2021-06-28 21:11:29.168000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyReader
+2021-06-28 21:11:26.895000+00:00  CREATE_COMPLETE     AWS::IAM::User              NubevaSKISensorUser
+2021-06-28 21:11:25.967000+00:00  CREATE_COMPLETE     AWS::IAM::Group             NubevaSKIAdministrator
+2021-06-28 21:11:25.202000+00:00  CREATE_COMPLETE     AWS::IAM::User              NubevaSKIDecryptorUser
+2021-06-28 21:11:20.370000+00:00  CREATE_COMPLETE     AWS::DynamoDB::Table        NubevaDDBTable
+2021-06-28 21:10:51.564000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKISensorUser       Resource creation Initiated
+2021-06-28 21:10:50.682000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKISensorUser
+2021-06-28 21:10:50.619000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Group             NubevaSKIAdministrator    Resource creation Initiated
+2021-06-28 21:10:49.942000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Group             NubevaSKIAdministrator
+2021-06-28 21:10:49.813000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKIDecryptorUser    Resource creation Initiated
+2021-06-28 21:10:49.551000+00:00  CREATE_IN_PROGRESS  AWS::DynamoDB::Table        NubevaDDBTable            Resource creation Initiated
+2021-06-28 21:10:49.208000+00:00  CREATE_IN_PROGRESS  AWS::DynamoDB::Table        NubevaDDBTable
+2021-06-28 21:10:49.192000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKIDecryptorUser
+2021-06-28 21:10:43.032000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  tCaT-existing-VPC-98c515  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 28. June 2021 02:12PM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-98c515-WiresharkStack-151XZQ9F2YTM2
+*****************************************************************************
+ResourceStatusReason:  
+The following resource(s) failed to create: [WiresharkSecurityGroup,
+WiresharkClientStack].
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                LogicalResourceId                                      ResourceStatusReason
+--------------------------------  ------------------  --------------------------  -----------------------------------------------------  -------------------------------------------------------------------------------------------
+2021-06-28 21:11:47.124000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack  tCaT-existing-VPC-98c515-WiresharkStack-151XZQ9F2YTM2  The following resource(s) failed to create: [WiresharkSecurityGroup, WiresharkClientStack].
+2021-06-28 21:11:46.136000+00:00  CREATE_FAILED       AWS::EC2::SecurityGroup     WiresharkSecurityGroup                                 Resource creation cancelled
+2021-06-28 21:11:41.838000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack  WiresharkClientStack                                   Parameters: [WiresharkTrafficMirrorTarget] must have values
+2021-06-28 21:11:41.180000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup     WiresharkSecurityGroup
+2021-06-28 21:11:41.119000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  WiresharkClientStack
+2021-06-28 21:11:36.309000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  tCaT-existing-VPC-98c515-WiresharkStack-151XZQ9F2YTM2  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 28. June 2021 02:12PM
+-----------------------------------------------------------------------------
+
