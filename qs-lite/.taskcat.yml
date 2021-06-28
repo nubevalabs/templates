@@ -49,7 +49,7 @@ tests:
        ToolAdmin: tooladmin
        ArkimeInstall: "false"
        WiresharkInstall: "true"
-       SuricataInstall: "false"
+       SuricataInstall: "true"
        ZeekInstall: "false"
        ClientInstall: "true"
        AddESRole: "false"

@@ -255,7 +255,7 @@ Resources:
         InstanceType: !Sub
           - ${InstanceType}.elasticsearch
           - InstanceType: !Ref NodeInstanceType
-        ZoneAwarenessEnabled: true
+#        ZoneAwarenessEnabled: true
 #        ZoneAwarenessConfig:
 #          AvailabilityZoneCount: 2
       EBSOptions:
