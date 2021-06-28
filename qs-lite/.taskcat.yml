@@ -43,19 +43,19 @@ tests:
    existing-VPC:
      template: ./templates/nubeva-existing-vpc.template.yaml
      parameters:
-       APIKey: "$[taskcat_genpass_10]"
+       #APIKey: "$[taskcat_genpass_10]"
        RemoteAccessCIDR: 10.0.0.0/0
        # KeyPairName: in .taskcat_overrides.yml
        ToolAdmin: tooladmin
-       ArkimeInstall: "true"
+       ArkimeInstall: "false"
        WiresharkInstall: "true"
-       SuricataInstall: "true"
-       ZeekInstall: "true"
+       SuricataInstall: "false"
+       ZeekInstall: "false"
        ClientInstall: "true"
        AddESRole: "false"
-       ToolPassword: $[taskcat_genpass_10]
-       QSS3KeyPrefix: quickstart-nubeva-tlsdecrypt/
-       QSS3BucketName: $[taskcat_autobucket]
+       # ToolPassword: $[taskcat_genpass_10]
+       QSS3KeyPrefix: qs-lite/
+       QSS3BucketName: nubevalabs
        QSS3BucketRegion: us-east-1
        # PrivateSubnet1ID: in .taskcat_overrides.yml
        # PrivateSubnet2ID: in .taskcat_overrides.yml
