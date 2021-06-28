@@ -254,7 +254,7 @@ Resources:
         InstanceCount: 1
         InstanceType: !Sub
           - ${InstanceType}.elasticsearch
-          - InstanceType: !Ref NodeInstanceType
+          - InstanceType: m5.large
 #        ZoneAwarenessEnabled: true
 #        ZoneAwarenessConfig:
 #          AvailabilityZoneCount: 2
