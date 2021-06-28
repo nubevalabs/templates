@@ -497,11 +497,11 @@ Resources:
       GroupSet:
       - !Ref WiresharkSecurityGroup
 
-  WiresharkTrafficMirrorTarget:
-    Type: AWS::EC2::TrafficMirrorTarget
-    Properties:
-      Description: "Wireshark Interface"
-      NetworkInterfaceId: !Ref WiresharkInterface
+  # WiresharkTrafficMirrorTarget:
+  #   Type: AWS::EC2::TrafficMirrorTarget
+  #   Properties:
+  #     Description: "Wireshark Interface"
+  #     NetworkInterfaceId: !Ref WiresharkInterface
 
   WiresharkLaunchConfiguration:
     Type: AWS::EC2::Instance
