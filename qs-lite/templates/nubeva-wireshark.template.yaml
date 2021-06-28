@@ -592,8 +592,6 @@ Resources:
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
-      SecurityGroups:
-      - !Ref "WiresharkSecurityGroup"
       KeyName:
         Ref: KeyPairName
       BlockDeviceMappings:
@@ -619,7 +617,7 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-        WiresharkTrafficMirrorTarget: !Ref WiresharkTrafficMirrorTarget
+#        WiresharkTrafficMirrorTarget: !Ref WiresharkTrafficMirrorTarget
         SSLdbWriteAuth: !Ref SSLdbWriteAuth
 
 

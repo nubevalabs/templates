@@ -67,10 +67,10 @@ Metadata:
         default: Allowed external access CIDR
       NodeInstanceType:
         default: Node instance type
-      NumberOfNodes:
-        default: Number of nodes
-      MaximumNodes:
-        default: Maximum nodes per tool
+#      NumberOfNodes:
+#        default: Number of nodes
+#      MaximumNodes:
+#        default: Maximum nodes per tool
       PrivateSubnet1ID:
         default: Private subnet 1 ID
 #      PrivateSubnet2ID:
