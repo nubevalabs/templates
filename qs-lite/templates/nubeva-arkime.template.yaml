@@ -301,15 +301,15 @@ Resources:
                 - S3Bucket: !Ref ArkimePCAPBucket
 
 
-  ArkimePCAPBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      AccessControl: Private
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
+#  ArkimePCAPBucket:
+#    Type: AWS::S3::Bucket
+#    Properties:
+#      AccessControl: Private
+#      PublicAccessBlockConfiguration:
+#        BlockPublicAcls: true
+#        BlockPublicPolicy: true
+#        IgnorePublicAcls: true
+#        RestrictPublicBuckets: true
 
   ArkimeElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
@@ -639,12 +639,12 @@ Resources:
               command: "echo 'elasticsearch=https://'${ESDomain} >> /data/moloch/etc/config.ini"
               env:
                 ESDomain: !GetAtt ArkimeElasticsearchDomain.DomainEndpoint
-            06a_updateConfig:
-              command: !Sub "echo 's3Region='${AWS::Region} >> /data/moloch/etc/config.ini"
-            06b_updateConfig:
-              command: !Sub
-                - "echo 's3Bucket='${bucket} >> /data/moloch/etc/config.ini"
-                - {bucket: !Ref ArkimePCAPBucket}
+#            06a_updateConfig:
+#              command: !Sub "echo 's3Region='${AWS::Region} >> /data/moloch/etc/config.ini"
+#            06b_updateConfig:
+#              command: !Sub
+#                - "echo 's3Bucket='${bucket} >> /data/moloch/etc/config.ini"
+#                - {bucket: !Ref ArkimePCAPBucket}
             07_randomSleep:
               command: "sleep $[ ( $RANDOM % 10 )  + 1 ]s"
             08_setupNewDB:

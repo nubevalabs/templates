@@ -40,7 +40,7 @@ Metadata:
       - QSS3KeyPrefix
     ParameterLabels:
       ArkimeInstall:
-        default: Install Wireshark ASG
+        default: Install Arkime ASG
       WiresharkInstall:
         default: Install Wireshark ASG
       SuricataInstall:
@@ -208,7 +208,8 @@ Parameters:
     Description: Number of tool node instances. The default is one for each of the two Availability Zones.
     Type: Number
   MaximumNodes:
-    Default: 6
+#    Default: 6
+    Default: 1
     Description: Maximum number of EC2 instance nodes in the tool Auto Scaling group.
     Type: String
   APIKey:
