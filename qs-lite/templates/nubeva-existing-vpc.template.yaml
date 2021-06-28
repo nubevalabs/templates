@@ -204,10 +204,10 @@ Parameters:
     ConstraintDescription: Must be a valid EC2 instance type.
     Description: Type of EC2 instance for the node instances.
     Type: String
-  NumberOfNodes:
-    Default: 1
-    Description: Number of tool node instances. The default is one for each of the two Availability Zones.
-    Type: Number
+  # NumberOfNodes:
+  #   Default: 1
+  #   Description: Number of tool node instances. The default is one for each of the two Availability Zones.
+  #   Type: Number
 #  MaximumNodes:
 #    Default: 6
 #    Default: 1
@@ -271,8 +271,8 @@ Resources:
         KeyPairName: !Ref KeyPairName
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
 #        PrivateSubnet2ID: !Ref PrivateSubnet2ID
-        NumberOfNodes: !Ref NumberOfNodes
-        MaximumNodes: !Ref MaximumNodes
+        # NumberOfNodes: !Ref NumberOfNodes
+        # MaximumNodes: !Ref MaximumNodes
         NodeInstanceType: !Ref NodeInstanceType
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
@@ -313,8 +313,8 @@ Resources:
         KeyPairName: !Ref KeyPairName
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
 #        PrivateSubnet2ID: !Ref PrivateSubnet2ID
-        NumberOfNodes: !Ref NumberOfNodes
-        MaximumNodes: !Ref MaximumNodes
+        # NumberOfNodes: !Ref NumberOfNodes
+        # MaximumNodes: !Ref MaximumNodes
         NodeInstanceType: !Ref NodeInstanceType
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
@@ -356,8 +356,8 @@ Resources:
         KeyPairName: !Ref KeyPairName
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
 #        PrivateSubnet2ID: !Ref PrivateSubnet2ID
-        NumberOfNodes: !Ref NumberOfNodes
-        MaximumNodes: !Ref MaximumNodes
+        # NumberOfNodes: !Ref NumberOfNodes
+        # MaximumNodes: !Ref MaximumNodes
         NodeInstanceType: !Ref NodeInstanceType
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
@@ -396,8 +396,8 @@ Resources:
         KeyPairName: !Ref KeyPairName
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
 #        PrivateSubnet2ID: !Ref PrivateSubnet2ID
-        NumberOfNodes: !Ref NumberOfNodes
-        MaximumNodes: !Ref MaximumNodes
+        # NumberOfNodes: !Ref NumberOfNodes
+        # MaximumNodes: !Ref MaximumNodes
         NodeInstanceType: !Ref NodeInstanceType
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
