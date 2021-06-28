@@ -498,6 +498,12 @@ Resources:
       GroupSet:
       - !Ref WiresharkSecurityGroup
 
+  WiresharkTrafficMirrorTarget:
+    Type: AWS::EC2::TrafficMirrorTarget
+    Properties:
+      Description: "Wireshark Interface"
+      NetworkInterfaceId: !Ref WiresharkInterface
+
   WiresharkLaunchConfiguration:
     Type: AWS::EC2::Instance
     CreationPolicy:
@@ -614,7 +620,7 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-        WiresharkELBTrafficMirrorTarget: !Ref WiresharkELBTrafficMirrorTarget
+        WiresharkTrafficMirrorTarget: !Ref WiresharkTrafficMirrorTarget
         SSLdbWriteAuth: !Ref SSLdbWriteAuth
 
 

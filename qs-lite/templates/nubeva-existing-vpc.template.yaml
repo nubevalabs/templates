@@ -26,7 +26,7 @@ Metadata:
       - ToolPassword
       - AddESRole
     - Label:
-        default: Auto Scaling group configuration
+        default: Node configuration
       Parameters:
       - KeyPairName
       - NodeInstanceType

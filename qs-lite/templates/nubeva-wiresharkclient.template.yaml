@@ -44,7 +44,7 @@ Parameters:
     Description: Nubeva Sensor Parameter
     Type: String
     NoEcho: true
-  WiresharkELBTrafficMirrorTarget:
+  WiresharkTrafficMirrorTarget:
     Description: Wireshark ELB TMT Info
     Type: String
 
@@ -113,7 +113,7 @@ Resources:
     Properties:
       Description: "Wireshark Client to Wireshark ELB"
       NetworkInterfaceId: !Ref WiresharkClientInterface
-      TrafficMirrorTargetId: !Ref WiresharkELBTrafficMirrorTarget
+      TrafficMirrorTargetId: !Ref WiresharkTrafficMirrorTarget
       TrafficMirrorFilterId: !Ref WiresharkTrafficMirrorFilter
       SessionNumber: 1
   WiresharkTrafficMirrorFilter:
