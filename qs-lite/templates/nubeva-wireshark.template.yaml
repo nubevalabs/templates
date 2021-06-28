@@ -38,15 +38,14 @@ Parameters:
 #  PrivateSubnet2ID:
 #    Description: Subnet Id for Private Subnet2
 #    Type: AWS::EC2::Subnet::Id
-  NumberOfNodes:
-    Description: 'The number of EC2 instances'
-    Type: Number
-    Default: 1
-  MaximumNodes:
-    Type: Number
-#    Default: 6
-    Default: 1
-    Description: Maximum number of instances that can be launched in your tool cluster.
+#   NumberOfNodes:
+#     Description: 'The number of EC2 instances'
+#     Type: Number
+#     Default: 1
+#   MaximumNodes:
+#     Type: Number
+#     Default: 6
+#     Description: Maximum number of instances that can be launched in your tool cluster.
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
