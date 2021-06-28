@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Wireshark as part of the Nubeva SKI & Open Source Tools. (qs-1qsdipn7l)
+Description: Deploys Wireshark as part of the Nubeva SKI & Open Source Tools-Lite Version. Based on (qs-1qsdipn7l)
 Parameters:
   APIKey:
     Description: "The Token for your Prisms account"
@@ -35,9 +35,9 @@ Parameters:
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
-  PrivateSubnet2ID:
-    Description: Subnet Id for Private Subnet2
-    Type: AWS::EC2::Subnet::Id
+#  PrivateSubnet2ID:
+#    Description: Subnet Id for Private Subnet2
+#    Type: AWS::EC2::Subnet::Id
   NumberOfNodes:
     Description: 'The number of EC2 instances'
     Type: Number
@@ -56,8 +56,9 @@ Parameters:
   NodeInstanceType:
     Description: EC2 instance type
     Type: String
-    Default: m5.large
+    Default: t3.large
     AllowedValues:
+    - t3.large
     - m5.large
     - m5.xlarge
     - m5.2xlarge
@@ -96,12 +97,13 @@ Parameters:
     - false
     Description: Choose to install TLS generation clients.
     Type: String
+###Changing from default - Pulls from Nubevalabs
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
     ConstraintDescription: Quick Start bucket name can include numbers, lowercase
       letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
       (-).
-    Default: aws-quickstart
+    Default: nubevalabs
     Description: S3 bucket name for the Quick Start assets. This string can include
       numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
       or end with a hyphen (-).
@@ -110,11 +112,12 @@ Parameters:
     Default: 'us-east-1'
     Description: "The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value."
     Type: String
+###Changing from default - Pulls from Nubevalabs
   QSS3KeyPrefix:
     AllowedPattern: ^[0-9a-zA-Z-/]*$
     ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
       uppercase letters, hyphens (-), and forward slash (/).
-    Default: quickstart-nubeva-tlsdecrypt/
+    Default: qs-lite/
     Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
       can include numbers, lowercase letters, uppercase letters, hyphens (-), and
       forward slash (/).
@@ -128,12 +131,12 @@ Metadata:
           - VPCID
           - RemoteAccessCIDR
       - Label:
-          default: "Autoscaling Configuration"
+          default: "Node Configuration"
         Parameters:
           - KeyPairName
           - NodeInstanceType
-          - NumberOfNodes
-          - MaximumNodes
+#          - NumberOfNodes
+#          - MaximumNodes
 
 Mappings:
   AWSAMIRegionMap:
@@ -216,183 +219,291 @@ Resources:
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
-  WiresharkInstanceProfile:
-    Type: 'AWS::IAM::InstanceProfile'
+#####Begin AutoScaling Group Configuration#########
+#   WiresharkInstanceProfile:
+#     Type: 'AWS::IAM::InstanceProfile'
+#     Properties:
+#       Path: '/'
+#       Roles:
+#       - !Ref WiresharkIAMRole
+#   WiresharkIAMRole:
+#     Type: 'AWS::IAM::Role'
+#     Properties:
+#       AssumeRolePolicyDocument:
+#         Version: '2012-10-17'
+#         Statement:
+#         - Effect: Allow
+#           Principal:
+#             Service:
+#             - 'ec2.amazonaws.com'
+#           Action:
+#           - 'sts:AssumeRole'
+#       Path: '/'
+#       Policies:
+#       - PolicyName: WiresharkASG
+#         PolicyDocument:
+#           Version: '2012-10-17'
+#           Statement:
+#           - Effect: Allow
+#             Action:
+#             - 'autoscaling:DescribeAutoScalingGroups'
+#             - 'autoscaling:DescribeAutoScalingInstances'
+#             Resource:
+#             - '*'
+#   WiresharkELB:
+#     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+#     Properties:
+#       Subnets:
+#           - !Ref PrivateSubnet1ID
+#           - !Ref PrivateSubnet2ID
+#       Type: network
+#       Scheme: internal
+#   WiresharkViewerListener:
+#     Type: AWS::ElasticLoadBalancingV2::Listener
+#     Properties:
+#       LoadBalancerArn: !Ref WiresharkELB
+#       Port: 14500
+#       Protocol: TCP
+#       DefaultActions:
+#         - Type: forward
+#           TargetGroupArn: !Ref WiresharkRDPTargetGroup
+#   WiresharkCaptureListener:
+#     Type: AWS::ElasticLoadBalancingV2::Listener
+#     Properties:
+#       LoadBalancerArn: !Ref WiresharkELB
+#       Port: 4789
+#       Protocol: UDP
+#       DefaultActions:
+#         - Type: forward
+#           TargetGroupArn: !Ref WiresharkVXLANTargetGroup
+#   WiresharkRDPTargetGroup:
+#     Type: AWS::ElasticLoadBalancingV2::TargetGroup
+#     Properties:
+#       VpcId: !Ref VPCID
+#       Port: 14500
+#       Protocol: TCP
+#       HealthCheckEnabled: true
+#       HealthCheckIntervalSeconds: 10
+#       HealthCheckProtocol: TCP
+#       HealthCheckTimeoutSeconds: 10
+#       HealthyThresholdCount: 3
+#       UnhealthyThresholdCount: 3
+#   WiresharkVXLANTargetGroup:
+#     Type: AWS::ElasticLoadBalancingV2::TargetGroup
+#     Properties:
+#       VpcId: !Ref VPCID
+#       Port: 4789
+#       Protocol: UDP
+#       HealthCheckEnabled: true
+#       HealthCheckIntervalSeconds: 10
+#       HealthCheckProtocol: TCP
+#       HealthCheckTimeoutSeconds: 10
+#       HealthyThresholdCount: 3
+#       UnhealthyThresholdCount: 3
+#       HealthCheckPort: '14500'
+#   WiresharkELBTrafficMirrorTarget:
+#     Type: AWS::EC2::TrafficMirrorTarget
+#     Properties:
+#       Description: "WiresharkELB"
+#       NetworkLoadBalancerArn: !Ref WiresharkELB
+#   WiresharkAutoScalingGroup:
+#     Type: AWS::AutoScaling::AutoScalingGroup
+#     Properties:
+#       VPCZoneIdentifier:
+#       - !Ref PrivateSubnet1ID
+#       - !Ref PrivateSubnet2ID
+#       LaunchConfigurationName: !Ref WiresharkLaunchConfiguration
+#       MinSize: '1'
+#       MaxSize: !Ref 'MaximumNodes'
+#       TargetGroupARNs:
+#         - !Ref WiresharkRDPTargetGroup
+#         - !Ref WiresharkVXLANTargetGroup
+#       DesiredCapacity: !Ref 'NumberOfNodes'
+#       MetricsCollection:
+#       - Granularity: 1Minute
+#         Metrics:
+#         - GroupInServiceInstances
+#       Tags:
+#       - Key: Name
+#         Value: !Sub "Wireshark-${AWS::StackName}"
+#         PropagateAtLaunch: true
+#     CreationPolicy:
+#       ResourceSignal:
+#         Count: 1
+#         Timeout: PT10M
+#     UpdatePolicy:
+#       AutoScalingRollingUpdate:
+#         MinInstancesInService: !Ref NumberOfNodes
+#         MaxBatchSize: 1
+#         PauseTime: PT5M
+#         SuspendProcesses:
+#         - AlarmNotification
+#         WaitOnResourceSignals: true
+#   WiresharkScaleOutPolicy:
+#     Type : AWS::AutoScaling::ScalingPolicy
+#     Properties:
+#       AutoScalingGroupName: !Ref WiresharkAutoScalingGroup
+#       AdjustmentType: 'ChangeInCapacity'
+#       Cooldown: '120'
+#       ScalingAdjustment: 1
+#   WiresharkScaleOutAlarm:
+#     Type: AWS::CloudWatch::Alarm
+#     Properties:
+#       AlarmName:
+#         Fn::Join:
+#         - '-'
+#         - - !Ref 'AWS::StackName'
+#           - 'wireshark-traffic-high'
+#       AlarmActions:
+#         - !Ref 'WiresharkScaleOutPolicy'
+#       AlarmDescription: 'This metric monitors high Wireshark network utilization'
+#       ComparisonOperator: 'GreaterThanOrEqualToThreshold'
+#       EvaluationPeriods: 2
+#       MetricName: 'NetworkIn'
+#       Namespace: 'AWS/EC2'
+#       Period: 60
+#       Statistic: 'Average'
+#       Threshold: 15000000000
+#       Dimensions:
+#         - Name: 'AutoScalingGroupName'
+#           Value: !Ref WiresharkAutoScalingGroup
+#   WiresharkScaleInPolicy:
+#     Type : AWS::AutoScaling::ScalingPolicy
+#     Properties:
+#       AutoScalingGroupName: !Ref WiresharkAutoScalingGroup
+#       AdjustmentType: 'ChangeInCapacity'
+#       Cooldown: '120'
+#       ScalingAdjustment: -1
+#   WiresharkScaleInAlarm:
+#     Type: AWS::CloudWatch::Alarm
+#     Properties:
+#       AlarmName:
+#         Fn::Join:
+#         - '-'
+#         - - !Ref 'AWS::StackName'
+#           - 'wireshark-traffic-low'
+#       AlarmActions:
+#         - !Ref 'WiresharkScaleInPolicy'
+#       AlarmDescription: 'This metric monitors Wireshark network utilization'
+#       ComparisonOperator: 'LessThanOrEqualToThreshold'
+#       EvaluationPeriods: 2
+#       MetricName: 'NetworkIn'
+#       Namespace: 'AWS/EC2'
+#       Period: 60
+#       Statistic: 'Average'
+#       Threshold: 7500000000
+#       Dimensions:
+#         - Name: 'AutoScalingGroupName'
+#           Value: !Ref WiresharkAutoScalingGroup
+#   WiresharkLaunchConfiguration:
+#     Type: AWS::AutoScaling::LaunchConfiguration
+#     Metadata:
+#       AWS::CloudFormation::Init:
+#         configSets:
+#           Configure:
+#             - "ConfigStartup"
+#           Install:
+#             - "InstallServices"
+#             - "InstallNubevaDecryptor"
+#           Start:
+#             - "StartWireshark"
+#
+#         ConfigStartup:
+#           commands:
+#             01_addintrclocal:
+#               command: "echo 'yum update -y' >> /etc/rc.local"
+#             02_adduprclocal:
+#               command: "chmod +x /etc/rc.d/rc.local"
+#         InstallServices:
+#           packages:
+#             yum:
+#               docker: []
+#           services:
+#             sysvinit:
+#               docker:
+#                 enabled: true
+#                 ensureRunning: true
+#         InstallNubevaDecryptor:
+#           files:
+#             /opt/nurx/rx_create:
+#               content: |
+#                 {
+#                     "status": "success",
+#                     "response": {
+#                         "rxid": "rx-1234567890",
+#                         "account_id": "default",
+#                         "plan_id": "default",
+#                         "message": "Hello"
+#                     }
+#                 }
+#             /opt/nurx/rx_login:
+#               content: |
+#                 {
+#                     "status": "success",
+#                     "response": {
+#                         "user_id": "default",
+#                         "token": "default",
+#                         "expires": 31536000
+#                     }
+#                 }
+#             /opt/nurx/rx_get:
+#               content: |
+#                 {
+#                     "status": "success",
+#                     "response": {
+#                         "SslCredObj": "eyJ0eXBlIjoic2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9",
+#                         "Mtu": 65535
+#                     }
+#                 }
+#           commands:
+#             01_dockergroup:
+#               command: "sudo usermod -a -G docker ec2-user"
+#             02_launch_decryptor:
+#               command:
+#                 !Sub |
+#                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken ${APIKey} --sslcredobj ${SSLdbReadAuth}
+#         StartWireshark:
+#           commands:
+#             01_wireshark:
+#               command: "docker run -p 14500:14500 --restart unless-stopped -dti --cap-add NET_ADMIN --net=host --name wireshark  ffeldhaus/wireshark"
+#     Properties:
+#       UserData:
+#         Fn::Base64: !Sub |
+#           #!/bin/bash -xe
+#           amazon-linux-extras install epel -y
+#           yum update -y
+#           yum update -y aws-cfn-bootstrap
+#           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkLaunchConfiguration --configsets Configure,Install,Start
+#           /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkAutoScalingGroup
+#       InstanceType: !Ref NodeInstanceType
+#       ImageId: !FindInMap
+#         - AWSAMIRegionMap
+#         - !Ref 'AWS::Region'
+#         - awslinux2
+#       SecurityGroups:
+#       - !Ref "WiresharkSecurityGroup"
+#       IamInstanceProfile: !Ref WiresharkInstanceProfile
+#       KeyName:
+#         Ref: KeyPairName
+#       BlockDeviceMappings:
+#       - DeviceName: "/dev/sda1"
+#         Ebs:
+#           VolumeSize: 100
+# #####End AutoScaling Group Configuration#########
+  WiresharkInterface:
+    Type: AWS::EC2::NetworkInterface
     Properties:
-      Path: '/'
-      Roles:
-      - !Ref WiresharkIAMRole
-  WiresharkIAMRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - 'ec2.amazonaws.com'
-          Action:
-          - 'sts:AssumeRole'
-      Path: '/'
-      Policies:
-      - PolicyName: WiresharkASG
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-            - 'autoscaling:DescribeAutoScalingGroups'
-            - 'autoscaling:DescribeAutoScalingInstances'
-            Resource:
-            - '*'
-  WiresharkELB:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties:
-      Subnets:
-          - !Ref PrivateSubnet1ID
-          - !Ref PrivateSubnet2ID
-      Type: network
-      Scheme: internal
-  WiresharkViewerListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn: !Ref WiresharkELB
-      Port: 14500
-      Protocol: TCP
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref WiresharkRDPTargetGroup
-  WiresharkCaptureListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn: !Ref WiresharkELB
-      Port: 4789
-      Protocol: UDP
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref WiresharkVXLANTargetGroup
-  WiresharkRDPTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      VpcId: !Ref VPCID
-      Port: 14500
-      Protocol: TCP
-      HealthCheckEnabled: true
-      HealthCheckIntervalSeconds: 10
-      HealthCheckProtocol: TCP
-      HealthCheckTimeoutSeconds: 10
-      HealthyThresholdCount: 3
-      UnhealthyThresholdCount: 3
-  WiresharkVXLANTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      VpcId: !Ref VPCID
-      Port: 4789
-      Protocol: UDP
-      HealthCheckEnabled: true
-      HealthCheckIntervalSeconds: 10
-      HealthCheckProtocol: TCP
-      HealthCheckTimeoutSeconds: 10
-      HealthyThresholdCount: 3
-      UnhealthyThresholdCount: 3
-      HealthCheckPort: '14500'
-  WiresharkELBTrafficMirrorTarget:
-    Type: AWS::EC2::TrafficMirrorTarget
-    Properties:
-      Description: "WiresharkELB"
-      NetworkLoadBalancerArn: !Ref WiresharkELB
-  WiresharkAutoScalingGroup:
-    Type: AWS::AutoScaling::AutoScalingGroup
-    Properties:
-      VPCZoneIdentifier:
-      - !Ref PrivateSubnet1ID
-#      - !Ref PrivateSubnet2ID
-      LaunchConfigurationName: !Ref WiresharkLaunchConfiguration
-      MinSize: '1'
-      MaxSize: !Ref 'MaximumNodes'
-      TargetGroupARNs:
-        - !Ref WiresharkRDPTargetGroup
-        - !Ref WiresharkVXLANTargetGroup
-      DesiredCapacity: !Ref 'NumberOfNodes'
-      MetricsCollection:
-      - Granularity: 1Minute
-        Metrics:
-        - GroupInServiceInstances
-      Tags:
-      - Key: Name
-        Value: !Sub "Wireshark-${AWS::StackName}"
-        PropagateAtLaunch: true
+      SubnetId: !Ref PrivateSubnet1ID
+      Description: Inbound Interface on tool
+      GroupSet:
+      - !Ref WiresharkSecurityGroup
+
+  WiresharkLaunchConfiguration:
+    Type: AWS::EC2::Instance
     CreationPolicy:
       ResourceSignal:
-        Count: 1
-        Timeout: PT10M
-    UpdatePolicy:
-      AutoScalingRollingUpdate:
-        MinInstancesInService: !Ref NumberOfNodes
-        MaxBatchSize: 1
-        PauseTime: PT5M
-        SuspendProcesses:
-        - AlarmNotification
-        WaitOnResourceSignals: true
-  WiresharkScaleOutPolicy:
-    Type : AWS::AutoScaling::ScalingPolicy
-    Properties:
-      AutoScalingGroupName: !Ref WiresharkAutoScalingGroup
-      AdjustmentType: 'ChangeInCapacity'
-      Cooldown: '120'
-      ScalingAdjustment: 1
-  WiresharkScaleOutAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName:
-        Fn::Join:
-        - '-'
-        - - !Ref 'AWS::StackName'
-          - 'wireshark-traffic-high'
-      AlarmActions:
-        - !Ref 'WiresharkScaleOutPolicy'
-      AlarmDescription: 'This metric monitors high Wireshark network utilization'
-      ComparisonOperator: 'GreaterThanOrEqualToThreshold'
-      EvaluationPeriods: 2
-      MetricName: 'NetworkIn'
-      Namespace: 'AWS/EC2'
-      Period: 60
-      Statistic: 'Average'
-      Threshold: 15000000000
-      Dimensions:
-        - Name: 'AutoScalingGroupName'
-          Value: !Ref WiresharkAutoScalingGroup
-  WiresharkScaleInPolicy:
-    Type : AWS::AutoScaling::ScalingPolicy
-    Properties:
-      AutoScalingGroupName: !Ref WiresharkAutoScalingGroup
-      AdjustmentType: 'ChangeInCapacity'
-      Cooldown: '120'
-      ScalingAdjustment: -1
-  WiresharkScaleInAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName:
-        Fn::Join:
-        - '-'
-        - - !Ref 'AWS::StackName'
-          - 'wireshark-traffic-low'
-      AlarmActions:
-        - !Ref 'WiresharkScaleInPolicy'
-      AlarmDescription: 'This metric monitors Wireshark network utilization'
-      ComparisonOperator: 'LessThanOrEqualToThreshold'
-      EvaluationPeriods: 2
-      MetricName: 'NetworkIn'
-      Namespace: 'AWS/EC2'
-      Period: 60
-      Statistic: 'Average'
-      Threshold: 7500000000
-      Dimensions:
-        - Name: 'AutoScalingGroupName'
-          Value: !Ref WiresharkAutoScalingGroup
-  WiresharkLaunchConfiguration:
-    Type: AWS::AutoScaling::LaunchConfiguration
+        Count: '1'
+        Timeout: PT15M
     Metadata:
       AWS::CloudFormation::Init:
         configSets:
@@ -470,7 +581,7 @@ Resources:
           yum update -y
           yum update -y aws-cfn-bootstrap
           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkLaunchConfiguration --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkAutoScalingGroup
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource WiresharkLaunchConfiguration
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
@@ -478,13 +589,16 @@ Resources:
         - awslinux2
       SecurityGroups:
       - !Ref "WiresharkSecurityGroup"
-      IamInstanceProfile: !Ref WiresharkInstanceProfile
       KeyName:
         Ref: KeyPairName
       BlockDeviceMappings:
       - DeviceName: "/dev/sda1"
         Ebs:
           VolumeSize: 100
+      NetworkInterfaces:
+        -
+          NetworkInterfaceId: !Ref WiresharkInterface
+          DeviceIndex: '0'
   WiresharkClientStack:
     Condition: ClientInstallTrue
     Type: AWS::CloudFormation::Stack
