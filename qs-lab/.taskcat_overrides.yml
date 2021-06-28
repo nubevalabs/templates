@@ -1,0 +1,4 @@
+KeyPairName: nudemo
+PrivateSubnet1ID: subnet-0b21f8a80e117f903
+PrivateSubnet2ID: subnet-0ed88a6ff7598f025
+VPCID: vpc-09106387bb70b216d

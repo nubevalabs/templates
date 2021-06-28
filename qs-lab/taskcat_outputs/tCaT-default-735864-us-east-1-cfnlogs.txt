@@ -1,0 +1,21 @@
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-default-735864
+*****************************************************************************
+ResourceStatusReason:  
+The following resource(s) failed to create: [VPCStack].
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                LogicalResourceId    ResourceStatusReason
+--------------------------------  ------------------  --------------------------  -------------------  ---------------------------------------------------------------------------------------------
+2021-06-21 15:27:10.468000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack  tCaT-default-735864  The following resource(s) failed to create: [VPCStack].
+2021-06-21 15:27:09.497000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack  VPCStack             S3 error: Access Denied
+                                                                                                       For more information check http://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html
+2021-06-21 15:27:08.775000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  VPCStack
+2021-06-21 15:27:00.286000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  tCaT-default-735864  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 21. June 2021 08:28AM
+-----------------------------------------------------------------------------
+

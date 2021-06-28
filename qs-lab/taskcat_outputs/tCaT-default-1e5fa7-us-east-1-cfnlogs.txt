@@ -1,0 +1,19 @@
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-default-1e5fa7
+*****************************************************************************
+ResourceStatusReason:  
+Parameter validation failed: parameter value cikey for parameter name KeyPairName
+does not exist
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                LogicalResourceId    ResourceStatusReason
+--------------------------------  ------------------  --------------------------  -------------------  ------------------------------------------------------------------------------------------------
+2021-06-21 15:20:27.524000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack  tCaT-default-1e5fa7  Parameter validation failed: parameter value cikey for parameter name KeyPairName does not exist
+2021-06-21 15:20:24.300000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  tCaT-default-1e5fa7  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 21. June 2021 08:21AM
+-----------------------------------------------------------------------------
+

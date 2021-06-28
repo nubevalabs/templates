@@ -1,0 +1,216 @@
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-9d0935
+*****************************************************************************
+ResourceStatusReason:  
+The following resource(s) failed to create: [ArkimeStack].
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                LogicalResourceId         ResourceStatusReason
+--------------------------------  ------------------  --------------------------  ------------------------  -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+2021-06-21 16:17:49.899000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack  tCaT-existing-VPC-9d0935  The following resource(s) failed to create: [ArkimeStack].
+2021-06-21 16:17:48.883000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack  ArkimeStack               Embedded stack arn:aws:cloudformation:us-east-1:942578988601:stack/tCaT-existing-VPC-9d0935-ArkimeStack-E14V65WD5OQ1/ff04fb20-d2a7-11eb-87e9-0a63bc702c35 was not successfully created: The following resource(s) failed to create: [ArkimeAutoScalingGroup].
+2021-06-21 15:47:44.162000+00:00  CREATE_COMPLETE     AWS::IAM::Policy            NubevaKeyWriter
+2021-06-21 15:47:43.946000+00:00  CREATE_COMPLETE     AWS::IAM::Policy            NubevaKeyReader
+2021-06-21 15:47:43.041000+00:00  CREATE_COMPLETE     AWS::IAM::Policy            NubevaKeyAdmin
+2021-06-21 15:47:34.853000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  ArkimeStack               Resource creation Initiated
+2021-06-21 15:47:34.044000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  ArkimeStack
+2021-06-21 15:47:31.754000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyReader           Resource creation Initiated
+2021-06-21 15:47:31.085000+00:00  CREATE_COMPLETE     AWS::IAM::AccessKey         NubevaSensorAccessKey
+2021-06-21 15:47:30.982000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyWriter           Resource creation Initiated
+2021-06-21 15:47:30.977000+00:00  CREATE_COMPLETE     AWS::IAM::AccessKey         NubevaDecryptorAccessKey
+2021-06-21 15:47:30.881000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaSensorAccessKey     Resource creation Initiated
+2021-06-21 15:47:30.608000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaDecryptorAccessKey  Resource creation Initiated
+2021-06-21 15:47:30.606000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyReader
+2021-06-21 15:47:30.474000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaSensorAccessKey
+2021-06-21 15:47:30.035000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaDecryptorAccessKey
+2021-06-21 15:47:29.873000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyWriter
+2021-06-21 15:47:29.709000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyAdmin            Resource creation Initiated
+2021-06-21 15:47:28.789000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyAdmin
+2021-06-21 15:47:26.848000+00:00  CREATE_COMPLETE     AWS::IAM::User              NubevaSKIDecryptorUser
+2021-06-21 15:47:26.753000+00:00  CREATE_COMPLETE     AWS::IAM::User              NubevaSKISensorUser
+2021-06-21 15:47:25.827000+00:00  CREATE_COMPLETE     AWS::IAM::Group             NubevaSKIAdministrator
+2021-06-21 15:47:21.587000+00:00  CREATE_COMPLETE     AWS::DynamoDB::Table        NubevaDDBTable
+2021-06-21 15:46:51.426000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKIDecryptorUser    Resource creation Initiated
+2021-06-21 15:46:51.019000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKISensorUser       Resource creation Initiated
+2021-06-21 15:46:50.680000+00:00  CREATE_IN_PROGRESS  AWS::DynamoDB::Table        NubevaDDBTable            Resource creation Initiated
+2021-06-21 15:46:50.634000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKIDecryptorUser
+2021-06-21 15:46:50.416000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Group             NubevaSKIAdministrator    Resource creation Initiated
+2021-06-21 15:46:50.408000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKISensorUser
+2021-06-21 15:46:50.321000+00:00  CREATE_IN_PROGRESS  AWS::DynamoDB::Table        NubevaDDBTable
+2021-06-21 15:46:49.781000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Group             NubevaSKIAdministrator
+2021-06-21 15:46:44.156000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  tCaT-existing-VPC-9d0935  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 21. June 2021 09:18AM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-9d0935-ArkimeStack-E14V65WD5OQ1
+*****************************************************************************
+ResourceStatusReason:  
+The following resource(s) failed to create: [ArkimeAutoScalingGroup].
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                               LogicalResourceId                                  ResourceStatusReason
+--------------------------------  ------------------  -----------------------------------------  -------------------------------------------------  --------------------------------------------------------------------------------------------------------------------
+2021-06-21 16:16:08.488000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack                 tCaT-existing-VPC-9d0935-ArkimeStack-E14V65WD5OQ1  The following resource(s) failed to create: [ArkimeAutoScalingGroup].
+2021-06-21 16:16:07.667000+00:00  CREATE_FAILED       AWS::AutoScaling::AutoScalingGroup         ArkimeAutoScalingGroup                             Received 0 SUCCESS signal(s) out of 1.  Unable to satisfy 100% MinSuccessfulInstancesPercent requirement
+2021-06-21 16:16:06.837000+00:00  UPDATE_IN_PROGRESS  AWS::AutoScaling::AutoScalingGroup         ArkimeAutoScalingGroup                             Failed to receive 1 resource signal(s) for the current batch.  Each resource signal timeout is counted as a FAILURE.
+2021-06-21 16:06:05.313000+00:00  CREATE_IN_PROGRESS  AWS::AutoScaling::AutoScalingGroup         ArkimeAutoScalingGroup                             Resource creation Initiated
+2021-06-21 16:06:04.486000+00:00  CREATE_IN_PROGRESS  AWS::AutoScaling::AutoScalingGroup         ArkimeAutoScalingGroup
+2021-06-21 16:05:59.800000+00:00  CREATE_COMPLETE     AWS::AutoScaling::LaunchConfiguration      ArkimeLaunchConfiguration
+2021-06-21 16:05:59.307000+00:00  CREATE_IN_PROGRESS  AWS::AutoScaling::LaunchConfiguration      ArkimeLaunchConfiguration                          Resource creation Initiated
+2021-06-21 16:05:58.491000+00:00  CREATE_IN_PROGRESS  AWS::AutoScaling::LaunchConfiguration      ArkimeLaunchConfiguration
+2021-06-21 16:05:53.983000+00:00  CREATE_COMPLETE     AWS::Elasticsearch::Domain                 ArkimeElasticsearchDomain
+2021-06-21 15:53:26.048000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack                 ArkimeClientStack
+2021-06-21 15:50:29.271000+00:00  CREATE_COMPLETE     AWS::IAM::InstanceProfile                  ArkimeInstanceProfile
+2021-06-21 15:49:53.914000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack                 ArkimeClientStack                                  Resource creation Initiated
+2021-06-21 15:49:53.132000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack                 ArkimeClientStack
+2021-06-21 15:49:50.476000+00:00  CREATE_COMPLETE     AWS::ElasticLoadBalancingV2::Listener      ArkimeViewerListener
+2021-06-21 15:49:50.154000+00:00  CREATE_IN_PROGRESS  AWS::ElasticLoadBalancingV2::Listener      ArkimeViewerListener                               Resource creation Initiated
+2021-06-21 15:49:49.767000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorTarget              ArkimeELBTrafficMirrorTarget
+2021-06-21 15:49:49.605000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorTarget              ArkimeELBTrafficMirrorTarget                       Resource creation Initiated
+2021-06-21 15:49:49.482000+00:00  CREATE_COMPLETE     AWS::ElasticLoadBalancingV2::Listener      ArkimeCaptureListener
+2021-06-21 15:49:49.150000+00:00  CREATE_IN_PROGRESS  AWS::ElasticLoadBalancingV2::Listener      ArkimeCaptureListener                              Resource creation Initiated
+2021-06-21 15:49:48.621000+00:00  CREATE_IN_PROGRESS  AWS::Elasticsearch::Domain                 ArkimeElasticsearchDomain                          Resource creation Initiated
+2021-06-21 15:49:47.816000+00:00  CREATE_IN_PROGRESS  AWS::ElasticLoadBalancingV2::Listener      ArkimeViewerListener
+2021-06-21 15:49:47.550000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorTarget              ArkimeELBTrafficMirrorTarget
+2021-06-21 15:49:47.539000+00:00  CREATE_IN_PROGRESS  AWS::Elasticsearch::Domain                 ArkimeElasticsearchDomain
+2021-06-21 15:49:47.304000+00:00  CREATE_IN_PROGRESS  AWS::ElasticLoadBalancingV2::Listener      ArkimeCaptureListener
+2021-06-21 15:49:44.401000+00:00  CREATE_COMPLETE     AWS::ElasticLoadBalancingV2::LoadBalancer  ArkimeELB
+2021-06-21 15:48:28.774000+00:00  CREATE_IN_PROGRESS  AWS::IAM::InstanceProfile                  ArkimeInstanceProfile                              Resource creation Initiated
+2021-06-21 15:48:28.431000+00:00  CREATE_IN_PROGRESS  AWS::IAM::InstanceProfile                  ArkimeInstanceProfile
+2021-06-21 15:48:24.238000+00:00  CREATE_COMPLETE     AWS::IAM::Role                             ArkimeIAMRole
+2021-06-21 15:48:08.884000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Role                             ArkimeIAMRole                                      Resource creation Initiated
+2021-06-21 15:48:08.498000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Role                             ArkimeIAMRole
+2021-06-21 15:48:04.615000+00:00  CREATE_COMPLETE     AWS::S3::Bucket                            ArkimePCAPBucket
+2021-06-21 15:47:52.221000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress              ArkimeSecurityGroupOutbound
+2021-06-21 15:47:51.795000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress             ArkimeSecurityGroupViewerinbound
+2021-06-21 15:47:51.775000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress             ArkimeSecurityGroupSSHinbound
+2021-06-21 15:47:51.481000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress              ArkimeSecurityGroupOutbound                        Resource creation Initiated
+2021-06-21 15:47:51.183000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress             ArkimeSecurityGroupVXLANinbound
+2021-06-21 15:47:51.130000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress             ArkimeSecurityGroupSSHinbound                      Resource creation Initiated
+2021-06-21 15:47:50.988000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress              ArkimeSecurityGroupOutbound
+2021-06-21 15:47:50.903000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress             ArkimeSecurityGroupSSHinbound
+2021-06-21 15:47:50.804000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress             ArkimeSecurityGroupViewerinbound                   Resource creation Initiated
+2021-06-21 15:47:50.587000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress             ArkimeSecurityGroupViewerinbound
+2021-06-21 15:47:50.564000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress             ArkimeSecurityGroupVXLANinbound                    Resource creation Initiated
+2021-06-21 15:47:50.353000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress             ArkimeSecurityGroupVXLANinbound
+2021-06-21 15:47:47.780000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup                    ArkimeESSecurityGroup
+2021-06-21 15:47:47.645000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup                    ArkimeSecurityGroup
+2021-06-21 15:47:46.963000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup                    ArkimeSecurityGroup                                Resource creation Initiated
+2021-06-21 15:47:46.805000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup                    ArkimeESSecurityGroup                              Resource creation Initiated
+2021-06-21 15:47:43.429000+00:00  CREATE_COMPLETE     AWS::ElasticLoadBalancingV2::TargetGroup   ArkimeVXLANTargetGroup
+2021-06-21 15:47:43.214000+00:00  CREATE_COMPLETE     AWS::ElasticLoadBalancingV2::TargetGroup   ArkimeViewerTargetGroup
+2021-06-21 15:47:43.039000+00:00  CREATE_IN_PROGRESS  AWS::ElasticLoadBalancingV2::LoadBalancer  ArkimeELB                                          Resource creation Initiated
+2021-06-21 15:47:43.036000+00:00  CREATE_IN_PROGRESS  AWS::S3::Bucket                            ArkimePCAPBucket                                   Resource creation Initiated
+2021-06-21 15:47:42.898000+00:00  CREATE_IN_PROGRESS  AWS::ElasticLoadBalancingV2::TargetGroup   ArkimeVXLANTargetGroup                             Resource creation Initiated
+2021-06-21 15:47:42.849000+00:00  CREATE_IN_PROGRESS  AWS::ElasticLoadBalancingV2::TargetGroup   ArkimeViewerTargetGroup                            Resource creation Initiated
+2021-06-21 15:47:42.402000+00:00  CREATE_IN_PROGRESS  AWS::S3::Bucket                            ArkimePCAPBucket
+2021-06-21 15:47:42.367000+00:00  CREATE_IN_PROGRESS  AWS::ElasticLoadBalancingV2::TargetGroup   ArkimeVXLANTargetGroup
+2021-06-21 15:47:42.284000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup                    ArkimeSecurityGroup
+2021-06-21 15:47:42.202000+00:00  CREATE_IN_PROGRESS  AWS::ElasticLoadBalancingV2::LoadBalancer  ArkimeELB
+2021-06-21 15:47:42.089000+00:00  CREATE_IN_PROGRESS  AWS::ElasticLoadBalancingV2::TargetGroup   ArkimeViewerTargetGroup
+2021-06-21 15:47:41.830000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup                    ArkimeESSecurityGroup
+2021-06-21 15:47:34.637000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack                 tCaT-existing-VPC-9d0935-ArkimeStack-E14V65WD5OQ1  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 21. June 2021 09:19AM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-9d0935-ArkimeStack-E14V65WD5OQ1-ArkimeClientStack-2IHUAAOJU1EP
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                       LogicalResourceId                                                                 ResourceStatusReason
+--------------------------------  ------------------  ---------------------------------  --------------------------------------------------------------------------------  ---------------------------------------------------------
+2021-06-21 15:53:12.240000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack         tCaT-existing-VPC-9d0935-ArkimeStack-E14V65WD5OQ1-ArkimeClientStack-2IHUAAOJU1EP
+2021-06-21 15:53:10.856000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorSession     ArkimeTrafficMirrorSession
+2021-06-21 15:53:10.683000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorSession     ArkimeTrafficMirrorSession                                                        Resource creation Initiated
+2021-06-21 15:53:08.364000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorSession     ArkimeTrafficMirrorSession
+2021-06-21 15:53:06.533000+00:00  CREATE_COMPLETE     AWS::EC2::Instance                 ArkimeClient
+2021-06-21 15:53:05.996000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 ArkimeClient                                                                      Received SUCCESS signal with UniqueId i-0bc7a87e73437e0f2
+2021-06-21 15:50:28.385000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 ArkimeClient                                                                      Resource creation Initiated
+2021-06-21 15:50:26.454000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 ArkimeClient
+2021-06-21 15:50:23.817000+00:00  CREATE_COMPLETE     AWS::EC2::NetworkInterface         ArkimeClientInterface
+2021-06-21 15:50:08.044000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress      ArkimeClientSecurityGroupOutbound
+2021-06-21 15:50:07.872000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress     ArkimeClientSecurityGroupSSHinbound
+2021-06-21 15:50:07.705000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface         ArkimeClientInterface                                                             Resource creation Initiated
+2021-06-21 15:50:07.297000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress      ArkimeClientSecurityGroupOutbound                                                 Resource creation Initiated
+2021-06-21 15:50:07.273000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress     ArkimeClientSecurityGroupSSHinbound                                               Resource creation Initiated
+2021-06-21 15:50:07.063000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress     ArkimeClientSecurityGroupSSHinbound
+2021-06-21 15:50:06.975000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilterRule  ArkimeIngressTrafficMirrorFilterRule
+2021-06-21 15:50:06.958000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilterRule  ArkimeEgressTrafficMirrorFilterRule
+2021-06-21 15:50:06.957000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface         ArkimeClientInterface
+2021-06-21 15:50:06.845000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeIngressTrafficMirrorFilterRule                                              Resource creation Initiated
+2021-06-21 15:50:06.827000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress      ArkimeClientSecurityGroupOutbound
+2021-06-21 15:50:06.808000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeEgressTrafficMirrorFilterRule                                               Resource creation Initiated
+2021-06-21 15:50:04.991000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup            ArkimeClientSecurityGroup
+2021-06-21 15:50:04.935000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeIngressTrafficMirrorFilterRule
+2021-06-21 15:50:04.841000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeEgressTrafficMirrorFilterRule
+2021-06-21 15:50:04.132000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup            ArkimeClientSecurityGroup                                                         Resource creation Initiated
+2021-06-21 15:50:01.963000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilter      ArkimeTrafficMirrorFilter
+2021-06-21 15:50:00.847000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilter      ArkimeTrafficMirrorFilter                                                         Resource creation Initiated
+2021-06-21 15:49:59.057000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup            ArkimeClientSecurityGroup
+2021-06-21 15:49:58.871000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilter      ArkimeTrafficMirrorFilter
+2021-06-21 15:49:53.778000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack         tCaT-existing-VPC-9d0935-ArkimeStack-E14V65WD5OQ1-ArkimeClientStack-2IHUAAOJU1EP  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 21. June 2021 09:19AM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-9d0935-ArkimeStack-E14V65WD5OQ1-ArkimeClientStack-2IHUAAOJU1EP
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                       LogicalResourceId                                                                 ResourceStatusReason
+--------------------------------  ------------------  ---------------------------------  --------------------------------------------------------------------------------  ---------------------------------------------------------
+2021-06-21 15:53:12.240000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack         tCaT-existing-VPC-9d0935-ArkimeStack-E14V65WD5OQ1-ArkimeClientStack-2IHUAAOJU1EP
+2021-06-21 15:53:10.856000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorSession     ArkimeTrafficMirrorSession
+2021-06-21 15:53:10.683000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorSession     ArkimeTrafficMirrorSession                                                        Resource creation Initiated
+2021-06-21 15:53:08.364000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorSession     ArkimeTrafficMirrorSession
+2021-06-21 15:53:06.533000+00:00  CREATE_COMPLETE     AWS::EC2::Instance                 ArkimeClient
+2021-06-21 15:53:05.996000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 ArkimeClient                                                                      Received SUCCESS signal with UniqueId i-0bc7a87e73437e0f2
+2021-06-21 15:50:28.385000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 ArkimeClient                                                                      Resource creation Initiated
+2021-06-21 15:50:26.454000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 ArkimeClient
+2021-06-21 15:50:23.817000+00:00  CREATE_COMPLETE     AWS::EC2::NetworkInterface         ArkimeClientInterface
+2021-06-21 15:50:08.044000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress      ArkimeClientSecurityGroupOutbound
+2021-06-21 15:50:07.872000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress     ArkimeClientSecurityGroupSSHinbound
+2021-06-21 15:50:07.705000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface         ArkimeClientInterface                                                             Resource creation Initiated
+2021-06-21 15:50:07.297000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress      ArkimeClientSecurityGroupOutbound                                                 Resource creation Initiated
+2021-06-21 15:50:07.273000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress     ArkimeClientSecurityGroupSSHinbound                                               Resource creation Initiated
+2021-06-21 15:50:07.063000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress     ArkimeClientSecurityGroupSSHinbound
+2021-06-21 15:50:06.975000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilterRule  ArkimeIngressTrafficMirrorFilterRule
+2021-06-21 15:50:06.958000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilterRule  ArkimeEgressTrafficMirrorFilterRule
+2021-06-21 15:50:06.957000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface         ArkimeClientInterface
+2021-06-21 15:50:06.845000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeIngressTrafficMirrorFilterRule                                              Resource creation Initiated
+2021-06-21 15:50:06.827000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress      ArkimeClientSecurityGroupOutbound
+2021-06-21 15:50:06.808000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeEgressTrafficMirrorFilterRule                                               Resource creation Initiated
+2021-06-21 15:50:04.991000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup            ArkimeClientSecurityGroup
+2021-06-21 15:50:04.935000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeIngressTrafficMirrorFilterRule
+2021-06-21 15:50:04.841000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeEgressTrafficMirrorFilterRule
+2021-06-21 15:50:04.132000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup            ArkimeClientSecurityGroup                                                         Resource creation Initiated
+2021-06-21 15:50:01.963000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilter      ArkimeTrafficMirrorFilter
+2021-06-21 15:50:00.847000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilter      ArkimeTrafficMirrorFilter                                                         Resource creation Initiated
+2021-06-21 15:49:59.057000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup            ArkimeClientSecurityGroup
+2021-06-21 15:49:58.871000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilter      ArkimeTrafficMirrorFilter
+2021-06-21 15:49:53.778000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack         tCaT-existing-VPC-9d0935-ArkimeStack-E14V65WD5OQ1-ArkimeClientStack-2IHUAAOJU1EP  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Monday, 21. June 2021 09:19AM
+-----------------------------------------------------------------------------
+
