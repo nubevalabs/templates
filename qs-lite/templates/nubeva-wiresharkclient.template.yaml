@@ -44,9 +44,9 @@ Parameters:
     Description: Nubeva Sensor Parameter
     Type: String
     NoEcho: true
-  WiresharkTrafficMirrorTarget:
-    Description: Wireshark ELB TMT Info
-    Type: String
+  # WiresharkTrafficMirrorTarget:
+  #   Description: Wireshark TMT Info
+  #   Type: String
 
 Mappings:
   AWSAMIRegionMap:
