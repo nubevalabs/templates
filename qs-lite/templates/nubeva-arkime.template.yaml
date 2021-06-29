@@ -321,8 +321,8 @@ Resources:
 #        InstanceCount: 2
         InstanceType: !Sub
           - ${InstanceType}.elasticsearch
-          - InstanceType: !Ref NodeInstanceType
-        ZoneAwarenessEnabled: true
+          - InstanceType: m5.large
+#        ZoneAwarenessEnabled: true
 #        ZoneAwarenessConfig:
 #          AvailabilityZoneCount: 2
       EBSOptions:
@@ -459,7 +459,7 @@ Resources:
 #     Properties:
 #       VPCZoneIdentifier:
 #       - !Ref PrivateSubnet1ID
-# #      - !Ref PrivateSubnet2ID
+#       - !Ref PrivateSubnet2ID
 #       LaunchConfigurationName: !Ref ArkimeLaunchConfiguration
 #       MinSize: '1'
 #       MaxSize: !Ref 'MaximumNodes'
@@ -545,8 +545,20 @@ Resources:
 #         - Name: 'AutoScalingGroupName'
 #           Value: !Ref ArkimeAutoScalingGroup
 ###End AutoScaling Configuration######
+  ArkimeInterface:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref PrivateSubnet1ID
+      Description: Inbound Interface on tool
+      GroupSet:
+      - !Ref ArkimeSecurityGroup
+
   ArkimeLaunchConfiguration:
-    Type: AWS::AutoScaling::LaunchConfiguration
+    Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Count: '1'
+        Timeout: PT15M
     Metadata:
       AWS::CloudFormation::Init:
         configSets:
@@ -683,9 +695,9 @@ Resources:
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
-      SecurityGroups:
-      - !Ref "ArkimeSecurityGroup"
-      IamInstanceProfile: !Ref ArkimeInstanceProfile
+      # SecurityGroups:
+      # - !Ref "ArkimeSecurityGroup"
+      # IamInstanceProfile: !Ref ArkimeInstanceProfile
       KeyName:
         Ref: KeyPairName
       BlockDeviceMappings:
@@ -707,15 +719,15 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-        ArkimeELBTrafficMirrorTarget: !Ref ArkimeELBTrafficMirrorTarget
+        # ArkimeELBTrafficMirrorTarget: !Ref ArkimeELBTrafficMirrorTarget
         SSLdbWriteAuth: !Ref SSLdbWriteAuth
 
 Outputs:
   Login:
     Description: The username & password defaults are in the documentation
     Value: "https://docs.nubeva.com/en/cloudtools/tools/moloch.html"
-  URL:
-    Description: The URL for any instance's Moloch Dashboard
-    Value: !Sub
-        - "http://${ArkimeDNS}:8005"
-        - ArkimeDNS: !GetAtt ArkimeELB.DNSName
+  # URL:
+  #   Description: The URL for any instance's Moloch Dashboard
+  #   Value: !Sub
+  #       - "http://${ArkimeDNS}:8005"
+  #       - ArkimeDNS: !GetAtt ArkimeELB.DNSName
