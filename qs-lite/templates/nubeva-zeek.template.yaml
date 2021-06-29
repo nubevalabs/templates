@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Zeek as part of the Nubeva SKI & Open Source Tools. (qs-1qsdipn5u)
+Description: Deploys Zeek as part of the Nubeva SKI & Open Source Tools - Lite version. Based on (qs-1qsdipn5u)
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -13,12 +13,12 @@ Metadata:
           - VPCID
           - RemoteAccessCIDR
       - Label:
-          default: "Autoscaling Configuration"
+          default: "Node Configuration"
         Parameters:
           - KeyPairName
           - NodeInstanceType
-          - NumberOfNodes
-          - MaximumNodes
+          # - NumberOfNodes
+          # - MaximumNodes
   cfn-lint:
     config:
       ignore_checks:
@@ -42,18 +42,17 @@ Parameters:
   PrivateSubnet1ID:
     Description: Subnet Id for Private Subnet1
     Type: AWS::EC2::Subnet::Id
-  PrivateSubnet2ID:
-    Description: Subnet Id for Private Subnet2
-    Type: AWS::EC2::Subnet::Id
-  NumberOfNodes:
-    Description: 'The number of EC2 instances'
-    Type: Number
-    Default: 1
-  MaximumNodes:
-    Type: Number
-#    Default: 6
-    Default: 1
-    Description: Maximum number of instances that can be launched in your tool cluster.
+  # PrivateSubnet2ID:
+  #   Description: Subnet Id for Private Subnet2
+  #   Type: AWS::EC2::Subnet::Id
+  # NumberOfNodes:
+  #   Description: 'The number of EC2 instances'
+  #   Type: Number
+  #   Default: 1
+  # MaximumNodes:
+  #   Type: Number
+  #   Default: 6
+  #   Description: Maximum number of instances that can be launched in your tool cluster.
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
@@ -63,8 +62,10 @@ Parameters:
   NodeInstanceType:
     Description: EC2 instance type
     Type: String
-    Default: m5.large
+    Default: t3.medium
     AllowedValues:
+    - t3.medium
+    - t3.large
     - m5.large
     - m5.xlarge
     - m5.2xlarge
@@ -108,7 +109,7 @@ Parameters:
     ConstraintDescription: Quick Start bucket name can include numbers, lowercase
       letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
       (-).
-    Default: aws-quickstart
+    Default: nubebalabs
     Description: S3 bucket name for the Quick Start assets. This string can include
       numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
       or end with a hyphen (-).
@@ -121,7 +122,7 @@ Parameters:
     AllowedPattern: ^[0-9a-zA-Z-/]*$
     ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
       uppercase letters, hyphens (-), and forward slash (/).
-    Default: quickstart-nubeva-tlsdecrypt/
+    Default: qs-lite/
     Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
       can include numbers, lowercase letters, uppercase letters, hyphens (-), and
       forward slash (/).
@@ -219,38 +220,38 @@ Resources:
       FromPort: -1
       ToPort: -1
 
-  ZeekInstanceProfile:
-    Type: 'AWS::IAM::InstanceProfile'
-    Properties:
-      Path: '/'
-      Roles:
-      - !Ref ZeekIAMRole
-
-  ZeekIAMRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - 'ec2.amazonaws.com'
-          Action:
-          - 'sts:AssumeRole'
-      Path: '/'
-      Policies:
-      - PolicyName: ZeekASG
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-            - 'autoscaling:DescribeAutoScalingGroups'
-            - 'autoscaling:DescribeAutoScalingInstances'
-            - 'ec2:DescribeInstances'
-            Resource:
-            - '*'
+  # ZeekInstanceProfile:
+  #   Type: 'AWS::IAM::InstanceProfile'
+  #   Properties:
+  #     Path: '/'
+  #     Roles:
+  #     - !Ref ZeekIAMRole
+  #
+  # ZeekIAMRole:
+  #   Type: 'AWS::IAM::Role'
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Version: '2012-10-17'
+  #       Statement:
+  #       - Effect: Allow
+  #         Principal:
+  #           Service:
+  #           - 'ec2.amazonaws.com'
+  #         Action:
+  #         - 'sts:AssumeRole'
+  #     Path: '/'
+  #     Policies:
+  #     - PolicyName: ZeekASG
+  #       PolicyDocument:
+  #         Version: '2012-10-17'
+  #         Statement:
+  #         - Effect: Allow
+  #           Action:
+  #           - 'autoscaling:DescribeAutoScalingGroups'
+  #           - 'autoscaling:DescribeAutoScalingInstances'
+  #           - 'ec2:DescribeInstances'
+  #           Resource:
+  #           - '*'
 
   ZeekElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
@@ -262,8 +263,8 @@ Resources:
         InstanceCount: 1
         InstanceType: !Sub
           - ${InstanceType}.elasticsearch
-          - InstanceType: !Ref NodeInstanceType
-        ZoneAwarenessEnabled: true
+          - InstanceType: m5.large
+#        ZoneAwarenessEnabled: true
 #        ZoneAwarenessConfig:
 #          AvailabilityZoneCount: 2
       EBSOptions:
@@ -334,140 +335,312 @@ Resources:
       VPCOptions:
         SubnetIds:
           - !Ref PrivateSubnet1ID
-          - !Ref PrivateSubnet2ID
+#          - !Ref PrivateSubnet2ID
         SecurityGroupIds:
           - !Ref ZeekESSecurityGroup
 
-  ZeekELB:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties:
-      Subnets:
-          - !Ref PrivateSubnet1ID
-          - !Ref PrivateSubnet2ID
-      Type: network
-      Scheme: internal
+#   ZeekELB:
+#     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+#     Properties:
+#       Subnets:
+#           - !Ref PrivateSubnet1ID
+#           - !Ref PrivateSubnet2ID
+#       Type: network
+#       Scheme: internal
+#
+#   ZeekCaptureListener:
+#     Type: AWS::ElasticLoadBalancingV2::Listener
+#     Properties:
+#       LoadBalancerArn: !Ref ZeekELB
+#       Port: 4789
+#       Protocol: UDP
+#       DefaultActions:
+#         - Type: forward
+#           TargetGroupArn: !Ref ZeekVXLANTargetGroup
+#
+#   ZeekVXLANTargetGroup:
+#     Type: AWS::ElasticLoadBalancingV2::TargetGroup
+#     Properties:
+#       VpcId: !Ref VPCID
+#       Port: 4789
+#       Protocol: UDP
+#       HealthCheckEnabled: true
+#       HealthCheckIntervalSeconds: 10
+#       HealthCheckProtocol: TCP
+#       HealthCheckTimeoutSeconds: 10
+#       HealthyThresholdCount: 3
+#       UnhealthyThresholdCount: 3
+#       HealthCheckPort: '22'
+#
+#   ZeekELBTrafficMirrorTarget:
+#     Type: AWS::EC2::TrafficMirrorTarget
+#     Properties:
+#       Description: "ZeekELB"
+#       NetworkLoadBalancerArn: !Ref ZeekELB
+#
+#   ZeekAutoScalingGroup:
+#     Type: AWS::AutoScaling::AutoScalingGroup
+#     DependsOn: ZeekElasticsearchDomain
+#     Properties:
+#       VPCZoneIdentifier:
+#       - !Ref PrivateSubnet1ID
+# #      - !Ref PrivateSubnet2ID
+#       LaunchConfigurationName: !Ref ZeekLaunchConfiguration
+#       MinSize: '1'
+#       MaxSize: !Ref 'MaximumNodes'
+#       TargetGroupARNs:
+#         - !Ref ZeekVXLANTargetGroup
+#       DesiredCapacity: !Ref 'NumberOfNodes'
+#       MetricsCollection:
+#       - Granularity: 1Minute
+#         Metrics:
+#         - GroupInServiceInstances
+#       Tags:
+#       - Key: Name
+#         Value: !Sub "Zeek-${AWS::StackName}"
+#         PropagateAtLaunch: true
+#     CreationPolicy:
+#       ResourceSignal:
+#         Count: 1
+#         Timeout: PT10M
+#     UpdatePolicy:
+#       AutoScalingRollingUpdate:
+#         MinInstancesInService: !Ref NumberOfNodes
+#         MaxBatchSize: 1
+#         PauseTime: PT5M
+#         SuspendProcesses:
+#         - AlarmNotification
+#         WaitOnResourceSignals: true
+#   ZeekScaleOutPolicy:
+#     Type : AWS::AutoScaling::ScalingPolicy
+#     Properties:
+#       AutoScalingGroupName: !Ref ZeekAutoScalingGroup
+#       AdjustmentType: 'ChangeInCapacity'
+#       Cooldown: '120'
+#       ScalingAdjustment: 1
+#   ZeekScaleOutAlarm:
+#     Type: AWS::CloudWatch::Alarm
+#     Properties:
+#       AlarmName:
+#         Fn::Join:
+#         - '-'
+#         - - !Ref 'AWS::StackName'
+#           - 'zeek-traffic-high'
+#       AlarmActions:
+#         - !Ref 'ZeekScaleOutPolicy'
+#       AlarmDescription: 'This metric monitors high Zeek network utilization'
+#       ComparisonOperator: 'GreaterThanOrEqualToThreshold'
+#       EvaluationPeriods: 2
+#       MetricName: 'NetworkIn'
+#       Namespace: 'AWS/EC2'
+#       Period: 60
+#       Statistic: 'Average'
+#       Threshold: 15000000000
+#       Dimensions:
+#         - Name: 'AutoScalingGroupName'
+#           Value: !Ref ZeekAutoScalingGroup
+#   ZeekScaleInPolicy:
+#     Type : AWS::AutoScaling::ScalingPolicy
+#     Properties:
+#       AutoScalingGroupName: !Ref ZeekAutoScalingGroup
+#       AdjustmentType: 'ChangeInCapacity'
+#       Cooldown: '120'
+#       ScalingAdjustment: -1
+#   ZeekScaleInAlarm:
+#     Type: AWS::CloudWatch::Alarm
+#     Properties:
+#       AlarmName:
+#         Fn::Join:
+#         - '-'
+#         - - !Ref 'AWS::StackName'
+#           - 'zeek-traffic-low'
+#       AlarmActions:
+#         - !Ref 'ZeekScaleInPolicy'
+#       AlarmDescription: 'This metric monitors Zeek network utilization'
+#       ComparisonOperator: 'LessThanOrEqualToThreshold'
+#       EvaluationPeriods: 2
+#       MetricName: 'NetworkIn'
+#       Namespace: 'AWS/EC2'
+#       Period: 60
+#       Statistic: 'Average'
+#       Threshold: 7500000000
+#       Dimensions:
+#         - Name: 'AutoScalingGroupName'
+#           Value: !Ref ZeekAutoScalingGroup
+#   ZeekLaunchConfiguration:
+#     Type: AWS::AutoScaling::LaunchConfiguration
+#     Metadata:
+#       AWS::CloudFormation::Init:
+#         configSets:
+#           Configure:
+#             - "ConfigStartup"
+#           Install:
+#             - "InstallServices"
+#             - "SetupElastic"
+#             - "InstallNubevaDecryptor"
+#             - "InstallZeek"
+#           Start:
+#             - "StartZeek"
+#
+#         ConfigStartup:
+#           commands:
+#             01_chmod:
+#               command: "chmod +x /etc/rc.d/rc.local"
+# #apt update
+# #sudo apt upgrade -y
+# #sudo apt install -y libpcap-dev libssl-dev python3 python3-dev swig zlib1g-dev
+# #echo 'deb http://download.opensuse.org/repositories/security:/zeek/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/security:zeek.list
+# #curl -fsSL https://download.opensuse.org/repositories/security:zeek/xUbuntu_20.04/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/security_zeek.gpg > /dev/null
+# #sudo apt update
+# #sudo apt install zeek
+#
+#         InstallServices:
+#           packages:
+#             yum:
+#               libpcap-devel: []
+#               openssl-devel: []
+#               python3-devel: []
+#               python3: []
+#               python3-libs: []
+#               swig: []
+#               zlib-devel: []
+#               java-1.8.0-openjdk: []
+#               wget: []
+#               docker: []
+#           services:
+#             sysvinit:
+#               docker:
+#                 enabled: true
+#                 ensureRunning: true
+#         SetupElastic:
+#           commands:
+#             01_setES_pubkeys:
+#               command: "rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+#             02_get_repo_info:
+#               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/elastic.repo -O /etc/yum.repos.d/elastic.repo"
+#             03_get_ZeekEepo_info:
+#               command: "wget -nv https://download.opensuse.org/repositories/security:zeek/CentOS_7/security:zeek.repo -O /etc/yum.repos.d/security:zeek.repo"
+#         InstallNubevaDecryptor:
+#           files:
+#             /opt/nurx/rx_create:
+#               content: |
+#                 {
+#                     "status": "success",
+#                     "response": {
+#                         "rxid": "rx-1234567890",
+#                         "account_id": "default",
+#                         "plan_id": "default",
+#                         "message": "Hello"
+#                     }
+#                 }
+#             /opt/nurx/rx_login:
+#               content: |
+#                 {
+#                     "status": "success",
+#                     "response": {
+#                         "user_id": "default",
+#                         "token": "default",
+#                         "expires": 31536000
+#                     }
+#                 }
+#             /opt/nurx/rx_get:
+#               content: |
+#                 {
+#                     "status": "success",
+#                     "response": {
+#                         "SslCredObj": "eyJ0eXBlIjoic2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9",
+#                         "Mtu": 65535
+#                     }
+#                 }
+#           commands:
+#             01_dockergroup:
+#               command: "sudo usermod -a -G docker ec2-user"
+#             02_launch_decryptor:
+#               command:
+#                 !Sub |
+#                   docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula  --disable metrics --baseurl file:///host/opt/nurx/ -noautoupdate --nutoken ${APIKey} --sslcredobj ${SSLdbReadAuth}
+#         InstallZeek:
+#           packages:
+#             yum:
+#               zeek-core: []
+#               logstash: []
+#           commands:
+#             01_configLogstash:
+#               command: "/usr/share/logstash/bin/system-install"
+#             02_setLogstashRegion:
+#               command:
+#                 !Sub |
+#                   echo 'REGION='${AWS::Region} >> /etc/default/logstash
+#             03_setLogstashES:
+#               command: "echo 'ES_HOST='${ESDomain} >> /etc/default/logstash"
+#               env:
+#                 ESDomain: !GetAtt ZeekElasticsearchDomain.DomainEndpoint
+#             04_installConfig:
+#               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/logstash-zeek.conf -O /etc/logstash/conf.d/logstash-zeek.conf"
+#             05_setupLogstash:
+#               command: "/usr/share/logstash/bin/logstash-plugin install logstash-filter-geoip && /usr/share/logstash/bin/logstash-plugin install logstash-output-amazon_es && /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate"
+#             06_zeekAccess:
+#               command: "usermod -a -G zeek logstash"
+#             07_zeekLogs:
+#               command: "mkdir /opt/zeek/logs && chgrp zeek /opt/zeek/logs"
+#           services:
+#             sysvinit:
+#               logstash:
+#                 enabled: true
+#                 ensureRunning: true
+#         StartZeek:
+#           commands:
+#             01_addUpdaterclocal:
+#               command: "echo 'yum update -y' >> /etc/rc.local"
+#             02_addEC2todockergroup:
+#               command: "usermod -aG docker ec2-user"
+#             02_runZeekAlways:
+#               command: "echo '/opt/zeek/bin/start_zeek.sh' >> /etc/rc.local"
+#             03_installStartScript:
+#               command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/start_zeek.sh -O /opt/zeek/bin/start_zeek.sh"
+#             04_allowExecute:
+#               command: "chmod +x /opt/zeek/bin/start_zeek.sh"
+#             05_startZeek:
+#               command: "/opt/zeek/bin/start_zeek.sh"
+#
+#     Properties:
+#       UserData:
+#         Fn::Base64: !Sub |
+#           #!/bin/bash -xe
+#           amazon-linux-extras install epel -y
+#           yum update -y
+#           yum update -y aws-cfn-bootstrap
+#           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ZeekLaunchConfiguration --configsets Configure,Install,Start
+#           /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource ZeekAutoScalingGroup
+#       InstanceType: !Ref NodeInstanceType
+#       ImageId: !FindInMap
+#         - AWSAMIRegionMap
+#         - !Ref 'AWS::Region'
+#         - awslinux2
+#       SecurityGroups:
+#       - !Ref "ZeekSecurityGroup"
+#       IamInstanceProfile: !Ref ZeekInstanceProfile
+#       KeyName:
+#         Ref: KeyPairName
+#       BlockDeviceMappings:
+#       - DeviceName: "/dev/xvda"
+#         Ebs:
+#           VolumeSize: 100
 
-  ZeekCaptureListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
+  ZeekInterface:
+    Type: AWS::EC2::NetworkInterface
     Properties:
-      LoadBalancerArn: !Ref ZeekELB
-      Port: 4789
-      Protocol: UDP
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref ZeekVXLANTargetGroup
+      SubnetId: !Ref PrivateSubnet1ID
+      Description: Inbound Interface on tool
+      GroupSet:
+      - !Ref ZeekSecurityGroup
 
-  ZeekVXLANTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      VpcId: !Ref VPCID
-      Port: 4789
-      Protocol: UDP
-      HealthCheckEnabled: true
-      HealthCheckIntervalSeconds: 10
-      HealthCheckProtocol: TCP
-      HealthCheckTimeoutSeconds: 10
-      HealthyThresholdCount: 3
-      UnhealthyThresholdCount: 3
-      HealthCheckPort: '22'
-
-  ZeekELBTrafficMirrorTarget:
-    Type: AWS::EC2::TrafficMirrorTarget
-    Properties:
-      Description: "ZeekELB"
-      NetworkLoadBalancerArn: !Ref ZeekELB
-
-  ZeekAutoScalingGroup:
-    Type: AWS::AutoScaling::AutoScalingGroup
-    DependsOn: ZeekElasticsearchDomain
-    Properties:
-      VPCZoneIdentifier:
-      - !Ref PrivateSubnet1ID
-#      - !Ref PrivateSubnet2ID
-      LaunchConfigurationName: !Ref ZeekLaunchConfiguration
-      MinSize: '1'
-      MaxSize: !Ref 'MaximumNodes'
-      TargetGroupARNs:
-        - !Ref ZeekVXLANTargetGroup
-      DesiredCapacity: !Ref 'NumberOfNodes'
-      MetricsCollection:
-      - Granularity: 1Minute
-        Metrics:
-        - GroupInServiceInstances
-      Tags:
-      - Key: Name
-        Value: !Sub "Zeek-${AWS::StackName}"
-        PropagateAtLaunch: true
+  ZeekLaunchConfiguration:
+    Type: AWS::EC2::Instance
     CreationPolicy:
       ResourceSignal:
-        Count: 1
-        Timeout: PT10M
-    UpdatePolicy:
-      AutoScalingRollingUpdate:
-        MinInstancesInService: !Ref NumberOfNodes
-        MaxBatchSize: 1
-        PauseTime: PT5M
-        SuspendProcesses:
-        - AlarmNotification
-        WaitOnResourceSignals: true
-  ZeekScaleOutPolicy:
-    Type : AWS::AutoScaling::ScalingPolicy
-    Properties:
-      AutoScalingGroupName: !Ref ZeekAutoScalingGroup
-      AdjustmentType: 'ChangeInCapacity'
-      Cooldown: '120'
-      ScalingAdjustment: 1
-  ZeekScaleOutAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName:
-        Fn::Join:
-        - '-'
-        - - !Ref 'AWS::StackName'
-          - 'zeek-traffic-high'
-      AlarmActions:
-        - !Ref 'ZeekScaleOutPolicy'
-      AlarmDescription: 'This metric monitors high Zeek network utilization'
-      ComparisonOperator: 'GreaterThanOrEqualToThreshold'
-      EvaluationPeriods: 2
-      MetricName: 'NetworkIn'
-      Namespace: 'AWS/EC2'
-      Period: 60
-      Statistic: 'Average'
-      Threshold: 15000000000
-      Dimensions:
-        - Name: 'AutoScalingGroupName'
-          Value: !Ref ZeekAutoScalingGroup
-  ZeekScaleInPolicy:
-    Type : AWS::AutoScaling::ScalingPolicy
-    Properties:
-      AutoScalingGroupName: !Ref ZeekAutoScalingGroup
-      AdjustmentType: 'ChangeInCapacity'
-      Cooldown: '120'
-      ScalingAdjustment: -1
-  ZeekScaleInAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName:
-        Fn::Join:
-        - '-'
-        - - !Ref 'AWS::StackName'
-          - 'zeek-traffic-low'
-      AlarmActions:
-        - !Ref 'ZeekScaleInPolicy'
-      AlarmDescription: 'This metric monitors Zeek network utilization'
-      ComparisonOperator: 'LessThanOrEqualToThreshold'
-      EvaluationPeriods: 2
-      MetricName: 'NetworkIn'
-      Namespace: 'AWS/EC2'
-      Period: 60
-      Statistic: 'Average'
-      Threshold: 7500000000
-      Dimensions:
-        - Name: 'AutoScalingGroupName'
-          Value: !Ref ZeekAutoScalingGroup
-  ZeekLaunchConfiguration:
-    Type: AWS::AutoScaling::LaunchConfiguration
+        Count: '1'
+        Timeout: PT15M
     Metadata:
       AWS::CloudFormation::Init:
         configSets:
@@ -485,14 +658,6 @@ Resources:
           commands:
             01_chmod:
               command: "chmod +x /etc/rc.d/rc.local"
-#apt update
-#sudo apt upgrade -y
-#sudo apt install -y libpcap-dev libssl-dev python3 python3-dev swig zlib1g-dev
-#echo 'deb http://download.opensuse.org/repositories/security:/zeek/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/security:zeek.list
-#curl -fsSL https://download.opensuse.org/repositories/security:zeek/xUbuntu_20.04/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/security_zeek.gpg > /dev/null
-#sudo apt update
-#sudo apt install zeek
-
         InstallServices:
           packages:
             yum:
@@ -616,15 +781,19 @@ Resources:
         - AWSAMIRegionMap
         - !Ref 'AWS::Region'
         - awslinux2
-      SecurityGroups:
-      - !Ref "ZeekSecurityGroup"
-      IamInstanceProfile: !Ref ZeekInstanceProfile
+      # SecurityGroups:
+      # - !Ref "ZeekSecurityGroup"
+      # IamInstanceProfile: !Ref ZeekInstanceProfile
       KeyName:
         Ref: KeyPairName
       BlockDeviceMappings:
       - DeviceName: "/dev/xvda"
         Ebs:
           VolumeSize: 100
+      NetworkInterfaces:
+        -
+          NetworkInterfaceId: !Ref ZeekInterface
+          DeviceIndex: '0'
   ZeekClientStack:
     Condition: ClientInstallTrue
     Type: AWS::CloudFormation::Stack
@@ -640,14 +809,14 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-        ZeekELBTrafficMirrorTarget: !Ref ZeekELBTrafficMirrorTarget
+#        ZeekELBTrafficMirrorTarget: !Ref ZeekELBTrafficMirrorTarget
         SSLdbWriteAuth: !Ref SSLdbWriteAuth
 Outputs:
   Login:
     Description: The username & password defaults are in the documentation
     Value: "https://docs.nubeva.com/zeek"
-  URL:
-    Description: The URL for the Zeek Kibana Dashboard
-    Value: !Sub
-        - "https://${ZeekES}/_plugin/kibana/"
-        - ZeekES: !GetAtt ZeekElasticsearchDomain.DomainEndpoint
+  # URL:
+  #   Description: The URL for the Zeek Kibana Dashboard
+  #   Value: !Sub
+  #       - "https://${ZeekES}/_plugin/kibana/"
+  #       - ZeekES: !GetAtt ZeekElasticsearchDomain.DomainEndpoint

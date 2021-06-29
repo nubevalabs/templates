@@ -1,0 +1,427 @@
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-a92e7f
+*****************************************************************************
+ResourceStatusReason:  
+The following resource(s) failed to create: [SuricataStack, ArkimeStack].
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                LogicalResourceId         ResourceStatusReason
+--------------------------------  ------------------  --------------------------  ------------------------  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+2021-06-29 16:42:44.259000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack  tCaT-existing-VPC-a92e7f  The following resource(s) failed to create: [SuricataStack, ArkimeStack].
+2021-06-29 16:42:43.376000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack  SuricataStack             Resource creation cancelled
+2021-06-29 16:42:42.839000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack  ArkimeStack               Embedded stack arn:aws:cloudformation:us-east-1:942578988601:stack/tCaT-existing-VPC-a92e7f-ArkimeStack-1WYD261FHWQY9/7e0d3000-d8f6-11eb-b784-0a03f460991d was not successfully created: The following resource(s) failed to create: [ArkimeLaunchConfiguration].
+2021-06-29 16:29:14.026000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack  WiresharkStack
+2021-06-29 16:24:50.145000+00:00  CREATE_COMPLETE     AWS::IAM::Policy            NubevaKeyAdmin
+2021-06-29 16:24:46.850000+00:00  CREATE_COMPLETE     AWS::IAM::Policy            NubevaKeyWriter
+2021-06-29 16:24:46.567000+00:00  CREATE_COMPLETE     AWS::IAM::Policy            NubevaKeyReader
+2021-06-29 16:24:36.976000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyAdmin            Resource creation Initiated
+2021-06-29 16:24:36.361000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  WiresharkStack            Resource creation Initiated
+2021-06-29 16:24:35.768000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  SuricataStack             Resource creation Initiated
+2021-06-29 16:24:35.720000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  ArkimeStack               Resource creation Initiated
+2021-06-29 16:24:35.493000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyAdmin
+2021-06-29 16:24:35.424000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  WiresharkStack
+2021-06-29 16:24:34.822000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  ArkimeStack
+2021-06-29 16:24:34.435000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  SuricataStack
+2021-06-29 16:24:33.670000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyWriter           Resource creation Initiated
+2021-06-29 16:24:33.395000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyReader           Resource creation Initiated
+2021-06-29 16:24:32.752000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyWriter
+2021-06-29 16:24:32.483000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Policy            NubevaKeyReader
+2021-06-29 16:24:31.311000+00:00  CREATE_COMPLETE     AWS::IAM::AccessKey         NubevaSensorAccessKey
+2021-06-29 16:24:31.089000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaSensorAccessKey     Resource creation Initiated
+2021-06-29 16:24:31.015000+00:00  CREATE_COMPLETE     AWS::IAM::AccessKey         NubevaDecryptorAccessKey
+2021-06-29 16:24:30.726000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaSensorAccessKey
+2021-06-29 16:24:30.570000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaDecryptorAccessKey  Resource creation Initiated
+2021-06-29 16:24:30.216000+00:00  CREATE_IN_PROGRESS  AWS::IAM::AccessKey         NubevaDecryptorAccessKey
+2021-06-29 16:24:29.107000+00:00  CREATE_COMPLETE     AWS::DynamoDB::Table        NubevaDDBTable
+2021-06-29 16:24:27.354000+00:00  CREATE_COMPLETE     AWS::IAM::User              NubevaSKIDecryptorUser
+2021-06-29 16:24:27.200000+00:00  CREATE_COMPLETE     AWS::IAM::Group             NubevaSKIAdministrator
+2021-06-29 16:24:27.123000+00:00  CREATE_COMPLETE     AWS::IAM::User              NubevaSKISensorUser
+2021-06-29 16:23:58.236000+00:00  CREATE_IN_PROGRESS  AWS::DynamoDB::Table        NubevaDDBTable            Resource creation Initiated
+2021-06-29 16:23:57.826000+00:00  CREATE_IN_PROGRESS  AWS::DynamoDB::Table        NubevaDDBTable
+2021-06-29 16:23:51.998000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKIDecryptorUser    Resource creation Initiated
+2021-06-29 16:23:51.840000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Group             NubevaSKIAdministrator    Resource creation Initiated
+2021-06-29 16:23:51.632000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKISensorUser       Resource creation Initiated
+2021-06-29 16:23:51.268000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKIDecryptorUser
+2021-06-29 16:23:51.230000+00:00  CREATE_IN_PROGRESS  AWS::IAM::Group             NubevaSKIAdministrator
+2021-06-29 16:23:50.959000+00:00  CREATE_IN_PROGRESS  AWS::IAM::User              NubevaSKISensorUser
+2021-06-29 16:23:44.486000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack  tCaT-existing-VPC-a92e7f  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Tuesday, 29. June 2021 09:42AM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-a92e7f-WiresharkStack-4SPYTUYX562W
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                    LogicalResourceId                                     ResourceStatusReason
+--------------------------------  ------------------  ------------------------------  ----------------------------------------------------  ---------------------------------------------------------
+2021-06-29 16:28:52.100000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack      tCaT-existing-VPC-a92e7f-WiresharkStack-4SPYTUYX562W
+2021-06-29 16:28:49.703000+00:00  CREATE_COMPLETE     AWS::EC2::Instance              WiresharkLaunchConfiguration
+2021-06-29 16:28:49.005000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkLaunchConfiguration                          Received SUCCESS signal with UniqueId i-07b54a25c7521a0c0
+2021-06-29 16:28:45.189000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack      WiresharkClientStack
+2021-06-29 16:25:10.693000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkLaunchConfiguration                          Resource creation Initiated
+2021-06-29 16:25:08.640000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkLaunchConfiguration
+2021-06-29 16:25:05.903000+00:00  CREATE_COMPLETE     AWS::EC2::NetworkInterface      WiresharkInterface
+2021-06-29 16:24:50.101000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupWebhookinbound
+2021-06-29 16:24:50.059000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress   WiresharkSecurityGroupOutbound
+2021-06-29 16:24:50.016000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupSSHinbound
+2021-06-29 16:24:50.008000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupVXLANinbound
+2021-06-29 16:24:49.596000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      WiresharkInterface                                    Resource creation Initiated
+2021-06-29 16:24:49.490000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupWebhookinbound                  Resource creation Initiated
+2021-06-29 16:24:49.429000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupSSHinbound                      Resource creation Initiated
+2021-06-29 16:24:49.407000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupVXLANinbound                    Resource creation Initiated
+2021-06-29 16:24:49.304000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   WiresharkSecurityGroupOutbound                        Resource creation Initiated
+2021-06-29 16:24:49.254000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupWebhookinbound
+2021-06-29 16:24:49.208000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupSSHinbound
+2021-06-29 16:24:49.168000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkSecurityGroupVXLANinbound
+2021-06-29 16:24:49.001000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      WiresharkInterface
+2021-06-29 16:24:48.856000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   WiresharkSecurityGroupOutbound
+2021-06-29 16:24:46.892000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup         WiresharkSecurityGroup
+2021-06-29 16:24:46.219000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         WiresharkSecurityGroup                                Resource creation Initiated
+2021-06-29 16:24:42.216000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      WiresharkClientStack                                  Resource creation Initiated
+2021-06-29 16:24:41.502000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         WiresharkSecurityGroup
+2021-06-29 16:24:41.497000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      WiresharkClientStack
+2021-06-29 16:24:36.139000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      tCaT-existing-VPC-a92e7f-WiresharkStack-4SPYTUYX562W  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Tuesday, 29. June 2021 09:42AM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-a92e7f-WiresharkStack-4SPYTUYX562W-WiresharkClientStack-5JG1IWINX2MX
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                    LogicalResourceId                                                                       ResourceStatusReason
+--------------------------------  ------------------  ------------------------------  --------------------------------------------------------------------------------------  ---------------------------------------------------------
+2021-06-29 16:28:28.311000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack      tCaT-existing-VPC-a92e7f-WiresharkStack-4SPYTUYX562W-WiresharkClientStack-5JG1IWINX2MX
+2021-06-29 16:28:27.065000+00:00  CREATE_COMPLETE     AWS::EC2::Instance              WiresharkClient
+2021-06-29 16:28:26.482000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkClient                                                                         Received SUCCESS signal with UniqueId i-03ea39776b6afd8aa
+2021-06-29 16:25:16.325000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkClient                                                                         Resource creation Initiated
+2021-06-29 16:25:14.484000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkClient
+2021-06-29 16:25:12.057000+00:00  CREATE_COMPLETE     AWS::EC2::NetworkInterface      WiresharkClientInterface
+2021-06-29 16:24:56.482000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress   WiresharkClientSecurityGroupOutbound
+2021-06-29 16:24:55.790000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      WiresharkClientInterface                                                                Resource creation Initiated
+2021-06-29 16:24:55.739000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  WiresharkClientSecurityGroupSSHinbound
+2021-06-29 16:24:55.531000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   WiresharkClientSecurityGroupOutbound                                                    Resource creation Initiated
+2021-06-29 16:24:55.144000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      WiresharkClientInterface
+2021-06-29 16:24:55.134000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkClientSecurityGroupSSHinbound                                                  Resource creation Initiated
+2021-06-29 16:24:54.998000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   WiresharkClientSecurityGroupOutbound
+2021-06-29 16:24:54.914000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkClientSecurityGroupSSHinbound
+2021-06-29 16:24:52.927000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup         WiresharkClientSecurityGroup
+2021-06-29 16:24:52.011000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         WiresharkClientSecurityGroup                                                            Resource creation Initiated
+2021-06-29 16:24:47.225000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         WiresharkClientSecurityGroup
+2021-06-29 16:24:42.110000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      tCaT-existing-VPC-a92e7f-WiresharkStack-4SPYTUYX562W-WiresharkClientStack-5JG1IWINX2MX  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Tuesday, 29. June 2021 09:42AM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-a92e7f-SuricataStack-1CQDZ30OHUZBX
+*****************************************************************************
+ResourceStatusReason:  
+Resource creation Initiated
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                    LogicalResourceId                                     ResourceStatusReason
+--------------------------------  ------------------  ------------------------------  ----------------------------------------------------  ---------------------------
+2021-06-29 16:38:00.558000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              SuricataLaunchConfiguration                           Resource creation Initiated
+2021-06-29 16:37:58.514000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              SuricataLaunchConfiguration
+2021-06-29 16:37:54.905000+00:00  CREATE_COMPLETE     AWS::Elasticsearch::Domain      SuricataElasticsearchDomain
+2021-06-29 16:28:13.389000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack      SuricataClientStack
+2021-06-29 16:25:06.155000+00:00  CREATE_COMPLETE     AWS::EC2::NetworkInterface      SuricataInterface
+2021-06-29 16:24:50.112000+00:00  CREATE_IN_PROGRESS  AWS::Elasticsearch::Domain      SuricataElasticsearchDomain                           Resource creation Initiated
+2021-06-29 16:24:50.061000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  SuricataSecurityGroupSSHinbound
+2021-06-29 16:24:50.004000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      SuricataInterface                                     Resource creation Initiated
+2021-06-29 16:24:49.940000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress   SuricataSecurityGroupOutbound
+2021-06-29 16:24:49.572000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  SuricataSecurityGroupVXLANinbound
+2021-06-29 16:24:49.401000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  SuricataSecurityGroupSSHinbound                       Resource creation Initiated
+2021-06-29 16:24:49.165000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      SuricataInterface
+2021-06-29 16:24:49.161000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  SuricataSecurityGroupSSHinbound
+2021-06-29 16:24:49.137000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   SuricataSecurityGroupOutbound                         Resource creation Initiated
+2021-06-29 16:24:48.952000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  SuricataSecurityGroupVXLANinbound                     Resource creation Initiated
+2021-06-29 16:24:48.717000+00:00  CREATE_IN_PROGRESS  AWS::Elasticsearch::Domain      SuricataElasticsearchDomain
+2021-06-29 16:24:48.665000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   SuricataSecurityGroupOutbound
+2021-06-29 16:24:48.612000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  SuricataSecurityGroupVXLANinbound
+2021-06-29 16:24:46.504000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup         SuricataESSecurityGroup
+2021-06-29 16:24:46.422000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup         SuricataSecurityGroup
+2021-06-29 16:24:45.698000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         SuricataSecurityGroup                                 Resource creation Initiated
+2021-06-29 16:24:45.529000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         SuricataESSecurityGroup                               Resource creation Initiated
+2021-06-29 16:24:41.531000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      SuricataClientStack                                   Resource creation Initiated
+2021-06-29 16:24:40.981000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         SuricataSecurityGroup
+2021-06-29 16:24:40.831000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         SuricataESSecurityGroup
+2021-06-29 16:24:40.790000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      SuricataClientStack
+2021-06-29 16:24:35.573000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      tCaT-existing-VPC-a92e7f-SuricataStack-1CQDZ30OHUZBX  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Tuesday, 29. June 2021 09:42AM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-a92e7f-SuricataStack-1CQDZ30OHUZBX-SuricataClientStack-WM16C8ELTQRC
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                       LogicalResourceId                                                                      ResourceStatusReason
+--------------------------------  ------------------  ---------------------------------  -------------------------------------------------------------------------------------  ---------------------------------------------------------
+2021-06-29 16:27:55.790000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack         tCaT-existing-VPC-a92e7f-SuricataStack-1CQDZ30OHUZBX-SuricataClientStack-WM16C8ELTQRC
+2021-06-29 16:27:54.543000+00:00  CREATE_COMPLETE     AWS::EC2::Instance                 SuricataClient
+2021-06-29 16:27:53.983000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 SuricataClient                                                                         Received SUCCESS signal with UniqueId i-01966e00eff545c7e
+2021-06-29 16:25:16.679000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 SuricataClient                                                                         Resource creation Initiated
+2021-06-29 16:25:14.363000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 SuricataClient
+2021-06-29 16:25:11.995000+00:00  CREATE_COMPLETE     AWS::EC2::NetworkInterface         SuricataClientInterface
+2021-06-29 16:24:56.875000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress      SuricataClientSecurityGroupOutbound
+2021-06-29 16:24:56.073000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress      SuricataClientSecurityGroupOutbound                                                    Resource creation Initiated
+2021-06-29 16:24:55.981000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress     SuricataClientSecurityGroupSSHinbound
+2021-06-29 16:24:55.793000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface         SuricataClientInterface                                                                Resource creation Initiated
+2021-06-29 16:24:55.352000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress      SuricataClientSecurityGroupOutbound
+2021-06-29 16:24:55.345000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress     SuricataClientSecurityGroupSSHinbound                                                  Resource creation Initiated
+2021-06-29 16:24:55.155000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface         SuricataClientInterface
+2021-06-29 16:24:55.111000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress     SuricataClientSecurityGroupSSHinbound
+2021-06-29 16:24:54.610000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilterRule  SuricataEgressTrafficMirrorFilterRule
+2021-06-29 16:24:54.465000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  SuricataEgressTrafficMirrorFilterRule                                                  Resource creation Initiated
+2021-06-29 16:24:54.344000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilterRule  SuricataIngressTrafficMirrorFilterRule
+2021-06-29 16:24:54.204000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  SuricataIngressTrafficMirrorFilterRule                                                 Resource creation Initiated
+2021-06-29 16:24:53.158000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup            SuricataClientSecurityGroup
+2021-06-29 16:24:52.285000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  SuricataEgressTrafficMirrorFilterRule
+2021-06-29 16:24:52.281000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  SuricataIngressTrafficMirrorFilterRule
+2021-06-29 16:24:52.023000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup            SuricataClientSecurityGroup                                                            Resource creation Initiated
+2021-06-29 16:24:49.977000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilter      SuricataTrafficMirrorFilter
+2021-06-29 16:24:49.266000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilter      SuricataTrafficMirrorFilter                                                            Resource creation Initiated
+2021-06-29 16:24:47.234000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup            SuricataClientSecurityGroup
+2021-06-29 16:24:47.174000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilter      SuricataTrafficMirrorFilter
+2021-06-29 16:24:41.405000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack         tCaT-existing-VPC-a92e7f-SuricataStack-1CQDZ30OHUZBX-SuricataClientStack-WM16C8ELTQRC  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Tuesday, 29. June 2021 09:43AM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-a92e7f-ArkimeStack-1WYD261FHWQY9
+*****************************************************************************
+ResourceStatusReason:  
+The following resource(s) failed to create: [ArkimeLaunchConfiguration].
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                    LogicalResourceId                                   ResourceStatusReason
+--------------------------------  ------------------  ------------------------------  --------------------------------------------------  -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+2021-06-29 16:41:03.061000+00:00  CREATE_FAILED       AWS::CloudFormation::Stack      tCaT-existing-VPC-a92e7f-ArkimeStack-1WYD261FHWQY9  The following resource(s) failed to create: [ArkimeLaunchConfiguration].
+2021-06-29 16:41:01.962000+00:00  CREATE_FAILED       AWS::EC2::Instance              ArkimeLaunchConfiguration                           No default VPC for this user. GroupName is only supported for EC2-Classic and default VPC. (Service: AmazonEC2; Status Code: 400; Error Code: VPCIdNotSpecified; Request ID: 9a70e670-4c8f-44c9-a9f3-41f4d661e602; Proxy: null)
+2021-06-29 16:41:01.061000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              ArkimeLaunchConfiguration
+2021-06-29 16:40:57.340000+00:00  CREATE_COMPLETE     AWS::Elasticsearch::Domain      ArkimeElasticsearchDomain
+2021-06-29 16:28:45.883000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack      ArkimeClientStack
+2021-06-29 16:25:06.578000+00:00  CREATE_COMPLETE     AWS::EC2::NetworkInterface      ArkimeInterface
+2021-06-29 16:24:52.379000+00:00  CREATE_IN_PROGRESS  AWS::Elasticsearch::Domain      ArkimeElasticsearchDomain                           Resource creation Initiated
+2021-06-29 16:24:51.635000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress   ArkimeSecurityGroupOutbound
+2021-06-29 16:24:51.273000+00:00  CREATE_IN_PROGRESS  AWS::Elasticsearch::Domain      ArkimeElasticsearchDomain
+2021-06-29 16:24:51.029000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  ArkimeSecurityGroupViewerinbound
+2021-06-29 16:24:50.671000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   ArkimeSecurityGroupOutbound                         Resource creation Initiated
+2021-06-29 16:24:50.506000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      ArkimeInterface                                     Resource creation Initiated
+2021-06-29 16:24:50.329000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  ArkimeSecurityGroupSSHinbound
+2021-06-29 16:24:50.299000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  ArkimeSecurityGroupVXLANinbound
+2021-06-29 16:24:50.184000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   ArkimeSecurityGroupOutbound
+2021-06-29 16:24:50.040000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  ArkimeSecurityGroupViewerinbound                    Resource creation Initiated
+2021-06-29 16:24:49.736000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  ArkimeSecurityGroupViewerinbound
+2021-06-29 16:24:49.706000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  ArkimeSecurityGroupSSHinbound                       Resource creation Initiated
+2021-06-29 16:24:49.705000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  ArkimeSecurityGroupVXLANinbound                     Resource creation Initiated
+2021-06-29 16:24:49.627000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      ArkimeInterface
+2021-06-29 16:24:49.488000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  ArkimeSecurityGroupVXLANinbound
+2021-06-29 16:24:49.473000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  ArkimeSecurityGroupSSHinbound
+2021-06-29 16:24:47.915000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup         ArkimeESSecurityGroup
+2021-06-29 16:24:47.309000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup         ArkimeSecurityGroup
+2021-06-29 16:24:46.985000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         ArkimeESSecurityGroup                               Resource creation Initiated
+2021-06-29 16:24:46.378000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         ArkimeSecurityGroup                                 Resource creation Initiated
+2021-06-29 16:24:42.685000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      ArkimeClientStack                                   Resource creation Initiated
+2021-06-29 16:24:41.978000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      ArkimeClientStack
+2021-06-29 16:24:41.852000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         ArkimeESSecurityGroup
+2021-06-29 16:24:41.631000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         ArkimeSecurityGroup
+2021-06-29 16:24:35.450000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      tCaT-existing-VPC-a92e7f-ArkimeStack-1WYD261FHWQY9  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Tuesday, 29. June 2021 09:43AM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-a92e7f-ArkimeStack-1WYD261FHWQY9-ArkimeClientStack-3T4M78VMT2JJ
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                       LogicalResourceId                                                                  ResourceStatusReason
+--------------------------------  ------------------  ---------------------------------  ---------------------------------------------------------------------------------  ---------------------------------------------------------
+2021-06-29 16:28:28.075000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack         tCaT-existing-VPC-a92e7f-ArkimeStack-1WYD261FHWQY9-ArkimeClientStack-3T4M78VMT2JJ
+2021-06-29 16:28:26.672000+00:00  CREATE_COMPLETE     AWS::EC2::Instance                 ArkimeClient
+2021-06-29 16:28:26.146000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 ArkimeClient                                                                       Received SUCCESS signal with UniqueId i-0c4199268439516be
+2021-06-29 16:25:16.552000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 ArkimeClient                                                                       Resource creation Initiated
+2021-06-29 16:25:14.702000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 ArkimeClient
+2021-06-29 16:25:12.604000+00:00  CREATE_COMPLETE     AWS::EC2::NetworkInterface         ArkimeClientInterface
+2021-06-29 16:25:04.209000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilterRule  ArkimeEgressTrafficMirrorFilterRule
+2021-06-29 16:25:04.188000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilterRule  ArkimeIngressTrafficMirrorFilterRule
+2021-06-29 16:25:04.030000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeIngressTrafficMirrorFilterRule                                               Resource creation Initiated
+2021-06-29 16:25:03.801000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeEgressTrafficMirrorFilterRule                                                Resource creation Initiated
+2021-06-29 16:24:56.971000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress     ArkimeClientSecurityGroupSSHinbound
+2021-06-29 16:24:56.851000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress      ArkimeClientSecurityGroupOutbound
+2021-06-29 16:24:56.519000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface         ArkimeClientInterface                                                              Resource creation Initiated
+2021-06-29 16:24:56.363000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress     ArkimeClientSecurityGroupSSHinbound                                                Resource creation Initiated
+2021-06-29 16:24:56.161000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress     ArkimeClientSecurityGroupSSHinbound
+2021-06-29 16:24:56.158000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress      ArkimeClientSecurityGroupOutbound                                                  Resource creation Initiated
+2021-06-29 16:24:55.770000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface         ArkimeClientInterface
+2021-06-29 16:24:55.622000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress      ArkimeClientSecurityGroupOutbound
+2021-06-29 16:24:53.674000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup            ArkimeClientSecurityGroup
+2021-06-29 16:24:52.969000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup            ArkimeClientSecurityGroup                                                          Resource creation Initiated
+2021-06-29 16:24:52.500000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeIngressTrafficMirrorFilterRule
+2021-06-29 16:24:52.453000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeEgressTrafficMirrorFilterRule
+2021-06-29 16:24:50.507000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilter      ArkimeTrafficMirrorFilter
+2021-06-29 16:24:49.799000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilter      ArkimeTrafficMirrorFilter                                                          Resource creation Initiated
+2021-06-29 16:24:48.253000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup            ArkimeClientSecurityGroup
+2021-06-29 16:24:47.960000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilter      ArkimeTrafficMirrorFilter
+2021-06-29 16:24:42.572000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack         tCaT-existing-VPC-a92e7f-ArkimeStack-1WYD261FHWQY9-ArkimeClientStack-3T4M78VMT2JJ  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Tuesday, 29. June 2021 09:43AM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-a92e7f-WiresharkStack-4SPYTUYX562W-WiresharkClientStack-5JG1IWINX2MX
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                    LogicalResourceId                                                                       ResourceStatusReason
+--------------------------------  ------------------  ------------------------------  --------------------------------------------------------------------------------------  ---------------------------------------------------------
+2021-06-29 16:28:28.311000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack      tCaT-existing-VPC-a92e7f-WiresharkStack-4SPYTUYX562W-WiresharkClientStack-5JG1IWINX2MX
+2021-06-29 16:28:27.065000+00:00  CREATE_COMPLETE     AWS::EC2::Instance              WiresharkClient
+2021-06-29 16:28:26.482000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkClient                                                                         Received SUCCESS signal with UniqueId i-03ea39776b6afd8aa
+2021-06-29 16:25:16.325000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkClient                                                                         Resource creation Initiated
+2021-06-29 16:25:14.484000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance              WiresharkClient
+2021-06-29 16:25:12.057000+00:00  CREATE_COMPLETE     AWS::EC2::NetworkInterface      WiresharkClientInterface
+2021-06-29 16:24:56.482000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress   WiresharkClientSecurityGroupOutbound
+2021-06-29 16:24:55.790000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      WiresharkClientInterface                                                                Resource creation Initiated
+2021-06-29 16:24:55.739000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress  WiresharkClientSecurityGroupSSHinbound
+2021-06-29 16:24:55.531000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   WiresharkClientSecurityGroupOutbound                                                    Resource creation Initiated
+2021-06-29 16:24:55.144000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface      WiresharkClientInterface
+2021-06-29 16:24:55.134000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkClientSecurityGroupSSHinbound                                                  Resource creation Initiated
+2021-06-29 16:24:54.998000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress   WiresharkClientSecurityGroupOutbound
+2021-06-29 16:24:54.914000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress  WiresharkClientSecurityGroupSSHinbound
+2021-06-29 16:24:52.927000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup         WiresharkClientSecurityGroup
+2021-06-29 16:24:52.011000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         WiresharkClientSecurityGroup                                                            Resource creation Initiated
+2021-06-29 16:24:47.225000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup         WiresharkClientSecurityGroup
+2021-06-29 16:24:42.110000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack      tCaT-existing-VPC-a92e7f-WiresharkStack-4SPYTUYX562W-WiresharkClientStack-5JG1IWINX2MX  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Tuesday, 29. June 2021 09:43AM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-a92e7f-SuricataStack-1CQDZ30OHUZBX-SuricataClientStack-WM16C8ELTQRC
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                       LogicalResourceId                                                                      ResourceStatusReason
+--------------------------------  ------------------  ---------------------------------  -------------------------------------------------------------------------------------  ---------------------------------------------------------
+2021-06-29 16:27:55.790000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack         tCaT-existing-VPC-a92e7f-SuricataStack-1CQDZ30OHUZBX-SuricataClientStack-WM16C8ELTQRC
+2021-06-29 16:27:54.543000+00:00  CREATE_COMPLETE     AWS::EC2::Instance                 SuricataClient
+2021-06-29 16:27:53.983000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 SuricataClient                                                                         Received SUCCESS signal with UniqueId i-01966e00eff545c7e
+2021-06-29 16:25:16.679000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 SuricataClient                                                                         Resource creation Initiated
+2021-06-29 16:25:14.363000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 SuricataClient
+2021-06-29 16:25:11.995000+00:00  CREATE_COMPLETE     AWS::EC2::NetworkInterface         SuricataClientInterface
+2021-06-29 16:24:56.875000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress      SuricataClientSecurityGroupOutbound
+2021-06-29 16:24:56.073000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress      SuricataClientSecurityGroupOutbound                                                    Resource creation Initiated
+2021-06-29 16:24:55.981000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress     SuricataClientSecurityGroupSSHinbound
+2021-06-29 16:24:55.793000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface         SuricataClientInterface                                                                Resource creation Initiated
+2021-06-29 16:24:55.352000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress      SuricataClientSecurityGroupOutbound
+2021-06-29 16:24:55.345000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress     SuricataClientSecurityGroupSSHinbound                                                  Resource creation Initiated
+2021-06-29 16:24:55.155000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface         SuricataClientInterface
+2021-06-29 16:24:55.111000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress     SuricataClientSecurityGroupSSHinbound
+2021-06-29 16:24:54.610000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilterRule  SuricataEgressTrafficMirrorFilterRule
+2021-06-29 16:24:54.465000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  SuricataEgressTrafficMirrorFilterRule                                                  Resource creation Initiated
+2021-06-29 16:24:54.344000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilterRule  SuricataIngressTrafficMirrorFilterRule
+2021-06-29 16:24:54.204000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  SuricataIngressTrafficMirrorFilterRule                                                 Resource creation Initiated
+2021-06-29 16:24:53.158000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup            SuricataClientSecurityGroup
+2021-06-29 16:24:52.285000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  SuricataEgressTrafficMirrorFilterRule
+2021-06-29 16:24:52.281000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  SuricataIngressTrafficMirrorFilterRule
+2021-06-29 16:24:52.023000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup            SuricataClientSecurityGroup                                                            Resource creation Initiated
+2021-06-29 16:24:49.977000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilter      SuricataTrafficMirrorFilter
+2021-06-29 16:24:49.266000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilter      SuricataTrafficMirrorFilter                                                            Resource creation Initiated
+2021-06-29 16:24:47.234000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup            SuricataClientSecurityGroup
+2021-06-29 16:24:47.174000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilter      SuricataTrafficMirrorFilter
+2021-06-29 16:24:41.405000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack         tCaT-existing-VPC-a92e7f-SuricataStack-1CQDZ30OHUZBX-SuricataClientStack-WM16C8ELTQRC  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Tuesday, 29. June 2021 09:43AM
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+Region: us-east-1
+StackName: tCaT-existing-VPC-a92e7f-ArkimeStack-1WYD261FHWQY9-ArkimeClientStack-3T4M78VMT2JJ
+*****************************************************************************
+ResourceStatusReason:  
+Stack launch was successful
+*****************************************************************************
+*****************************************************************************
+Events:  
+TimeStamp                         ResourceStatus      ResourceType                       LogicalResourceId                                                                  ResourceStatusReason
+--------------------------------  ------------------  ---------------------------------  ---------------------------------------------------------------------------------  ---------------------------------------------------------
+2021-06-29 16:28:28.075000+00:00  CREATE_COMPLETE     AWS::CloudFormation::Stack         tCaT-existing-VPC-a92e7f-ArkimeStack-1WYD261FHWQY9-ArkimeClientStack-3T4M78VMT2JJ
+2021-06-29 16:28:26.672000+00:00  CREATE_COMPLETE     AWS::EC2::Instance                 ArkimeClient
+2021-06-29 16:28:26.146000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 ArkimeClient                                                                       Received SUCCESS signal with UniqueId i-0c4199268439516be
+2021-06-29 16:25:16.552000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 ArkimeClient                                                                       Resource creation Initiated
+2021-06-29 16:25:14.702000+00:00  CREATE_IN_PROGRESS  AWS::EC2::Instance                 ArkimeClient
+2021-06-29 16:25:12.604000+00:00  CREATE_COMPLETE     AWS::EC2::NetworkInterface         ArkimeClientInterface
+2021-06-29 16:25:04.209000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilterRule  ArkimeEgressTrafficMirrorFilterRule
+2021-06-29 16:25:04.188000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilterRule  ArkimeIngressTrafficMirrorFilterRule
+2021-06-29 16:25:04.030000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeIngressTrafficMirrorFilterRule                                               Resource creation Initiated
+2021-06-29 16:25:03.801000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeEgressTrafficMirrorFilterRule                                                Resource creation Initiated
+2021-06-29 16:24:56.971000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupIngress     ArkimeClientSecurityGroupSSHinbound
+2021-06-29 16:24:56.851000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroupEgress      ArkimeClientSecurityGroupOutbound
+2021-06-29 16:24:56.519000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface         ArkimeClientInterface                                                              Resource creation Initiated
+2021-06-29 16:24:56.363000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress     ArkimeClientSecurityGroupSSHinbound                                                Resource creation Initiated
+2021-06-29 16:24:56.161000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupIngress     ArkimeClientSecurityGroupSSHinbound
+2021-06-29 16:24:56.158000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress      ArkimeClientSecurityGroupOutbound                                                  Resource creation Initiated
+2021-06-29 16:24:55.770000+00:00  CREATE_IN_PROGRESS  AWS::EC2::NetworkInterface         ArkimeClientInterface
+2021-06-29 16:24:55.622000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroupEgress      ArkimeClientSecurityGroupOutbound
+2021-06-29 16:24:53.674000+00:00  CREATE_COMPLETE     AWS::EC2::SecurityGroup            ArkimeClientSecurityGroup
+2021-06-29 16:24:52.969000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup            ArkimeClientSecurityGroup                                                          Resource creation Initiated
+2021-06-29 16:24:52.500000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeIngressTrafficMirrorFilterRule
+2021-06-29 16:24:52.453000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilterRule  ArkimeEgressTrafficMirrorFilterRule
+2021-06-29 16:24:50.507000+00:00  CREATE_COMPLETE     AWS::EC2::TrafficMirrorFilter      ArkimeTrafficMirrorFilter
+2021-06-29 16:24:49.799000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilter      ArkimeTrafficMirrorFilter                                                          Resource creation Initiated
+2021-06-29 16:24:48.253000+00:00  CREATE_IN_PROGRESS  AWS::EC2::SecurityGroup            ArkimeClientSecurityGroup
+2021-06-29 16:24:47.960000+00:00  CREATE_IN_PROGRESS  AWS::EC2::TrafficMirrorFilter      ArkimeTrafficMirrorFilter
+2021-06-29 16:24:42.572000+00:00  CREATE_IN_PROGRESS  AWS::CloudFormation::Stack         tCaT-existing-VPC-a92e7f-ArkimeStack-1WYD261FHWQY9-ArkimeClientStack-3T4M78VMT2JJ  User Initiated
+*****************************************************************************
+-----------------------------------------------------------------------------
+Tested on: Tuesday, 29. June 2021 09:43AM
+-----------------------------------------------------------------------------
+
