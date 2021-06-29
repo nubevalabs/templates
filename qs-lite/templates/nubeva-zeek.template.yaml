@@ -255,7 +255,7 @@ Resources:
 
   ZeekElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
-    DependsOn: ZeekELB
+    # DependsOn: ZeekELB
     Properties:
       ElasticsearchVersion: '6.8'
       ElasticsearchClusterConfig:

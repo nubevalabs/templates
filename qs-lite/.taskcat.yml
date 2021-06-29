@@ -50,7 +50,7 @@ tests:
        ArkimeInstall: "true"
        WiresharkInstall: "true"
        SuricataInstall: "true"
-       ZeekInstall: "false"
+       ZeekInstall: "true"
        ClientInstall: "true"
        AddESRole: "false"
        # ToolPassword: $[taskcat_genpass_10]
