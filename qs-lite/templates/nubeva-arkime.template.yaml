@@ -689,7 +689,7 @@ Resources:
           yum update -y
           yum update -y aws-cfn-bootstrap
           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ArkimeLaunchConfiguration --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource ArkimeAutoScalingGroup
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource ArkimeLaunchConfiguration
       InstanceType: !Ref NodeInstanceType
       ImageId: !FindInMap
         - AWSAMIRegionMap
@@ -704,6 +704,10 @@ Resources:
       - DeviceName: "/dev/xvda"
         Ebs:
           VolumeSize: 100
+      NetworkInterfaces:
+        -
+          NetworkInterfaceId: !Ref ArkimeInterface
+          DeviceIndex: '0'
   ArkimeClientStack:
     Condition: ClientInstallTrue
     Type: AWS::CloudFormation::Stack
