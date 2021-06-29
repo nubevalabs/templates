@@ -313,7 +313,7 @@ Resources:
 
   ArkimeElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
-    DependsOn: ArkimeELB
+    # DependsOn: ArkimeELB
     Properties:
       ElasticsearchVersion: '7.10'
       ElasticsearchClusterConfig:
