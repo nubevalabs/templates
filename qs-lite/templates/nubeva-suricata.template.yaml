@@ -778,6 +778,9 @@ Resources:
         -
           NetworkInterfaceId: !Ref SuricataInterface
           DeviceIndex: '0'
+      Tags:
+      - Key: Name
+        Value: !Sub "Suricata-${AWS::StackName}"
   SuricataClientStack:
     Condition: ClientInstallTrue
     Type: AWS::CloudFormation::Stack

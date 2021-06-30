@@ -640,7 +640,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Count: '1'
-        Timeout: PT15M
+        Timeout: PT20M
     Metadata:
       AWS::CloudFormation::Init:
         configSets:
@@ -794,6 +794,9 @@ Resources:
         -
           NetworkInterfaceId: !Ref ZeekInterface
           DeviceIndex: '0'
+      Tags:
+      - Key: Name
+        Value: !Sub "$Zeek-{AWS::StackName}"
   ZeekClientStack:
     Condition: ClientInstallTrue
     Type: AWS::CloudFormation::Stack

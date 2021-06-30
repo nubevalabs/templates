@@ -602,6 +602,9 @@ Resources:
         -
           NetworkInterfaceId: !Ref WiresharkInterface
           DeviceIndex: '0'
+      Tags:
+      - Key: Name
+        Value: !Sub "Wireshark-${AWS::StackName}"
   WiresharkClientStack:
     Condition: ClientInstallTrue
     Type: AWS::CloudFormation::Stack
