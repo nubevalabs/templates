@@ -499,6 +499,7 @@ Resources:
 
   WiresharkTrafficMirrorTarget:
     Type: AWS::EC2::TrafficMirrorTarget
+    DependsOn: WiresharkLaunchConfiguration
     Properties:
       Description: "Wireshark Interface"
       NetworkInterfaceId: !Ref WiresharkInterface
