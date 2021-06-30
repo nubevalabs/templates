@@ -796,7 +796,7 @@ Resources:
           DeviceIndex: '0'
       Tags:
       - Key: Name
-        Value: !Sub "$Zeek-{AWS::StackName}"
+        Value: !Sub "Zeek-${AWS::StackName}"
   ZeekClientStack:
     Condition: ClientInstallTrue
     Type: AWS::CloudFormation::Stack
