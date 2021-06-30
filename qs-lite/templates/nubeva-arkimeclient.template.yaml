@@ -44,9 +44,9 @@ Parameters:
     Description: Nubeva Sensor Parameter
     Type: String
     NoEcho: true
-  # ArkimeELBTrafficMirrorTarget:
-  #   Description: Arkime ELB TMT Info
-  #   Type: String
+  ArkimeTrafficMirrorTarget:
+    Description: Arkime TMT Info
+    Type: String
 
 Mappings:
   AWSAMIRegionMap:
@@ -107,15 +107,15 @@ Resources:
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
-  # ArkimeTrafficMirrorSession:
-  #   Type: "AWS::EC2::TrafficMirrorSession"
-  #   DependsOn: ArkimeClient
-  #   Properties:
-  #     Description: "Arkime Client to Arkime ELB"
-  #     NetworkInterfaceId: !Ref ArkimeClientInterface
-  #     TrafficMirrorTargetId: !Ref ArkimeELBTrafficMirrorTarget
-  #     TrafficMirrorFilterId: !Ref ArkimeTrafficMirrorFilter
-  #     SessionNumber: 1
+  ArkimeTrafficMirrorSession:
+    Type: "AWS::EC2::TrafficMirrorSession"
+    DependsOn: ArkimeClient
+    Properties:
+      Description: "Arkime Client to Arkime tool"
+      NetworkInterfaceId: !Ref ArkimeClientInterface
+      TrafficMirrorTargetId: !Ref ArkimeTrafficMirrorTarget
+      TrafficMirrorFilterId: !Ref ArkimeTrafficMirrorFilter
+      SessionNumber: 1
   ArkimeTrafficMirrorFilter:
     Type: "AWS::EC2::TrafficMirrorFilter"
     Properties:

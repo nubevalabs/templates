@@ -619,6 +619,13 @@ Resources:
       GroupSet:
       - !Ref SuricataSecurityGroup
 
+  SuricataTrafficMirrorTarget:
+    Type: AWS::EC2::TrafficMirrorTarget
+    DependsOn: SuricataLaunchConfiguration
+    Properties:
+      Description: "Wireshark Interface"
+      NetworkInterfaceId: !Ref SuricataInterface
+
   SuricataLaunchConfiguration:
     Type: AWS::EC2::Instance
     CreationPolicy:
@@ -796,14 +803,14 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-#        SuricataELBTrafficMirrorTarget: !Ref SuricataELBTrafficMirrorTarget
+        SuricataTrafficMirrorTarget: !Ref SuricataTrafficMirrorTarget
         SSLdbWriteAuth: !Ref SSLdbWriteAuth
 Outputs:
   Login:
     Description: The username & password defaults are in the documentation
     Value: "https://docs.nubeva.com/en/cloudtools/tools/suricata.html"
-#  URL:
-#    Description: The URL for the Suricata Kibana Dashboard
-#    Value: !Sub
-#        - "https://${SuricataES}/_plugin/kibana/"
-#        - SuricataES: !GetAtt SuricataElasticsearchDomain.DomainEndpoint
+ URL:
+   Description: The URL for the Suricata Kibana Dashboard
+   Value: !Sub
+       - "https://${SuricataES}/_plugin/kibana/"
+       - SuricataES: !GetAtt SuricataElasticsearchDomain.DomainEndpoint

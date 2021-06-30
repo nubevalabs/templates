@@ -44,9 +44,9 @@ Parameters:
     Description: Nubeva Sensor Parameter
     Type: String
     NoEcho: true
-  # ZeekELBTrafficMirrorTarget:
-  #   Description: Zeek ELB TMT Info
-  #   Type: String
+  ZeekTrafficMirrorTarget:
+    Description: Zeek TMT Info
+    Type: String
 
 Mappings:
   AWSAMIRegionMap:
@@ -107,15 +107,15 @@ Resources:
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
-  # ZeekTrafficMirrorSession:
-  #   Type: "AWS::EC2::TrafficMirrorSession"
-  #   DependsOn: ZeekClient
-  #   Properties:
-  #     Description: "Zeek Client to Zeek ELB"
-  #     NetworkInterfaceId: !Ref ZeekClientInterface
-  #     TrafficMirrorTargetId: !Ref ZeekELBTrafficMirrorTarget
-  #     TrafficMirrorFilterId: !Ref ZeekTrafficMirrorFilter
-  #     SessionNumber: 1
+  ZeekTrafficMirrorSession:
+    Type: "AWS::EC2::TrafficMirrorSession"
+    DependsOn: ZeekClient
+    Properties:
+      Description: "Zeek Client to Zeek Tool"
+      NetworkInterfaceId: !Ref ZeekClientInterface
+      TrafficMirrorTargetId: !Ref ZeekTrafficMirrorTarget
+      TrafficMirrorFilterId: !Ref ZeekTrafficMirrorFilter
+      SessionNumber: 1
   ZeekTrafficMirrorFilter:
     Type: "AWS::EC2::TrafficMirrorFilter"
     Properties:

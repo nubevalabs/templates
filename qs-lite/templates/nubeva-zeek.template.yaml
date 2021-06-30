@@ -626,7 +626,6 @@ Resources:
 #       - DeviceName: "/dev/xvda"
 #         Ebs:
 #           VolumeSize: 100
-
   ZeekInterface:
     Type: AWS::EC2::NetworkInterface
     Properties:
@@ -634,6 +633,13 @@ Resources:
       Description: Inbound Interface on tool
       GroupSet:
       - !Ref ZeekSecurityGroup
+
+  ZeekTrafficMirrorTarget:
+    Type: AWS::EC2::TrafficMirrorTarget
+    DependsOn: ZeekLaunchConfiguration
+    Properties:
+      Description: "Zeek Interface"
+      NetworkInterfaceId: !Ref ZeekInterface
 
   ZeekLaunchConfiguration:
     Type: AWS::EC2::Instance
@@ -812,14 +818,14 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-#        ZeekELBTrafficMirrorTarget: !Ref ZeekELBTrafficMirrorTarget
+        ZeekTrafficMirrorTarget: !Ref ZeekTrafficMirrorTarget
         SSLdbWriteAuth: !Ref SSLdbWriteAuth
 Outputs:
   Login:
     Description: The username & password defaults are in the documentation
     Value: "https://docs.nubeva.com/zeek"
-  # URL:
-  #   Description: The URL for the Zeek Kibana Dashboard
-  #   Value: !Sub
-  #       - "https://${ZeekES}/_plugin/kibana/"
-  #       - ZeekES: !GetAtt ZeekElasticsearchDomain.DomainEndpoint
+  URL:
+    Description: The URL for the Zeek Kibana Dashboard
+    Value: !Sub
+        - "https://${ZeekES}/_plugin/kibana/"
+        - ZeekES: !GetAtt ZeekElasticsearchDomain.DomainEndpoint

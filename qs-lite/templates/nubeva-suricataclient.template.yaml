@@ -44,9 +44,9 @@ Parameters:
     Description: Nubeva Sensor Parameter
     Type: String
     NoEcho: true
-  # SuricataELBTrafficMirrorTarget:
-  #   Description: Suricata ELB TMT Info
-  #   Type: String
+  SuricataTrafficMirrorTarget:
+    Description: Suricata TMT Info
+    Type: String
 
 Mappings:
   AWSAMIRegionMap:
@@ -107,15 +107,15 @@ Resources:
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
-  # SuricataTrafficMirrorSession:
-  #   Type: "AWS::EC2::TrafficMirrorSession"
-  #   DependsOn: SuricataClient
-  #   Properties:
-  #     Description: "Suricata Client to Suricata ELB"
-  #     NetworkInterfaceId: !Ref SuricataClientInterface
-  #     TrafficMirrorTargetId: !Ref SuricataELBTrafficMirrorTarget
-  #     TrafficMirrorFilterId: !Ref SuricataTrafficMirrorFilter
-  #     SessionNumber: 1
+  SuricataTrafficMirrorSession:
+    Type: "AWS::EC2::TrafficMirrorSession"
+    DependsOn: SuricataClient
+    Properties:
+      Description: "Suricata Client to Suricata tool"
+      NetworkInterfaceId: !Ref SuricataClientInterface
+      TrafficMirrorTargetId: !Ref SuricataTrafficMirrorTarget
+      TrafficMirrorFilterId: !Ref SuricataTrafficMirrorFilter
+      SessionNumber: 1
   SuricataTrafficMirrorFilter:
     Type: "AWS::EC2::TrafficMirrorFilter"
     Properties:

@@ -553,6 +553,14 @@ Resources:
       GroupSet:
       - !Ref ArkimeSecurityGroup
 
+  ArkimeTrafficMirrorTarget:
+    Type: AWS::EC2::TrafficMirrorTarget
+    DependsOn: ArkimeLaunchConfiguration
+    Properties:
+      Description: "Arkime Interface"
+      NetworkInterfaceId: !Ref ArkimeInterface
+
+
   ArkimeLaunchConfiguration:
     Type: AWS::EC2::Instance
     CreationPolicy:
@@ -726,15 +734,15 @@ Resources:
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !Ref VPCID
         APIKey: !Ref APIKey
-        # ArkimeELBTrafficMirrorTarget: !Ref ArkimeELBTrafficMirrorTarget
+        ArkimeTrafficMirrorTarget: !Ref ArkimeTrafficMirrorTarget
         SSLdbWriteAuth: !Ref SSLdbWriteAuth
 
 Outputs:
   Login:
     Description: The username & password defaults are in the documentation
     Value: "https://docs.nubeva.com/en/cloudtools/tools/moloch.html"
-  # URL:
-  #   Description: The URL for any instance's Moloch Dashboard
-  #   Value: !Sub
-  #       - "http://${ArkimeDNS}:8005"
-  #       - ArkimeDNS: !GetAtt ArkimeELB.DNSName
+  URL:
+    Description: The URL for any instance's Arkime Dashboard
+    Value: !Sub
+        - "http://${ArkimeIP}:8005"
+        - ArkimeIP: !GetAtt ArkimeLaunchConfiguration.PrivateIP
