@@ -44,9 +44,9 @@ Parameters:
     Description: Nubeva Sensor Parameter
     Type: String
     NoEcho: true
-  # WiresharkTrafficMirrorTarget:
-  #   Description: Wireshark TMT Info
-  #   Type: String
+  WiresharkTrafficMirrorTarget:
+    Description: Wireshark TMT Info
+    Type: String
 
 Mappings:
   AWSAMIRegionMap:
@@ -107,39 +107,39 @@ Resources:
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
-  # WiresharkTrafficMirrorSession:
-  #   Type: "AWS::EC2::TrafficMirrorSession"
-  #   DependsOn: WiresharkClient
-  #   Properties:
-  #     Description: "Wireshark Client to Wireshark"
-  #     NetworkInterfaceId: !Ref WiresharkClientInterface
-  #     TrafficMirrorTargetId: !Ref WiresharkTrafficMirrorTarget
-  #     TrafficMirrorFilterId: !Ref WiresharkTrafficMirrorFilter
-  #     SessionNumber: 1
-  # WiresharkTrafficMirrorFilter:
-  #   Type: "AWS::EC2::TrafficMirrorFilter"
-  #   Properties:
-  #     Description: "All traffic mirror filter"
-  # WiresharkIngressTrafficMirrorFilterRule:
-  #   Type: "AWS::EC2::TrafficMirrorFilterRule"
-  #   Properties:
-  #     Description: "Filter for ALL ingress traffic"
-  #     TrafficMirrorFilterId: !Ref WiresharkTrafficMirrorFilter
-  #     TrafficDirection: "ingress"
-  #     RuleNumber: 10
-  #     DestinationCidrBlock: "0.0.0.0/0"
-  #     SourceCidrBlock: "0.0.0.0/0"
-  #     RuleAction: "accept"
-  # WiresharkEgressTrafficMirrorFilterRule:
-  #   Type: "AWS::EC2::TrafficMirrorFilterRule"
-  #   Properties:
-  #     Description: "Filter for ALL egress traffic"
-  #     TrafficMirrorFilterId: !Ref WiresharkTrafficMirrorFilter
-  #     TrafficDirection: "egress"
-  #     RuleNumber: 20
-  #     DestinationCidrBlock: "0.0.0.0/0"
-  #     SourceCidrBlock: "0.0.0.0/0"
-  #     RuleAction: "accept"
+  WiresharkTrafficMirrorSession:
+    Type: "AWS::EC2::TrafficMirrorSession"
+    DependsOn: WiresharkClient
+    Properties:
+      Description: "Wireshark Client to Wireshark"
+      NetworkInterfaceId: !Ref WiresharkClientInterface
+      TrafficMirrorTargetId: !Ref WiresharkTrafficMirrorTarget
+      TrafficMirrorFilterId: !Ref WiresharkTrafficMirrorFilter
+      SessionNumber: 1
+  WiresharkTrafficMirrorFilter:
+    Type: "AWS::EC2::TrafficMirrorFilter"
+    Properties:
+      Description: "All traffic mirror filter"
+  WiresharkIngressTrafficMirrorFilterRule:
+    Type: "AWS::EC2::TrafficMirrorFilterRule"
+    Properties:
+      Description: "Filter for ALL ingress traffic"
+      TrafficMirrorFilterId: !Ref WiresharkTrafficMirrorFilter
+      TrafficDirection: "ingress"
+      RuleNumber: 10
+      DestinationCidrBlock: "0.0.0.0/0"
+      SourceCidrBlock: "0.0.0.0/0"
+      RuleAction: "accept"
+  WiresharkEgressTrafficMirrorFilterRule:
+    Type: "AWS::EC2::TrafficMirrorFilterRule"
+    Properties:
+      Description: "Filter for ALL egress traffic"
+      TrafficMirrorFilterId: !Ref WiresharkTrafficMirrorFilter
+      TrafficDirection: "egress"
+      RuleNumber: 20
+      DestinationCidrBlock: "0.0.0.0/0"
+      SourceCidrBlock: "0.0.0.0/0"
+      RuleAction: "accept"
   WiresharkClientInterface:
     Type: AWS::EC2::NetworkInterface
     Properties:
