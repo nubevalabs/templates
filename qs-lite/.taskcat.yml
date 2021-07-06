@@ -43,7 +43,7 @@ tests:
    existing-VPC:
      template: ./templates/nubeva-existing-vpc.template.yaml
      parameters:
-       #APIKey: "$[taskcat_genpass_10]"
+       #APIKey: "$[taskcat_genpass_10]" works for stack unit testing or put in .taskcat_overrides.yml for tool testing 
        RemoteAccessCIDR: 10.0.0.0/0
        # KeyPairName: in .taskcat_overrides.yml
        ToolAdmin: tooladmin
@@ -53,7 +53,7 @@ tests:
        ZeekInstall: "false"
        ClientInstall: "true"
        AddESRole: "false"
-       # ToolPassword: $[taskcat_genpass_10]
+       # ToolPassword: $[taskcat_genpass_10] works or put in .taskcat_overrides.yml
        QSS3KeyPrefix: qs-lite/
        QSS3BucketName: nubevalabs
        QSS3BucketRegion: us-east-1
