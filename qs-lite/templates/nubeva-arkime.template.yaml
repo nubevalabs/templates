@@ -741,8 +741,8 @@ Outputs:
   Login:
     Description: The username & password defaults are in the documentation
     Value: "https://docs.nubeva.com/en/cloudtools/tools/moloch.html"
-  # URL:
-  #   Description: The URL for any instance's Arkime Dashboard
-  #   Value: !Sub
-  #       - "http://${ArkimeIP}:8005"
-  #       - ArkimeIP: !GetAtt ArkimeLaunchConfiguration.PrivateIP
+  URL:
+    Description: The URL for any instance's Arkime Dashboard
+    Value: !Sub
+      - "http://${ArkimeIP}:8005"
+      - ArkimeIP: !GetAtt ArkimeLaunchConfiguration.PrivateIp
