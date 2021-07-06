@@ -47,10 +47,10 @@ tests:
        RemoteAccessCIDR: 10.0.0.0/0
        # KeyPairName: in .taskcat_overrides.yml
        ToolAdmin: tooladmin
-       ArkimeInstall: "true"
+       ArkimeInstall: "false"
        WiresharkInstall: "true"
-       SuricataInstall: "true"
-       ZeekInstall: "true"
+       SuricataInstall: "false"
+       ZeekInstall: "false"
        ClientInstall: "true"
        AddESRole: "false"
        # ToolPassword: $[taskcat_genpass_10]
