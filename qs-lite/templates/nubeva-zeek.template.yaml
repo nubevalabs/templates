@@ -220,38 +220,38 @@ Resources:
       FromPort: -1
       ToPort: -1
 
-  # ZeekInstanceProfile:
-  #   Type: 'AWS::IAM::InstanceProfile'
-  #   Properties:
-  #     Path: '/'
-  #     Roles:
-  #     - !Ref ZeekIAMRole
-  #
-  # ZeekIAMRole:
-  #   Type: 'AWS::IAM::Role'
-  #   Properties:
-  #     AssumeRolePolicyDocument:
-  #       Version: '2012-10-17'
-  #       Statement:
-  #       - Effect: Allow
-  #         Principal:
-  #           Service:
-  #           - 'ec2.amazonaws.com'
-  #         Action:
-  #         - 'sts:AssumeRole'
-  #     Path: '/'
-  #     Policies:
-  #     - PolicyName: ZeekASG
-  #       PolicyDocument:
-  #         Version: '2012-10-17'
-  #         Statement:
-  #         - Effect: Allow
-  #           Action:
-  #           - 'autoscaling:DescribeAutoScalingGroups'
-  #           - 'autoscaling:DescribeAutoScalingInstances'
-  #           - 'ec2:DescribeInstances'
-  #           Resource:
-  #           - '*'
+  ZeekInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: '/'
+      Roles:
+      - !Ref ZeekIAMRole
+
+  ZeekIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - 'ec2.amazonaws.com'
+          Action:
+          - 'sts:AssumeRole'
+      Path: '/'
+      Policies:
+      - PolicyName: ZeekASG
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            # - 'autoscaling:DescribeAutoScalingGroups'
+            # - 'autoscaling:DescribeAutoScalingInstances'
+            - 'ec2:DescribeInstances'
+            Resource:
+            - '*'
 
   ZeekElasticsearchDomain:
     Type: AWS::Elasticsearch::Domain
@@ -789,7 +789,7 @@ Resources:
         - awslinux2
       # SecurityGroups:
       # - !Ref "ZeekSecurityGroup"
-      # IamInstanceProfile: !Ref ZeekInstanceProfile
+      IamInstanceProfile: !Ref ZeekInstanceProfile
       KeyName:
         Ref: KeyPairName
       BlockDeviceMappings:
