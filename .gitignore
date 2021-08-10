@@ -1,1 +1,9 @@
-qs-lite/.taskcat*
+qs-lite/.taskcat_overrides.yml
+qs-lite/.taskcat.yml
+qs-lite/.taskcat/
+qs-lite/taskcat_outputs/
+nudemo/.taskcat_overrides.yml
+nudemo/.taskcat.yml
+nudemo/.taskcat/
+nudemo/taskcat_outputs/
+nudemo-tf/terraform.tfvars

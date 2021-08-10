@@ -155,51 +155,51 @@ Resources:
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
-  KeyServerSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: KeyServer Security Group
-      VpcId: !Ref 'VPCID'
-  KeyServerSecurityGroupSSHinbound:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref "KeyServerSecurityGroup"
-      IpProtocol: tcp
-      FromPort: 22
-      ToPort: 22
-      CidrIp: !Ref "RemoteAccessCIDR"
-  KeyServerSecurityGroupAPIinbound:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref "KeyServerSecurityGroup"
-      CidrIp: !Ref 'VPCCIDR'
-      IpProtocol: tcp
-      FromPort: 4433
-      ToPort: 4433
-  KeyServerSecurityGroupDTLSinbound:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref "KeyServerSecurityGroup"
-      CidrIp: !Ref 'VPCCIDR'
-      IpProtocol: udp
-      FromPort: 4433
-      ToPort: 4433
-  KeyServerSecurityGroupSiginbound:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref "KeyServerSecurityGroup"
-      CidrIp: !Ref 'VPCCIDR'
-      IpProtocol: tcp
-      FromPort: 8080
-      ToPort: 8080
-  KeyServerSecurityGroupOutbound:
-    Type: AWS::EC2::SecurityGroupEgress
-    Properties:
-      GroupId: !Ref "KeyServerSecurityGroup"
-      CidrIp: 0.0.0.0/0
-      IpProtocol: "-1"
-      FromPort: -1
-      ToPort: -1
+  # KeyServerSecurityGroup:
+  #   Type: AWS::EC2::SecurityGroup
+  #   Properties:
+  #     GroupDescription: KeyServer Security Group
+  #     VpcId: !Ref 'VPCID'
+  # KeyServerSecurityGroupSSHinbound:
+  #   Type: AWS::EC2::SecurityGroupIngress
+  #   Properties:
+  #     GroupId: !Ref "KeyServerSecurityGroup"
+  #     IpProtocol: tcp
+  #     FromPort: 22
+  #     ToPort: 22
+  #     CidrIp: !Ref "RemoteAccessCIDR"
+  # KeyServerSecurityGroupAPIinbound:
+  #   Type: AWS::EC2::SecurityGroupIngress
+  #   Properties:
+  #     GroupId: !Ref "KeyServerSecurityGroup"
+  #     CidrIp: !Ref 'VPCCIDR'
+  #     IpProtocol: tcp
+  #     FromPort: 4433
+  #     ToPort: 4433
+  # KeyServerSecurityGroupDTLSinbound:
+  #   Type: AWS::EC2::SecurityGroupIngress
+  #   Properties:
+  #     GroupId: !Ref "KeyServerSecurityGroup"
+  #     CidrIp: !Ref 'VPCCIDR'
+  #     IpProtocol: udp
+  #     FromPort: 4433
+  #     ToPort: 4433
+  # KeyServerSecurityGroupSiginbound:
+  #   Type: AWS::EC2::SecurityGroupIngress
+  #   Properties:
+  #     GroupId: !Ref "KeyServerSecurityGroup"
+  #     CidrIp: !Ref 'VPCCIDR'
+  #     IpProtocol: tcp
+  #     FromPort: 8080
+  #     ToPort: 8080
+  # KeyServerSecurityGroupOutbound:
+  #   Type: AWS::EC2::SecurityGroupEgress
+  #   Properties:
+  #     GroupId: !Ref "KeyServerSecurityGroup"
+  #     CidrIp: 0.0.0.0/0
+  #     IpProtocol: "-1"
+  #     FromPort: -1
+  #     ToPort: -1
   DecryptorSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -213,6 +213,22 @@ Resources:
       FromPort: 22
       ToPort: 22
       CidrIp: !Ref "RemoteAccessCIDR"
+  DecryptorSecurityGroupAPIinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "DecryptorSecurityGroup"
+      CidrIp: !Ref 'VPCCIDR'
+      IpProtocol: tcp
+      FromPort: 4433
+      ToPort: 4433
+  DecryptorSecurityGroupDTLSinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "DecryptorSecurityGroup"
+      CidrIp: !Ref 'VPCCIDR'
+      IpProtocol: udp
+      FromPort: 4433
+      ToPort: 4433
   DecryptorSecurityGroupVXLANinbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -334,7 +350,7 @@ Resources:
             01a_etchosts:
               command: "echo ${SKdbIP}'    key.nubedge.com' >> /etc/hosts"
               env:
-                SKdbIP: !GetAtt KeyServer.PrivateIp
+                SKdbIP: !GetAtt DecryptorServer.PrivateIp
             02_nuagent_config:
               command: "mkdir /opt/nuagent"
             02a_nuagent_config:
@@ -375,80 +391,80 @@ Resources:
       - Key: Name
         Value: !Sub "${AWS::StackName}-Source"
 
-  KeyServer:
-    Type: AWS::EC2::Instance
-    CreationPolicy:
-      ResourceSignal:
-        Count: '1'
-        Timeout: PT15M
-    Metadata:
-      AWS::CloudFormation::Init:
-        configSets:
-          Configure:
-            - "ConfigStartup"
-          Install:
-            - "InstallServices"
-          Start:
-            - "StartKeyServer"
-        ConfigStartup:
-          commands:
-            01_updaterclocal:
-             command: "echo 'yum update -y' >> /etc/rc.local"
-            02_chmod:
-              command: "chmod +x /etc/rc.d/rc.local"
-        InstallServices:
-          packages:
-            yum:
-              wget: []
-              docker: []
-          services:
-            sysvinit:
-              docker:
-                enabled: true
-                ensureRunning: true
-          commands:
-            00_dockergroup:
-              command: "sudo usermod -a -G docker ec2-user"
-        StartKeyServer:
-          commands:
-            00_etc-hosts:
-              command: "echo '127.0.0.1    key.nubedge.com' >> /etc/hosts"
-            01_createdirectory:
-              command: "mkdir /opt/nubevaTools"
-            01a_downloadnudemobundle:
-              command: "curl -o /opt/nubevaTools/nudemo-bundle.tar.gz https://raw.githubusercontent.com/ejfree/dockerfiles/master/nudemo-bundle.tar.gz"
-            01b_installcerts:
-              command: "tar -xzvf /opt/nubevaTools/nudemo-bundle.tar.gz -C /opt/nubevaTools"
-            02_FastKeyServer:
-              command: "docker run --name nubeva-ks -d -p4433:4433/tcp -p4433:4433/udp  -v /opt/nubevaTools:/certs nubeva/fastkey --cert /certs/nubedge.pem --key /certs/nubedge.key"
-#            02_KeyServer:
-#              command: "docker run -p 4433:4433/TCP -p 4433:4433/UDP --name nubeva-ks -dit  nubevalab/nubeva-ks"
-#            03_SigServer:
-#              command: "docker run -p 8080:8080/tcp --name nubeva-sig -dit nubevalab/sigserver"
-#docker run --name nubeva-ks -d -p4433:4433/tcp -p4433:4433/udp  -v /opt/certs:/certs nubeva/fastkey --cert /certs/nubedge.pem --key /certs/nubedge.key
-
-    Properties:
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash -xe
-          amazon-linux-extras install epel -y
-          yum update -y
-          yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource KeyServer --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource KeyServer
-      InstanceType: !Ref NodeInstanceType
-      ImageId: !FindInMap
-        - AWSAMIRegionMap
-        - !Ref 'AWS::Region'
-        - awslinux2
-      SecurityGroupIds:
-          - !GetAtt "KeyServerSecurityGroup.GroupId"
-      KeyName:
-        Ref: KeyPairName
-      SubnetId: !Ref SubnetID
-      Tags:
-      - Key: Name
-        Value: !Sub "${AWS::StackName}-Fastkey Server"
+#   KeyServer:
+#     Type: AWS::EC2::Instance
+#     CreationPolicy:
+#       ResourceSignal:
+#         Count: '1'
+#         Timeout: PT15M
+#     Metadata:
+#       AWS::CloudFormation::Init:
+#         configSets:
+#           Configure:
+#             - "ConfigStartup"
+#           Install:
+#             - "InstallServices"
+#           Start:
+#             - "StartKeyServer"
+#         ConfigStartup:
+#           commands:
+#             01_updaterclocal:
+#              command: "echo 'yum update -y' >> /etc/rc.local"
+#             02_chmod:
+#               command: "chmod +x /etc/rc.d/rc.local"
+#         InstallServices:
+#           packages:
+#             yum:
+#               wget: []
+#               docker: []
+#           services:
+#             sysvinit:
+#               docker:
+#                 enabled: true
+#                 ensureRunning: true
+#           commands:
+#             00_dockergroup:
+#               command: "sudo usermod -a -G docker ec2-user"
+#         StartKeyServer:
+#           commands:
+#             00_etc-hosts:
+#               command: "echo '127.0.0.1    key.nubedge.com' >> /etc/hosts"
+#             01_createdirectory:
+#               command: "mkdir /opt/nubevaTools"
+#             01a_downloadnudemobundle:
+#               command: "curl -o /opt/nubevaTools/nudemo-bundle.tar.gz https://raw.githubusercontent.com/ejfree/dockerfiles/master/nudemo-bundle.tar.gz"
+#             01b_installcerts:
+#               command: "tar -xzvf /opt/nubevaTools/nudemo-bundle.tar.gz -C /opt/nubevaTools"
+#             02_FastKeyServer:
+#               command: "docker run --name nubeva-ks -d -p4433:4433/tcp -p4433:4433/udp  -v /opt/nubevaTools:/certs nubeva/fastkey --cert /certs/nubedge.pem --key /certs/nubedge.key"
+# #            02_KeyServer:
+# #              command: "docker run -p 4433:4433/TCP -p 4433:4433/UDP --name nubeva-ks -dit  nubevalab/nubeva-ks"
+# #            03_SigServer:
+# #              command: "docker run -p 8080:8080/tcp --name nubeva-sig -dit nubevalab/sigserver"
+# #docker run --name nubeva-ks -d -p4433:4433/tcp -p4433:4433/udp  -v /opt/certs:/certs nubeva/fastkey --cert /certs/nubedge.pem --key /certs/nubedge.key
+#
+#     Properties:
+#       UserData:
+#         Fn::Base64: !Sub |
+#           #!/bin/bash -xe
+#           amazon-linux-extras install epel -y
+#           yum update -y
+#           yum update -y aws-cfn-bootstrap
+#           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource KeyServer --configsets Configure,Install,Start
+#           /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource KeyServer
+#       InstanceType: !Ref NodeInstanceType
+#       ImageId: !FindInMap
+#         - AWSAMIRegionMap
+#         - !Ref 'AWS::Region'
+#         - awslinux2
+#       SecurityGroupIds:
+#           - !GetAtt "KeyServerSecurityGroup.GroupId"
+#       KeyName:
+#         Ref: KeyPairName
+#       SubnetId: !Ref SubnetID
+#       Tags:
+#       - Key: Name
+#         Value: !Sub "${AWS::StackName}-Fastkey Server"
 
   DecryptorServer:
     Type: AWS::EC2::Instance
@@ -463,6 +479,7 @@ Resources:
             - "ConfigStartup"
           Install:
             - "InstallServices"
+            - "InstallKeyServer"
             - "InstallNurxAgent"
           Start:
             - "StartWireshark"
@@ -482,14 +499,22 @@ Resources:
               docker:
                 enabled: true
                 ensureRunning: true
+        InstallKeyServer:
+          commands:
+            00_etc-hosts:
+              command: "echo '127.0.0.1    key.nubedge.com' >> /etc/hosts"
+            01_createdirectory:
+              command: "mkdir /opt/nubevaTools"
+            01a_downloadnudemobundle:
+              command: "curl -o /opt/nubevaTools/nudemo-bundle.tar.gz https://raw.githubusercontent.com/ejfree/dockerfiles/master/nudemo-bundle.tar.gz"
+            01b_installcerts:
+              command: "tar -xzvf /opt/nubevaTools/nudemo-bundle.tar.gz -C /opt/nubevaTools"
+            02_FastKeyServer:
+              command: "docker run --name nubeva-ks -d -p4433:4433/tcp -p4433:4433/udp  -v /opt/nubevaTools:/certs nubeva/fastkey --cert /certs/nubedge.pem --key /certs/nubedge.key"
         InstallNurxAgent:
           commands:
             01_dockergroup:
               command: "sudo usermod -a -G docker ec2-user"
-            01a_etchosts:
-              command: "echo ${SKdbIP}'    key.nubedge.com' >> /etc/hosts"
-              env:
-                SKdbIP: !GetAtt KeyServer.PrivateIp
             02_nuagent_config:
               command: "mkdir /opt/nuagent"
             02a_nuagent_config:
@@ -498,15 +523,12 @@ Resources:
               command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_login -o /opt/nuagent/rx_login"
             02c_nuagent_config:
               command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_get -o /opt/nuagent/rx_get"
-
             03_install_decryptor:
               command: "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --disable metrics -noautoupdate --nutoken avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9 --baseurl file:///host/opt/nuagent/"
         StartWireshark:
           commands:
             01_wireshark:
               command: "docker run -p 14500:14500 --restart unless-stopped -dti --cap-add NET_ADMIN --net=host --name wireshark  ffeldhaus/wireshark"
-
-
     Properties:
       UserData:
         Fn::Base64: !Sub |
@@ -525,11 +547,8 @@ Resources:
         -
           NetworkInterfaceId: !Ref DecryptorInboundInterface
           DeviceIndex: '0'
-#      SecurityGroupIds:
-#          - !GetAtt "DecryptorSecurityGroup.GroupId"
       KeyName:
         Ref: KeyPairName
-#      SubnetId: !Ref SubnetID
       Tags:
       - Key: Name
         Value: !Sub "${AWS::StackName}-Decryptor"
