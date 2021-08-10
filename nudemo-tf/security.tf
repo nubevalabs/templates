@@ -22,7 +22,7 @@ tags = {
 }
 resource "aws_security_group" "wireshark" {
 	name = "wireshark_security_group"
-	description = "Default security group for dest 22/tcp, 14500/tcp, 4789/udp"
+	description = "Default security group for dest 22/tcp, 14500/tcp, 4789/udp, 4433/tcp, 4433/udp"
   vpc_id = var.vpc_id
 
 	ingress {
@@ -43,28 +43,6 @@ resource "aws_security_group" "wireshark" {
 		protocol = "udp"
 		cidr_blocks = [var.remote_cidr]
 	}
-	#Allow all outbound
-	egress {
-		from_port = 0
-		to_port = 0
-		protocol = "-1"
-		cidr_blocks = ["0.0.0.0/0"]
-	}
-tags = {
-    Name = "wireshark_security_group"
-  }
-}
-resource "aws_security_group" "fastkey" {
-	name = "fastkey_security_group"
-	description = "Default security group for 22/tcp, 4433/tcp, 4433/udp"
-  vpc_id = var.vpc_id
-
-	ingress {
-		from_port = 22
-		to_port = 22
-		protocol = "tcp"
-		cidr_blocks = [var.remote_cidr]
-	}
 	ingress {
 		from_port = 4433
 		to_port = 4433
@@ -85,6 +63,6 @@ resource "aws_security_group" "fastkey" {
 		cidr_blocks = ["0.0.0.0/0"]
 	}
 tags = {
-    Name = "fastkey_security_group"
+    Name = "wireshark_security_group"
   }
 }

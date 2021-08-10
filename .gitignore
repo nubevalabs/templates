@@ -7,3 +7,6 @@ nudemo/.taskcat.yml
 nudemo/.taskcat/
 nudemo/taskcat_outputs/
 nudemo-tf/terraform.tfvars
+nudemo-tf/terraform.tfstate*
+nudemo-tf/.terraform/
+nudemo-tf/.terraform*
