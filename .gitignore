@@ -10,3 +10,11 @@ nudemo-tf/terraform.tfvars
 nudemo-tf/terraform.tfstate*
 nudemo-tf/.terraform/
 nudemo-tf/.terraform*
+sdi_ref_arch/.taskcat_overrides.yml
+sdi_ref_arch/.taskcat.yml
+sdi_ref_arch/.taskcat/
+sdi_ref_arch/taskcat_outputs/
+sdi-tf/terraform.tfvars
+sdi-tf/terraform.tfstate*
+sdi-tf/.terraform/
+sdi-tf/.terraform*

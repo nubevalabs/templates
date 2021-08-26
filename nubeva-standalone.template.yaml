@@ -81,14 +81,14 @@ Parameters:
     ConstraintDescription: Must be a valid EC2 instance type.
     Description: The type of EC2 instance for the node instances.
     Type: String
-  NumberOfNodes:
-    Default: 1
-    Description: The number of tool node instances. The default is one for each of the two Availability Zones.
-    Type: Number
-  MaximumNodes:
-    Default: 1
-    Description: The maximum number of EC2 instance nodes in the each Tool Autoscaling Group.
-    Type: String
+  # NumberOfNodes:
+  #   Default: 1
+  #   Description: The number of tool node instances. The default is one for each of the two Availability Zones.
+  #   Type: Number
+  # MaximumNodes:
+  #   Default: 1
+  #   Description: The maximum number of EC2 instance nodes in the each Tool Autoscaling Group.
+  #   Type: String
   DestToolIP:
     Description: The DNS/IP address of the destination tool or ELB
     Type: String
@@ -319,10 +319,10 @@ Resources:
       NetworkInterfaces:
         -
           NetworkInterfaceId: !Ref DecryptorInboundInterface
-          DeviceIndex: 0
+          DeviceIndex: '0'
         -
           NetworkInterfaceId: !Ref DecryptorOutboundInterface
-          DeviceIndex: 1
+          DeviceIndex: '1'
 
 Outputs:
   ToolConfig:
