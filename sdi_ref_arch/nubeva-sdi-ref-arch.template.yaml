@@ -519,7 +519,7 @@ Resources:
               command: "echo '/usr/sbin/ip link set veth1 mtu 8951; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 8951' >> /etc/rc.local"
 
             01_createVXLAN:
-              command: "/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} local ${LocalIP} dev eth1 dstport 47899"
+              command: "/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} local ${LocalIP} dev eth1"
               env:
                 ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
                 LocalIP: !GetAtt DecryptorOutboundInterface.PrimaryPrivateIpAddress
