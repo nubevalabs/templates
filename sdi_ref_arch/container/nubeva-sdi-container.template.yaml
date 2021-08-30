@@ -249,7 +249,6 @@ Resources:
   DecryptorTrafficMirrorTargetContainer:
     Type: AWS::EC2::TrafficMirrorTarget
     DependsOn: Decryptor
-    Condition: ContainerInstall
     Properties:
       Description: "Decryptor"
       NetworkInterfaceId: !Ref DecryptorInboundInterface
@@ -323,7 +322,6 @@ Resources:
       - !Ref DecryptorSecurityGroup
   DecryptorOutboundInterface:
     Type: AWS::EC2::NetworkInterface
-    Condition: MetalInstall
     Properties:
       SubnetId: !Ref SubnetID
       Description: Interface for outgoing decrypted traffic to destination tool
