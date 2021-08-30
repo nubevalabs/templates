@@ -36,7 +36,6 @@ Metadata:
         default: Node Instance Type
       VPCCIDR:
         default: VPC CIDR
-
 Parameters:
 
   KeyPairName:
@@ -97,8 +96,6 @@ Parameters:
     Default: 10.0.0.0/16
     Description: CIDR block for the VPC.
     Type: String
-
-
 Mappings:
   AWSAMIRegionMap:
     AMI:
@@ -135,7 +132,6 @@ Mappings:
       awslinux2: "ami-0d4ae09ec9361d8ac"
     sa-east-1:
       awslinux2: "ami-058943e7d9b9cabfb"
-
 Resources:
   SourceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -246,14 +242,13 @@ Resources:
     Properties:
       Description: "Decryptor"
       NetworkInterfaceId: !Ref DecryptorInboundInterface
-  DecryptorTrafficMirrorTargetContainer:
+  DecryptorTrafficMirrorTarget:
     Type: AWS::EC2::TrafficMirrorTarget
     DependsOn: Decryptor
     Properties:
       Description: "Decryptor"
       NetworkInterfaceId: !Ref DecryptorInboundInterface
-
-  DecryptorTrafficMirrorSessionMulti:
+  DecryptorTrafficMirrorSession:
     Type: "AWS::EC2::TrafficMirrorSession"
     DependsOn: Source
     Properties:
@@ -262,19 +257,15 @@ Resources:
       TrafficMirrorTargetId: !Ref DecryptorTrafficMirrorTarget
       TrafficMirrorFilterId: !Ref AllTrafficMirrorFilter
       SessionNumber: 1
-
   DecryptorTrafficMirrorSession:
     Type: "AWS::EC2::TrafficMirrorSession"
     DependsOn: Source
     Properties:
       Description: "Source to Decryptor"
       NetworkInterfaceId: !Ref SourceInterface
-      TrafficMirrorTargetId: !Ref DecryptorTrafficMirrorTargetContainer
+      TrafficMirrorTargetId: !Ref DecryptorTrafficMirrorTarget
       TrafficMirrorFilterId: !Ref AllTrafficMirrorFilter
       SessionNumber: 1
-
-
-
   AllTrafficMirrorFilter:
     Type: "AWS::EC2::TrafficMirrorFilter"
     Properties:
@@ -320,14 +311,14 @@ Resources:
       Description: Interface for incoming traffic to be decrypted
       GroupSet:
       - !Ref DecryptorSecurityGroup
-  DecryptorOutboundInterface:
-    Type: AWS::EC2::NetworkInterface
-    Properties:
-      SubnetId: !Ref SubnetID
-      Description: Interface for outgoing decrypted traffic to destination tool
-      SourceDestCheck: False
-      GroupSet:
-      - !Ref DecryptorSecurityGroup
+  # DecryptorOutboundInterface:
+  #   Type: AWS::EC2::NetworkInterface
+  #   Properties:
+  #     SubnetId: !Ref SubnetID
+  #     Description: Interface for outgoing decrypted traffic to destination tool
+  #     SourceDestCheck: False
+  #     GroupSet:
+  #     - !Ref DecryptorSecurityGroup
   Source:
     Type: AWS::EC2::Instance
     CreationPolicy:
@@ -406,8 +397,7 @@ Resources:
         Ref: KeyPairName
       Tags:
       - Key: Name
-        Value: !Sub "${AWS::StackName}-Source"
-
+        Value: !Sub "Source-${AWS::StackName}"
   Wireshark:
     Type: AWS::EC2::Instance
     CreationPolicy:
@@ -470,8 +460,7 @@ Resources:
         Ref: KeyPairName
       Tags:
       - Key: Name
-        Value: !Sub "${AWS::StackName}-Wireshark"
-
+        Value: !Sub "Wireshark-${AWS::StackName}"
   Decryptor:
     Type: AWS::EC2::Instance
     CreationPolicy:
@@ -486,8 +475,9 @@ Resources:
           Install:
             - "InstallServices"
             - "InstallKeyServer"
-            - "InstallVXLANInterface"
-            - "InstallNurxAgent"
+            - "BuildContainer"
+#            - "InstallVXLANInterface"
+#            - "InstallNurxAgent"
           Start:
             - "StartDecryptor"
         ConfigStartup:
@@ -518,67 +508,136 @@ Resources:
               command: "tar -xzvf /opt/nubevaTools/nudemo-bundle.tar.gz -C /opt/nubevaTools"
             02_FastKeyServer:
               command: "docker run --name nubeva-ks -d -p4433:4433/tcp -p4433:4433/udp  -v /opt/nubevaTools:/certs nubeva/fastkey --cert /certs/nubedge.pem --key /certs/nubedge.key"
+        BuildContainer:
+          commands:
+            01_alpine:
+              command: "docker run -dti --name nat --cap-add NET_ADMIN alpine sh"
+            02_packages:
+              command: "apk add bash iptables iproute2 | docker exec -ti nat sh"
+            03_pid:
+              command: "pid=$(docker inspect -f '{{.State.Pid}}' nat); export $pid"
+            04_link:
+              command: "ln -sfT /proc/$pid/ns/net /var/run/netns/nat; mkdir -p /var/run/netns/"
 
 
 # -----
 # Start Changes here
 # ------
+# Randy notes (WORKING MANUAL STEP): [These need to be incorporated into the CFT and retested. Everything seems to be working initially. beed to
+# docker run -dti --name nat --cap-add NET_ADMIN alpine sh
+# docker exec -ti nat sh
+#   apk add bash iptables iproute2 # iproute2 is for /sbin/tc
+#   exit
+##NOTES
+##echo "echo This is how we pipe to docker exec" | sudo docker exec --interactive CONTAINER_NAME /bin/bash -
 
-        InstallVXLANInterface:
-          commands:
-            00_setnamespace:
-              command: "/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1"
-            00a_setnamespace-always:
-              command: "echo '/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1' >> /etc/rc.local"
-            00b_setvethpair:
-              command: "/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up"
-            00c_setvethpair-always:
-              command: "echo '/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up' >> /etc/rc.local"
-            00d_setmtu9001:
-              command: "/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001"
-            00d_setmtu9001-always:
-              command: "echo '/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001' >> /etc/rc.local"
-            01_createVXLAN:
-              command: "/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth1 dstport 4789"
-              env:
-                ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
-            02_interfaceUp:
-              command: "/usr/sbin/ip netns exec outbound ip link set vxlan2 up"
-            03_autoLaunchVXLAN:
-              command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote '${ToolIP}' dev eth1 dstport 4789' >> /etc/rc.local"
-              env:
-                ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
-            04_addsmorerclocalupdate:
-              command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link set vxlan2 up' >> /etc/rc.local"
-        InstallNurxAgent:
-          commands:
-            01_dockergroup:
-              command: "sudo usermod -a -G docker ec2-user"
-            02_nuagent_config:
-              command: "mkdir /opt/nuagent"
-            02a_nuagent_config:
-              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_create -o /opt/nuagent/rx_create"
-            02b_nuagent_config:
-              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_login -o /opt/nuagent/rx_login"
-            02c_nuagent_config:
-              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_get -o /opt/nuagent/rx_get"
-            03_install_decryptor:
-              command: "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --disable metrics -noautoupdate --nutoken avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9 --baseurl file:///host/opt/nuagent/"
-            04_Pause:
-              command: "sleep 30"
-        StartDecryptor:
-          packages:
-            yum:
-              iproute-tc: []
-          commands:
-            01_Mirrornurx0toveth0:
-              command: "tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0"
-            02_UpdateRCloca:
-              command: "echo 'tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0' >> /etc/rc.local"
-            03_Mirrorveth1toVXLAN2:
-              command: "ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
-            04_UpdateRClocal:
-              command: "echo 'ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
+#
+# # now access the namespace of the docker container we just created for our use
+# pid=$(docker inspect -f '{{.State.Pid}}' nat) # store output or assign it to a variable (say pid)
+# sudo ln -sfT /proc/$pid/ns/net /var/run/netns/nat
+# sudo mkdir -p /var/run/netns/
+#
+# # now you can use it as a namespace…otherwise hidden by docker
+# sudo ip netns exec nat ip -s link show eth0
+#
+# # now create veth pair between host namespace and docker (nat) namespace
+# sudo ip link add sdi0 type veth peer name sdi1
+#
+# # now set sdi1 to go into the docker container “nat” namespace
+# sudo ip link set sdi1 netns nat
+# sudo ip link set sdi0 up
+# sudo ip netns exec nat ip link set sdi1 up
+# # increase MTU
+# sudo ifconfig sdi0 mtu 9001
+#
+# # Then change all veth network interfaces to mtu 9001 also
+# ifconfig | grep veth | awk '{split($0, a, ":"); system("ip link set mtu 9001 " a[1])}'
+#
+# docker exec -ti nat bash
+#   ifconfig eth0 mtu 9001 # this won’t work until the docker0 and veth* interfaces on host have mtu of 9001
+#   ifconfig sdi1 mtu 9001
+#
+# # now send everything from nurx0 to sdi0 using tc…use commands at beginning of this doc to clear out tc if you have commands there.
+#
+# sudo tc qdisc add dev nurx0 ingress
+# sudo tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev sdi0
+# sudo tc qdisc replace dev nurx0 parent root handle 10: prio
+# sudo tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev sdi0
+#
+# #  now create vxlan device in nat namespace and then use tc in nat namespace to send everything from sdi1 to vxlan device…and we should be done.
+# docker exec -ti nat bash
+#   ifconfig eth0 mtu 9001
+#   ip link add vxlan type vxlan id 2 remote <remote routable IP> dev eth0 dstport 4789
+#   ifconfig vxlan up
+#   ifconfig vxlan mtu 8951 # YOU WILL NOT NEED TO DO THIS, IT’S DONE AUTOMATICALLY
+#   tc qdisc add dev sdi1 ingress
+#   tc filter add dev sdi1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan
+#   tc qdisc replace dev sdi1 parent root handle 10: prio
+#   tc filter add dev sdi1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan
+# exit
+
+
+
+
+
+
+
+#---------
+        # InstallVXLANInterface:
+        #   commands:
+        #     00_setnamespace:
+        #       command: "/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1"
+        #     00a_setnamespace-always:
+        #       command: "echo '/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1' >> /etc/rc.local"
+        #     00b_setvethpair:
+        #       command: "/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up"
+        #     00c_setvethpair-always:
+        #       command: "echo '/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up' >> /etc/rc.local"
+        #     00d_setmtu9001:
+        #       command: "/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001"
+        #     00d_setmtu9001-always:
+        #       command: "echo '/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001' >> /etc/rc.local"
+        #     01_createVXLAN:
+        #       command: "/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth1 dstport 4789"
+        #       env:
+        #         ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
+        #     02_interfaceUp:
+        #       command: "/usr/sbin/ip netns exec outbound ip link set vxlan2 up"
+        #     03_autoLaunchVXLAN:
+        #       command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote '${ToolIP}' dev eth1 dstport 4789' >> /etc/rc.local"
+        #       env:
+        #         ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
+        #     04_addsmorerclocalupdate:
+        #       command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link set vxlan2 up' >> /etc/rc.local"
+        # InstallNurxAgent:
+        #   commands:
+        #     01_dockergroup:
+        #       command: "sudo usermod -a -G docker ec2-user"
+        #     02_nuagent_config:
+        #       command: "mkdir /opt/nuagent"
+        #     02a_nuagent_config:
+        #       command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_create -o /opt/nuagent/rx_create"
+        #     02b_nuagent_config:
+        #       command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_login -o /opt/nuagent/rx_login"
+        #     02c_nuagent_config:
+        #       command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_get -o /opt/nuagent/rx_get"
+        #     03_install_decryptor:
+        #       command: "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --disable metrics -noautoupdate --nutoken avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9 --baseurl file:///host/opt/nuagent/"
+        #     04_Pause:
+        #       command: "sleep 30"
+        # StartDecryptor:
+        #   packages:
+        #     yum:
+        #       iproute-tc: []
+        #   commands:
+        #     01_Mirrornurx0toveth0:
+        #       command: "tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0"
+        #     02_UpdateRCloca:
+        #       command: "echo 'tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0' >> /etc/rc.local"
+        #     03_Mirrorveth1toVXLAN2:
+        #       command: "ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
+        #     04_UpdateRClocal:
+        #       command: "echo 'ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
 
 ##End changes here
 #####
@@ -602,14 +661,14 @@ Resources:
         Ref: KeyPairName
       Tags:
       - Key: Name
-        Value: !Sub "${AWS::StackName}-Decryptor"
+        Value: !Sub "Decryptor-${AWS::StackName}"
       NetworkInterfaces:
         -
           NetworkInterfaceId: !Ref DecryptorInboundInterface
           DeviceIndex: '0'
-        -
-          NetworkInterfaceId: !Ref DecryptorOutboundInterface
-          DeviceIndex: '1'
+        # -
+        #   NetworkInterfaceId: !Ref DecryptorOutboundInterface
+        #   DeviceIndex: '1'
 
 
 
