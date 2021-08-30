@@ -9,7 +9,7 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
-      - Containerized
+      - Container
     - Label:
         default: Network configuration
       Parameters:
@@ -39,7 +39,7 @@ Metadata:
         default: VPC CIDR
 
 Parameters:
-  Containerized:
+  Container:
     Default: false
     AllowedValues:
     - true
@@ -108,10 +108,10 @@ Parameters:
 
 Conditions:
   ContainerInstall: !Equals
-    - !Ref Containerized
+    - !Ref Container
     - 'true'
   MultiInstall: !Equals
-    - !Ref Containerized
+    - !Ref Container
     - 'false'
 
 
@@ -119,7 +119,7 @@ Conditions:
 Resources:
   MultiInterfaceStack:
     Type: AWS::CloudFormation::Stack
-#    Condition: MultiInstall
+    Condition: MultiInstall
     Properties:
       TemplateURL: https://nubevalabs.s3.amazonaws.com/sdi_ref_arch/multi_interface/nubeva-sdi-multi.template.yaml
 #        !Sub

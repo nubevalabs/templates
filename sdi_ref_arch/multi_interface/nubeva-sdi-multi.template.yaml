@@ -36,8 +36,8 @@ Metadata:
         default: Node Instance Type
       VPCCIDR:
         default: VPC CIDR
-
 Parameters:
+
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
       to securely connect to your instance after it launches
@@ -96,7 +96,6 @@ Parameters:
     Default: 10.0.0.0/16
     Description: CIDR block for the VPC.
     Type: String
-
 Mappings:
   AWSAMIRegionMap:
     AMI:
@@ -133,7 +132,6 @@ Mappings:
       awslinux2: "ami-0d4ae09ec9361d8ac"
     sa-east-1:
       awslinux2: "ami-058943e7d9b9cabfb"
-
 Resources:
   SourceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -253,7 +251,6 @@ Resources:
       TrafficMirrorTargetId: !Ref DecryptorTrafficMirrorTarget
       TrafficMirrorFilterId: !Ref AllTrafficMirrorFilter
       SessionNumber: 1
-
   AllTrafficMirrorFilter:
     Type: "AWS::EC2::TrafficMirrorFilter"
     Properties:
@@ -385,9 +382,7 @@ Resources:
         Ref: KeyPairName
       Tags:
       - Key: Name
-        Value: !Sub "${AWS::StackName}-Source"
-
-
+        Value: !Sub "Source-${AWS::StackName}"
   Wireshark:
     Type: AWS::EC2::Instance
     CreationPolicy:
@@ -450,8 +445,7 @@ Resources:
         Ref: KeyPairName
       Tags:
       - Key: Name
-        Value: !Sub "${AWS::StackName}-Wireshark"
-
+        Value: !Sub "Wireshark-${AWS::StackName}"
   Decryptor:
     Type: AWS::EC2::Instance
     CreationPolicy:
@@ -572,7 +566,7 @@ Resources:
         Ref: KeyPairName
       Tags:
       - Key: Name
-        Value: !Sub "${AWS::StackName}-Decryptor"
+        Value: !Sub "Decryptor-${AWS::StackName}"
       NetworkInterfaces:
         -
           NetworkInterfaceId: !Ref DecryptorInboundInterface

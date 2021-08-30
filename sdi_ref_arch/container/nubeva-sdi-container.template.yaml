@@ -240,16 +240,15 @@ Resources:
       IpProtocol: "-1"
       FromPort: -1
       ToPort: -1
-  DecryptorTrafficMirrorTargetMulti:
+  DecryptorTrafficMirrorTarget:
     Type: AWS::EC2::TrafficMirrorTarget
-    DependsOn: DecryptorMultiInterface
-    Condition: MetalInstall
+    DependsOn: Decryptor
     Properties:
       Description: "Decryptor"
       NetworkInterfaceId: !Ref DecryptorInboundInterface
   DecryptorTrafficMirrorTargetContainer:
     Type: AWS::EC2::TrafficMirrorTarget
-    DependsOn: DecryptorContainer
+    DependsOn: Decryptor
     Condition: ContainerInstall
     Properties:
       Description: "Decryptor"
@@ -258,18 +257,16 @@ Resources:
   DecryptorTrafficMirrorSessionMulti:
     Type: "AWS::EC2::TrafficMirrorSession"
     DependsOn: Source
-    Condition: MetalInstall
     Properties:
       Description: "Source to Decryptor"
       NetworkInterfaceId: !Ref SourceInterface
-      TrafficMirrorTargetId: !Ref DecryptorTrafficMirrorTargetMulti
+      TrafficMirrorTargetId: !Ref DecryptorTrafficMirrorTarget
       TrafficMirrorFilterId: !Ref AllTrafficMirrorFilter
       SessionNumber: 1
 
-  DecryptorTrafficMirrorSessionContainer:
+  DecryptorTrafficMirrorSession:
     Type: "AWS::EC2::TrafficMirrorSession"
     DependsOn: Source
-    Condition: ContainerInstall
     Properties:
       Description: "Source to Decryptor"
       NetworkInterfaceId: !Ref SourceInterface
@@ -333,9 +330,8 @@ Resources:
       SourceDestCheck: False
       GroupSet:
       - !Ref DecryptorSecurityGroup
-  SourceMulti:
+  Source:
     Type: AWS::EC2::Instance
-    Condition: MetalInstall
     CreationPolicy:
       ResourceSignal:
         Count: '1'
@@ -373,7 +369,7 @@ Resources:
             01a_etchosts:
               command: "echo ${SKdbIP}'    key.nubedge.com' >> /etc/hosts"
               env:
-                SKdbIP: !GetAtt DecryptorMultiInterface.PrivateIp
+                SKdbIP: !GetAtt Decryptor.PrivateIp
             02_nuagent_config:
               command: "mkdir /opt/nuagent"
             02a_nuagent_config:
@@ -413,89 +409,6 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub "${AWS::StackName}-Source"
-
-
-  SourceContainer:
-    Type: AWS::EC2::Instance
-    Condition: ContainerInstall
-    CreationPolicy:
-      ResourceSignal:
-        Count: '1'
-        Timeout: PT15M
-    Metadata:
-      AWS::CloudFormation::Init:
-        configSets:
-          Configure:
-            - "ConfigStartup"
-          Install:
-            - "InstallServices"
-            - "InstallNubevaSensor"
-          Start:
-            - "StartSource"
-        ConfigStartup:
-          commands:
-            01_updaterclocal:
-             command: "echo 'yum update -y' >> /etc/rc.local"
-            02_chmod:
-              command: "chmod +x /etc/rc.d/rc.local"
-        InstallServices:
-          packages:
-            yum:
-              wget: []
-              docker: []
-          services:
-            sysvinit:
-              docker:
-                enabled: true
-                ensureRunning: true
-        InstallNubevaSensor:
-          commands:
-            01_dockergroup:
-              command: "usermod -a -G docker ec2-user"
-            01a_etchosts:
-              command: "echo ${SKdbIP}'    key.nubedge.com' >> /etc/hosts"
-              env:
-                SKdbIP: !GetAtt DecryptorContainer.PrivateIp
-            02_nuagent_config:
-              command: "mkdir /opt/nuagent"
-            02a_nuagent_config:
-              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_create -o /opt/nuagent/sensor_create"
-            02b_nuagent_config:
-              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_login -o /opt/nuagent/sensor_login"
-            02c_nuagent_config:
-              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_get -o /opt/nuagent/sensor_get"
-            03_install_sensor:
-              command: "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock  --cap-add NET_ADMIN --cap-add SYS_ADMIN  --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always  --net=host --pid host nubeva/nuagent --accept-eula --contained on -nutoken avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG     -noautoupdate --nocloudwatch  --debug=none --disable metrics --baseurl file:///host/opt/nuagent/ --ssl-baseurl https://i.nuos.io/api/1.1/wf/"
-
-        StartSource:
-          commands:
-            01_copycrontab:
-              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/tlsgencronjob -O /etc/cron.d/tlscronjob"
-
-    Properties:
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash -xe
-          amazon-linux-extras install epel -y
-          yum update -y
-          yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource Source --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource Source
-      InstanceType: !Ref NodeInstanceType
-      ImageId: !FindInMap
-        - AWSAMIRegionMap
-        - !Ref 'AWS::Region'
-        - awslinux2
-      NetworkInterfaces:
-        -
-          NetworkInterfaceId: !Ref SourceInterface
-          DeviceIndex: '0'
-      KeyName:
-        Ref: KeyPairName
-      Tags:
-      - Key: Name
-        Value: !Sub "${AWS::StackName}-Source"
-
 
   Wireshark:
     Type: AWS::EC2::Instance
@@ -560,139 +473,9 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub "${AWS::StackName}-Wireshark"
-  DecryptorMultiInterface:
-    Type: AWS::EC2::Instance
-    Condition: MetalInstall
-    CreationPolicy:
-      ResourceSignal:
-        Count: '1'
-        Timeout: PT15M
-    Metadata:
-      AWS::CloudFormation::Init:
-        configSets:
-          Configure:
-            - "ConfigStartup"
-          Install:
-            - "InstallServices"
-            - "InstallKeyServer"
-            - "InstallVXLANInterface"
-            - "InstallNurxAgent"
-          Start:
-            - "StartDecryptor"
-        ConfigStartup:
-          commands:
-            01_updaterclocal:
-             command: "echo 'yum update -y' >> /etc/rc.local"
-            02_chmod:
-              command: "chmod +x /etc/rc.d/rc.local"
-        InstallServices:
-          packages:
-            yum:
-              wget: []
-              docker: []
-          services:
-            sysvinit:
-              docker:
-                enabled: true
-                ensureRunning: true
-        InstallKeyServer:
-          commands:
-            00_etc-hosts:
-              command: "echo '127.0.0.1    key.nubedge.com' >> /etc/hosts"
-            01_createdirectory:
-              command: "mkdir /opt/nubevaTools"
-            01a_downloadnudemobundle:
-              command: "curl -o /opt/nubevaTools/nudemo-bundle.tar.gz https://raw.githubusercontent.com/ejfree/dockerfiles/master/nudemo-bundle.tar.gz"
-            01b_installcerts:
-              command: "tar -xzvf /opt/nubevaTools/nudemo-bundle.tar.gz -C /opt/nubevaTools"
-            02_FastKeyServer:
-              command: "docker run --name nubeva-ks -d -p4433:4433/tcp -p4433:4433/udp  -v /opt/nubevaTools:/certs nubeva/fastkey --cert /certs/nubedge.pem --key /certs/nubedge.key"
-        InstallVXLANInterface:
-          commands:
-            00_setnamespace:
-              command: "/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1"
-            00a_setnamespace-always:
-              command: "echo '/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1' >> /etc/rc.local"
-            00b_setvethpair:
-              command: "/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up"
-            00c_setvethpair-always:
-              command: "echo '/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up' >> /etc/rc.local"
-            00d_setmtu9001:
-              command: "/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001"
-            00d_setmtu9001-always:
-              command: "echo '/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001' >> /etc/rc.local"
-            01_createVXLAN:
-              command: "/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth1 dstport 4789"
-              env:
-                ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
-            02_interfaceUp:
-              command: "/usr/sbin/ip netns exec outbound ip link set vxlan2 up"
-            03_autoLaunchVXLAN:
-              command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote '${ToolIP}' dev eth1 dstport 4789' >> /etc/rc.local"
-              env:
-                ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
-            04_addsmorerclocalupdate:
-              command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link set vxlan2 up' >> /etc/rc.local"
-        InstallNurxAgent:
-          commands:
-            01_dockergroup:
-              command: "sudo usermod -a -G docker ec2-user"
-            02_nuagent_config:
-              command: "mkdir /opt/nuagent"
-            02a_nuagent_config:
-              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_create -o /opt/nuagent/rx_create"
-            02b_nuagent_config:
-              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_login -o /opt/nuagent/rx_login"
-            02c_nuagent_config:
-              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_get -o /opt/nuagent/rx_get"
-            03_install_decryptor:
-              command: "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --disable metrics -noautoupdate --nutoken avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9 --baseurl file:///host/opt/nuagent/"
-            04_Pause:
-              command: "sleep 30"
-        StartDecryptor:
-          packages:
-            yum:
-              iproute-tc: []
-          commands:
-            01_Mirrornurx0toveth0:
-              command: "tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0"
-            02_UpdateRCloca:
-              command: "echo 'tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0' >> /etc/rc.local"
-            03_Mirrorveth1toVXLAN2:
-              command: "ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
-            04_UpdateRClocal:
-              command: "echo 'ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
 
-    Properties:
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash -xe
-          amazon-linux-extras install epel
-          yum update -y
-          yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource Decryptor --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource Decryptor
-      InstanceType: !Ref NodeInstanceType
-      ImageId: !FindInMap
-        - AWSAMIRegionMap
-        - !Ref 'AWS::Region'
-        - awslinux2
-      KeyName:
-        Ref: KeyPairName
-      Tags:
-      - Key: Name
-        Value: !Sub "${AWS::StackName}-Decryptor"
-      NetworkInterfaces:
-        -
-          NetworkInterfaceId: !Ref DecryptorInboundInterface
-          DeviceIndex: '0'
-        -
-          NetworkInterfaceId: !Ref DecryptorOutboundInterface
-          DeviceIndex: '1'
-
-  DecryptorContainer:
+  Decryptor:
     Type: AWS::EC2::Instance
-    Condition: ContainerInstall
     CreationPolicy:
       ResourceSignal:
         Count: '1'
