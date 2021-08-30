@@ -1,0 +1,593 @@
+
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Deploys Nubeva Stand Alone Decryptor Reference Architecture - Multi Interface
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Nubeva configuration
+      Parameters:
+      - APIKey
+    - Label:
+        default: Network configuration
+      Parameters:
+      - VPCID
+      - VPCCIDR
+      - SubnetID
+      - RemoteAccessCIDR
+    - Label:
+        default: Autoscaling group configuration
+      Parameters:
+      - KeyPairName
+      - NodeInstanceType
+    ParameterLabels:
+      KeyPairName:
+        default: SSH key name
+      RemoteAccessCIDR:
+        default: Allowed external access CIDR
+      SubnetID:
+        default: Subnet to deploy to
+      VPCID:
+        default: VPC ID
+      APIKey:
+        default: Nubeva Token
+      NodeInstanceType:
+        default: Node Instance Type
+      VPCCIDR:
+        default: VPC CIDR
+
+Parameters:
+  Containerized:
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    Description: Choose to install containerized version of standalone decryptor.
+    Type: String
+
+  KeyPairName:
+    Description: The name of an existing public/private key pair, which allows you
+      to securely connect to your instance after it launches
+    Type: AWS::EC2::KeyPair::KeyName
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: The CIDR IP range that is permitted to access the instances. We recommend that you set this value to a trusted IP range.
+    Type: String
+  NodeInstanceType:
+    Default: t3.medium
+    AllowedValues:
+    - t3.medium
+    - t3.large
+    - t3.xlarge
+    - t3.2xlarge
+    - m5.large
+    - m5.xlarge
+    - m5.2xlarge
+    - m5.4xlarge
+    - m5.12xlarge
+    - m5.24xlarge
+    - c5.large
+    - c5.xlarge
+    - c5.2xlarge
+    - c5.4xlarge
+    - c5.9xlarge
+    - c5.18xlarge
+    - i3.large
+    - i3.xlarge
+    - i3.2xlarge
+    - i3.4xlarge
+    - i3.8xlarge
+    - i3.16xlarge
+    - r5.large
+    - r5.xlarge
+    - r5.2xlarge
+    - r5.4xlarge
+    - r5.12xlarge
+    - r5.24xlarge
+    ConstraintDescription: Must be a valid EC2 instance type.
+    Description: The type of EC2 instance for the node instances.
+    Type: String
+  APIKey:
+    Description: "The Token for your Prisms account"
+    Type: String
+  VPCID:
+    Type: "AWS::EC2::VPC::Id"
+    Description: The ID of your existing VPC (e.g., vpc-0343606e)
+  SubnetID:
+    Type: "AWS::EC2::Subnet::Id"
+    Description: The ID of a subnet in Availability Zone 1 in your existing VPC (e.g., subnet-fe9a8b32)
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Description: CIDR block for the VPC.
+    Type: String
+
+Mappings:
+  AWSAMIRegionMap:
+    AMI:
+      awslinux2: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    ap-northeast-1:
+      awslinux2: "ami-0c3fd0f5d33134a76"
+    ap-northeast-2:
+      awslinux2: "ami-095ca789e0549777d"
+    ap-south-1:
+      awslinux2: "ami-0d2692b6acea72ee6"
+    ap-southeast-1:
+      awslinux2: "ami-01f7527546b557442"
+    ap-southeast-2:
+      awslinux2: "ami-0dc96254d5535925f"
+    eu-central-1:
+      awslinux2: "ami-0cc293023f983ed53"
+    eu-north-1:
+      awslinux2: "ami-3f36be41"
+    eu-west-1:
+      awslinux2: "ami-0bbc25e23a7640b9b"
+    eu-west-2:
+      awslinux2: "ami-0d8e27447ec2c8410"
+    eu-west-3:
+      awslinux2: "ami-0adcddd3324248c4c"
+    us-east-1:
+      awslinux2: "ami-0b898040803850657"
+    us-east-2:
+      awslinux2: "ami-0d8f6eb4f641ef691"
+    us-west-1:
+      awslinux2: "ami-056ee704806822732"
+    us-west-2:
+      awslinux2: "ami-082b5a644766e0e6f"
+    ca-central-1:
+      awslinux2: "ami-0d4ae09ec9361d8ac"
+    sa-east-1:
+      awslinux2: "ami-058943e7d9b9cabfb"
+
+Resources:
+  SourceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Source Security Group
+      VpcId: !Ref 'VPCID'
+  SourceSecurityGroupSSHinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "SourceSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: !Ref "RemoteAccessCIDR"
+  SourceSecurityGroupOutbound:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref "SourceSecurityGroup"
+      CidrIp: 0.0.0.0/0
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+  WiresharkSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Wireshark Security Group
+      VpcId: !Ref 'VPCID'
+  WiresharkSecurityGroupSSHinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "WiresharkSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: !Ref "RemoteAccessCIDR"
+  WiresharkSecurityGroupVXLANinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "WiresharkSecurityGroup"
+      CidrIp: !Ref 'VPCCIDR'
+      IpProtocol: udp
+      FromPort: 4789
+      ToPort: 4789
+  WiresharkSecurityGroupWiresharkinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "WiresharkSecurityGroup"
+      CidrIp: !Ref "RemoteAccessCIDR"
+      IpProtocol: tcp
+      FromPort: 14500
+      ToPort: 14500
+  WiresharkSecurityGroupOutbound:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref "WiresharkSecurityGroup"
+      CidrIp: 0.0.0.0/0
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+  DecryptorSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Tool Security Group
+      VpcId: !Ref 'VPCID'
+  DecryptorSecurityGroupSSHinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "DecryptorSecurityGroup"
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: !Ref "RemoteAccessCIDR"
+  DecryptorSecurityGroupAPIinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "DecryptorSecurityGroup"
+      CidrIp: !Ref 'VPCCIDR'
+      IpProtocol: tcp
+      FromPort: 4433
+      ToPort: 4433
+  DecryptorSecurityGroupDTLSinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "DecryptorSecurityGroup"
+      CidrIp: !Ref 'VPCCIDR'
+      IpProtocol: udp
+      FromPort: 4433
+      ToPort: 4433
+  DecryptorSecurityGroupVXLANinbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref "DecryptorSecurityGroup"
+      CidrIp: 0.0.0.0/0
+      IpProtocol: udp
+      FromPort: 4789
+      ToPort: 4789
+  DecryptorSecurityGroupOutbound:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref "DecryptorSecurityGroup"
+      CidrIp: 0.0.0.0/0
+      IpProtocol: "-1"
+      FromPort: -1
+      ToPort: -1
+  DecryptorTrafficMirrorTarget:
+    Type: AWS::EC2::TrafficMirrorTarget
+    DependsOn: DecryptorInterface
+    Properties:
+      Description: "Decryptor"
+      NetworkInterfaceId: !Ref DecryptorInboundInterface
+  DecryptorTrafficMirrorSession:
+    Type: "AWS::EC2::TrafficMirrorSession"
+    DependsOn: Source
+    Properties:
+      Description: "Source to Decryptor"
+      NetworkInterfaceId: !Ref SourceInterface
+      TrafficMirrorTargetId: !Ref DecryptorTrafficMirrorTarget
+      TrafficMirrorFilterId: !Ref AllTrafficMirrorFilter
+      SessionNumber: 1
+
+  AllTrafficMirrorFilter:
+    Type: "AWS::EC2::TrafficMirrorFilter"
+    Properties:
+      Description: "All traffic mirror filter"
+  AllIngressTrafficMirrorFilterRule:
+    Type: "AWS::EC2::TrafficMirrorFilterRule"
+    Properties:
+      Description: "Filter for ALL ingress traffic"
+      TrafficMirrorFilterId: !Ref AllTrafficMirrorFilter
+      TrafficDirection: "ingress"
+      RuleNumber: 10
+      DestinationCidrBlock: "0.0.0.0/0"
+      SourceCidrBlock: "0.0.0.0/0"
+      RuleAction: "accept"
+  AllEgressTrafficMirrorFilterRule:
+    Type: "AWS::EC2::TrafficMirrorFilterRule"
+    Properties:
+      Description: "Filter for ALL egress traffic"
+      TrafficMirrorFilterId: !Ref AllTrafficMirrorFilter
+      TrafficDirection: "egress"
+      RuleNumber: 20
+      DestinationCidrBlock: "0.0.0.0/0"
+      SourceCidrBlock: "0.0.0.0/0"
+      RuleAction: "accept"
+  SourceInterface:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetID
+      Description: Outbound Interface on Source
+      GroupSet:
+      - !Ref SourceSecurityGroup
+  WiresharkInterface:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetID
+      Description: Inbound Interface on Wireshark
+      GroupSet:
+      - !Ref WiresharkSecurityGroup
+  DecryptorInboundInterface:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetID
+      Description: Interface for incoming traffic to be decrypted
+      GroupSet:
+      - !Ref DecryptorSecurityGroup
+  DecryptorOutboundInterface:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref SubnetID
+      Description: Interface for outgoing decrypted traffic to destination tool
+      SourceDestCheck: False
+      GroupSet:
+      - !Ref DecryptorSecurityGroup
+  Source:
+    Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Count: '1'
+        Timeout: PT15M
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          Configure:
+            - "ConfigStartup"
+          Install:
+            - "InstallServices"
+            - "InstallNubevaSensor"
+          Start:
+            - "StartSource"
+        ConfigStartup:
+          commands:
+            01_updaterclocal:
+             command: "echo 'yum update -y' >> /etc/rc.local"
+            02_chmod:
+              command: "chmod +x /etc/rc.d/rc.local"
+        InstallServices:
+          packages:
+            yum:
+              wget: []
+              docker: []
+          services:
+            sysvinit:
+              docker:
+                enabled: true
+                ensureRunning: true
+        InstallNubevaSensor:
+          commands:
+            01_dockergroup:
+              command: "usermod -a -G docker ec2-user"
+            01a_etchosts:
+              command: "echo ${SKdbIP}'    key.nubedge.com' >> /etc/hosts"
+              env:
+                SKdbIP: !GetAtt Decryptor.PrivateIp
+            02_nuagent_config:
+              command: "mkdir /opt/nuagent"
+            02a_nuagent_config:
+              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_create -o /opt/nuagent/sensor_create"
+            02b_nuagent_config:
+              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_login -o /opt/nuagent/sensor_login"
+            02c_nuagent_config:
+              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/sensor_get -o /opt/nuagent/sensor_get"
+            03_install_sensor:
+              command: "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock  --cap-add NET_ADMIN --cap-add SYS_ADMIN  --cap-add SYS_RESOURCE --cap-add SYS_PTRACE --name nubeva-agent -d --restart=always  --net=host --pid host nubeva/nuagent --accept-eula --contained on -nutoken avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG     -noautoupdate --nocloudwatch  --debug=none --disable metrics --baseurl file:///host/opt/nuagent/ --ssl-baseurl https://i.nuos.io/api/1.1/wf/"
+
+        StartSource:
+          commands:
+            01_copycrontab:
+              command: "wget -nv https://raw.githubusercontent.com/nubevalabs/templates/master/tlsgencronjob -O /etc/cron.d/tlscronjob"
+
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          amazon-linux-extras install epel -y
+          yum update -y
+          yum update -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource Source --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource Source
+      InstanceType: !Ref NodeInstanceType
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - awslinux2
+      NetworkInterfaces:
+        -
+          NetworkInterfaceId: !Ref SourceInterface
+          DeviceIndex: '0'
+      KeyName:
+        Ref: KeyPairName
+      Tags:
+      - Key: Name
+        Value: !Sub "${AWS::StackName}-Source"
+
+
+  Wireshark:
+    Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Count: '1'
+        Timeout: PT15M
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          Configure:
+            - "ConfigStartup"
+          Install:
+            - "InstallServices"
+          Start:
+            - "StartWireshark"
+        ConfigStartup:
+          commands:
+            01_updaterclocal:
+             command: "echo 'yum update -y' >> /etc/rc.local"
+            02_chmod:
+              command: "chmod +x /etc/rc.d/rc.local"
+        InstallServices:
+          packages:
+            yum:
+              wget: []
+              docker: []
+          services:
+            sysvinit:
+              docker:
+                enabled: true
+                ensureRunning: true
+          commands:
+            01_dockergroup:
+              command: "sudo usermod -a -G docker ec2-user"
+            02_vxlan_config:
+              command: "ip link add vxlan2 type vxlan id 2 remote 0.0.0.0 dstport 4789; ip link set vxlan2 up"
+        StartWireshark:
+          commands:
+            01_wireshark:
+              command: "docker run -p 14500:14500 --restart unless-stopped -dti --cap-add NET_ADMIN --net=host --name wireshark  ffeldhaus/wireshark"
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          amazon-linux-extras install epel -y
+          yum update -y
+          yum update -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource Wireshark --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource Wireshark
+      InstanceType: !Ref NodeInstanceType
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - awslinux2
+      NetworkInterfaces:
+        -
+          NetworkInterfaceId: !Ref WiresharkInterface
+          DeviceIndex: '0'
+      KeyName:
+        Ref: KeyPairName
+      Tags:
+      - Key: Name
+        Value: !Sub "${AWS::StackName}-Wireshark"
+
+  Decryptor:
+    Type: AWS::EC2::Instance
+    CreationPolicy:
+      ResourceSignal:
+        Count: '1'
+        Timeout: PT15M
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          Configure:
+            - "ConfigStartup"
+          Install:
+            - "InstallServices"
+            - "InstallKeyServer"
+            - "InstallVXLANInterface"
+            - "InstallNurxAgent"
+          Start:
+            - "StartDecryptor"
+        ConfigStartup:
+          commands:
+            01_updaterclocal:
+             command: "echo 'yum update -y' >> /etc/rc.local"
+            02_chmod:
+              command: "chmod +x /etc/rc.d/rc.local"
+        InstallServices:
+          packages:
+            yum:
+              wget: []
+              docker: []
+          services:
+            sysvinit:
+              docker:
+                enabled: true
+                ensureRunning: true
+        InstallKeyServer:
+          commands:
+            00_etc-hosts:
+              command: "echo '127.0.0.1    key.nubedge.com' >> /etc/hosts"
+            01_createdirectory:
+              command: "mkdir /opt/nubevaTools"
+            01a_downloadnudemobundle:
+              command: "curl -o /opt/nubevaTools/nudemo-bundle.tar.gz https://raw.githubusercontent.com/ejfree/dockerfiles/master/nudemo-bundle.tar.gz"
+            01b_installcerts:
+              command: "tar -xzvf /opt/nubevaTools/nudemo-bundle.tar.gz -C /opt/nubevaTools"
+            02_FastKeyServer:
+              command: "docker run --name nubeva-ks -d -p4433:4433/tcp -p4433:4433/udp  -v /opt/nubevaTools:/certs nubeva/fastkey --cert /certs/nubedge.pem --key /certs/nubedge.key"
+        InstallVXLANInterface:
+          commands:
+            00_setnamespace:
+              command: "/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1"
+            00a_setnamespace-always:
+              command: "echo '/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1' >> /etc/rc.local"
+            00b_setvethpair:
+              command: "/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up"
+            00c_setvethpair-always:
+              command: "echo '/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up' >> /etc/rc.local"
+            00d_setmtu9001:
+              command: "/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001"
+            00d_setmtu9001-always:
+              command: "echo '/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001' >> /etc/rc.local"
+            01_createVXLAN:
+              command: "/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth1 dstport 4789"
+              env:
+                ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
+            02_interfaceUp:
+              command: "/usr/sbin/ip netns exec outbound ip link set vxlan2 up"
+            03_autoLaunchVXLAN:
+              command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote '${ToolIP}' dev eth1 dstport 4789' >> /etc/rc.local"
+              env:
+                ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
+            04_addsmorerclocalupdate:
+              command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link set vxlan2 up' >> /etc/rc.local"
+        InstallNurxAgent:
+          commands:
+            01_dockergroup:
+              command: "sudo usermod -a -G docker ec2-user"
+            02_nuagent_config:
+              command: "mkdir /opt/nuagent"
+            02a_nuagent_config:
+              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_create -o /opt/nuagent/rx_create"
+            02b_nuagent_config:
+              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_login -o /opt/nuagent/rx_login"
+            02c_nuagent_config:
+              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_get -o /opt/nuagent/rx_get"
+            03_install_decryptor:
+              command: "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --disable metrics -noautoupdate --nutoken avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9 --baseurl file:///host/opt/nuagent/"
+            04_Pause:
+              command: "sleep 30"
+        StartDecryptor:
+          packages:
+            yum:
+              iproute-tc: []
+          commands:
+            01_Mirrornurx0toveth0:
+              command: "tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0"
+            02_UpdateRCloca:
+              command: "echo 'tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0' >> /etc/rc.local"
+            03_Mirrorveth1toVXLAN2:
+              command: "ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
+            04_UpdateRClocal:
+              command: "echo 'ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
+
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          amazon-linux-extras install epel
+          yum update -y
+          yum update -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource Decryptor --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource Decryptor
+      InstanceType: !Ref NodeInstanceType
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - awslinux2
+      KeyName:
+        Ref: KeyPairName
+      Tags:
+      - Key: Name
+        Value: !Sub "${AWS::StackName}-Decryptor"
+      NetworkInterfaces:
+        -
+          NetworkInterfaceId: !Ref DecryptorInboundInterface
+          DeviceIndex: '0'
+        -
+          NetworkInterfaceId: !Ref DecryptorOutboundInterface
+          DeviceIndex: '1'
+
+
+#Outputs:

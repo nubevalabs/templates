@@ -1,0 +1,135 @@
+
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Deploys Nubeva Stand Alone Decryptor Reference Architecture
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Nubeva configuration
+      Parameters:
+      - APIKey
+      - Containerized
+    - Label:
+        default: Network configuration
+      Parameters:
+      - VPCID
+      - VPCCIDR
+      - SubnetID
+      - RemoteAccessCIDR
+    - Label:
+        default: Autoscaling group configuration
+      Parameters:
+      - KeyPairName
+      - NodeInstanceType
+    ParameterLabels:
+      KeyPairName:
+        default: SSH key name
+      RemoteAccessCIDR:
+        default: Allowed external access CIDR
+      SubnetID:
+        default: Subnet to deploy to
+      VPCID:
+        default: VPC ID
+      APIKey:
+        default: Nubeva Token
+      NodeInstanceType:
+        default: Node Instance Type
+      VPCCIDR:
+        default: VPC CIDR
+
+Parameters:
+  Containerized:
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    Description: Choose to install containerized version of standalone decryptor.
+    Type: String
+
+  KeyPairName:
+    Description: The name of an existing public/private key pair, which allows you
+      to securely connect to your instance after it launches
+    Type: AWS::EC2::KeyPair::KeyName
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: The CIDR IP range that is permitted to access the instances. We recommend that you set this value to a trusted IP range.
+    Type: String
+  NodeInstanceType:
+    Default: t3.medium
+    AllowedValues:
+    - t3.medium
+    - t3.large
+    - t3.xlarge
+    - t3.2xlarge
+    - m5.large
+    - m5.xlarge
+    - m5.2xlarge
+    - m5.4xlarge
+    - m5.12xlarge
+    - m5.24xlarge
+    - c5.large
+    - c5.xlarge
+    - c5.2xlarge
+    - c5.4xlarge
+    - c5.9xlarge
+    - c5.18xlarge
+    - i3.large
+    - i3.xlarge
+    - i3.2xlarge
+    - i3.4xlarge
+    - i3.8xlarge
+    - i3.16xlarge
+    - r5.large
+    - r5.xlarge
+    - r5.2xlarge
+    - r5.4xlarge
+    - r5.12xlarge
+    - r5.24xlarge
+    ConstraintDescription: Must be a valid EC2 instance type.
+    Description: The type of EC2 instance for the node instances.
+    Type: String
+  APIKey:
+    Description: "The Token for your Prisms account"
+    Type: String
+  VPCID:
+    Type: "AWS::EC2::VPC::Id"
+    Description: The ID of your existing VPC (e.g., vpc-0343606e)
+  SubnetID:
+    Type: "AWS::EC2::Subnet::Id"
+    Description: The ID of a subnet in Availability Zone 1 in your existing VPC (e.g., subnet-fe9a8b32)
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Description: CIDR block for the VPC.
+    Type: String
+
+Conditions:
+  ContainerInstall: !Equals
+    - !Ref Containerized
+    - 'true'
+  MetalInstall: !Equals
+    - !Ref Containerized
+    - 'false'
+
+
+
+Resources:
+  NubevaStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-existing-vpc.template.yaml'
+          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        KeyPairName: !Ref KeyPairName
+        SubnetID: !Ref SubnetID
+        NodeInstanceType: !Ref NodeInstanceType
+        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+        VPCID: !Ref VPCID
+        VPCCIDR: !Ref VPCCIDR
+        APIKey: !Ref APIKey
