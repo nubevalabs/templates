@@ -40,7 +40,7 @@ Metadata:
 
 Parameters:
   Containerized:
-    Default: true
+    Default: false
     AllowedValues:
     - true
     - false
@@ -110,21 +110,22 @@ Conditions:
   ContainerInstall: !Equals
     - !Ref Containerized
     - 'true'
-  MetalInstall: !Equals
+  MultiInstall: !Equals
     - !Ref Containerized
     - 'false'
 
 
 
 Resources:
-  NubevaStack:
+  MultiInterfaceStack:
     Type: AWS::CloudFormation::Stack
+    Condition: MultiInstall
     Properties:
-      TemplateURL:
-        !Sub
-          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-existing-vpc.template.yaml'
-          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      TemplateURL: https://nubevalabs.s3.amazonaws.com/sdi_ref_arch/multi_interface/nubeva-sdi-multi.template.yaml
+#        !Sub
+#          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-existing-vpc.template.yaml'
+#          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+#            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         KeyPairName: !Ref KeyPairName
         SubnetID: !Ref SubnetID

@@ -38,14 +38,6 @@ Metadata:
         default: VPC CIDR
 
 Parameters:
-  Containerized:
-    Default: true
-    AllowedValues:
-    - true
-    - false
-    Description: Choose to install containerized version of standalone decryptor.
-    Type: String
-
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
       to securely connect to your instance after it launches
@@ -248,7 +240,7 @@ Resources:
       ToPort: -1
   DecryptorTrafficMirrorTarget:
     Type: AWS::EC2::TrafficMirrorTarget
-    DependsOn: DecryptorInterface
+    DependsOn: Decryptor
     Properties:
       Description: "Decryptor"
       NetworkInterfaceId: !Ref DecryptorInboundInterface
