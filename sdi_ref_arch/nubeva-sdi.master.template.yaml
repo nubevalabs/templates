@@ -122,10 +122,19 @@ Resources:
     Condition: MultiInstall
     Properties:
       TemplateURL: https://nubevalabs.s3.amazonaws.com/sdi_ref_arch/multi_interface/nubeva-sdi-multi.template.yaml
-#        !Sub
-#          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/nubeva-existing-vpc.template.yaml'
-#          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-#            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        KeyPairName: !Ref KeyPairName
+        SubnetID: !Ref SubnetID
+        NodeInstanceType: !Ref NodeInstanceType
+        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+        VPCID: !Ref VPCID
+        VPCCIDR: !Ref VPCCIDR
+        APIKey: !Ref APIKey
+  ContainerStack:
+    Type: AWS::CloudFormation::Stack
+    Condition: ContainerInstall
+    Properties:
+      TemplateURL: https://nubevalabs.s3.amazonaws.com/sdi_ref_arch/container/nubeva-sdi-container.template.yaml
       Parameters:
         KeyPairName: !Ref KeyPairName
         SubnetID: !Ref SubnetID
