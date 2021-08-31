@@ -476,8 +476,8 @@ Resources:
             - "InstallServices"
             - "InstallKeyServer"
             - "BuildContainer"
-#            - "InstallVXLANInterface"
-#            - "InstallNurxAgent"
+            # - "InstallVXLANInterface"
+            # - "InstallNurxAgent"
           Start:
             - "StartDecryptor"
         ConfigStartup:
@@ -518,6 +518,91 @@ Resources:
               command: "pid=$(docker inspect -f '{{.State.Pid}}' nat); export $pid"
             04_link:
               command: "ln -sfT /proc/$pid/ns/net /var/run/netns/nat; mkdir -p /var/run/netns/"
+        # InstallVXLANInterface:
+        #   commands:
+        #     00_setnamespace:
+        #       command: "/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1"
+        #     00a_setnamespace-always:
+        #       command: "echo '/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1' >> /etc/rc.local"
+        #     00b_setvethpair:
+        #       command: "/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up"
+        #     00c_setvethpair-always:
+        #       command: "echo '/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up' >> /etc/rc.local"
+        #     00d_setmtu9001:
+        #       command: "/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001"
+        #     00d_setmtu9001-always:
+        #       command: "echo '/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001' >> /etc/rc.local"
+        #     01_createVXLAN:
+        #       command: "/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth1 dstport 4789"
+        #       env:
+        #         ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
+        #     02_interfaceUp:
+        #       command: "/usr/sbin/ip netns exec outbound ip link set vxlan2 up"
+        #     03_autoLaunchVXLAN:
+        #       command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote '${ToolIP}' dev eth1 dstport 4789' >> /etc/rc.local"
+        #       env:
+        #         ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
+        #     04_addsmorerclocalupdate:
+        #       command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link set vxlan2 up' >> /etc/rc.local"
+        # InstallNurxAgent:
+        #   commands:
+        #     01_dockergroup:
+        #       command: "sudo usermod -a -G docker ec2-user"
+        #     02_nuagent_config:
+        #       command: "mkdir /opt/nuagent"
+        #     02a_nuagent_config:
+        #       command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_create -o /opt/nuagent/rx_create"
+        #     02b_nuagent_config:
+        #       command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_login -o /opt/nuagent/rx_login"
+        #     02c_nuagent_config:
+        #       command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_get -o /opt/nuagent/rx_get"
+        #     03_install_decryptor:
+        #       command: "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --disable metrics -noautoupdate --nutoken avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9 --baseurl file:///host/opt/nuagent/"
+        #     04_Pause:
+        #       command: "sleep 30"
+        # StartDecryptor:
+        #   packages:
+        #     yum:
+        #       iproute-tc: []
+        #   commands:
+        #     01_Mirrornurx0toveth0:
+        #       command: "tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0"
+        #     02_UpdateRCloca:
+        #       command: "echo 'tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0' >> /etc/rc.local"
+        #     03_Mirrorveth1toVXLAN2:
+        #       command: "ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
+        #     04_UpdateRClocal:
+        #       command: "echo 'ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          amazon-linux-extras install epel
+          yum update -y
+          yum update -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource Decryptor --configsets Configure,Install,Start
+          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource Decryptor
+      InstanceType: !Ref NodeInstanceType
+      ImageId: !FindInMap
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - awslinux2
+      KeyName:
+        Ref: KeyPairName
+      Tags:
+      - Key: Name
+        Value: !Sub "Decryptor-${AWS::StackName}"
+      NetworkInterfaces:
+        -
+          NetworkInterfaceId: !Ref DecryptorInboundInterface
+          DeviceIndex: '0'
+        # -
+        #   NetworkInterfaceId: !Ref DecryptorOutboundInterface
+        #   DeviceIndex: '1'
+
+
+
+#Outputs:
 
 
 # -----
@@ -575,101 +660,3 @@ Resources:
 #   tc qdisc replace dev sdi1 parent root handle 10: prio
 #   tc filter add dev sdi1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan
 # exit
-
-
-
-
-
-
-
-#---------
-        # InstallVXLANInterface:
-        #   commands:
-        #     00_setnamespace:
-        #       command: "/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1"
-        #     00a_setnamespace-always:
-        #       command: "echo '/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1' >> /etc/rc.local"
-        #     00b_setvethpair:
-        #       command: "/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up"
-        #     00c_setvethpair-always:
-        #       command: "echo '/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up' >> /etc/rc.local"
-        #     00d_setmtu9001:
-        #       command: "/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001"
-        #     00d_setmtu9001-always:
-        #       command: "echo '/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001' >> /etc/rc.local"
-        #     01_createVXLAN:
-        #       command: "/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth1 dstport 4789"
-        #       env:
-        #         ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
-        #     02_interfaceUp:
-        #       command: "/usr/sbin/ip netns exec outbound ip link set vxlan2 up"
-        #     03_autoLaunchVXLAN:
-        #       command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote '${ToolIP}' dev eth1 dstport 4789' >> /etc/rc.local"
-        #       env:
-        #         ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
-        #     04_addsmorerclocalupdate:
-        #       command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link set vxlan2 up' >> /etc/rc.local"
-        # InstallNurxAgent:
-        #   commands:
-        #     01_dockergroup:
-        #       command: "sudo usermod -a -G docker ec2-user"
-        #     02_nuagent_config:
-        #       command: "mkdir /opt/nuagent"
-        #     02a_nuagent_config:
-        #       command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_create -o /opt/nuagent/rx_create"
-        #     02b_nuagent_config:
-        #       command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_login -o /opt/nuagent/rx_login"
-        #     02c_nuagent_config:
-        #       command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_get -o /opt/nuagent/rx_get"
-        #     03_install_decryptor:
-        #       command: "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --disable metrics -noautoupdate --nutoken avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9 --baseurl file:///host/opt/nuagent/"
-        #     04_Pause:
-        #       command: "sleep 30"
-        # StartDecryptor:
-        #   packages:
-        #     yum:
-        #       iproute-tc: []
-        #   commands:
-        #     01_Mirrornurx0toveth0:
-        #       command: "tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0"
-        #     02_UpdateRCloca:
-        #       command: "echo 'tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0' >> /etc/rc.local"
-        #     03_Mirrorveth1toVXLAN2:
-        #       command: "ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
-        #     04_UpdateRClocal:
-        #       command: "echo 'ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
-
-##End changes here
-#####
-#####--------
-
-    Properties:
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash -xe
-          amazon-linux-extras install epel
-          yum update -y
-          yum update -y aws-cfn-bootstrap
-          /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource Decryptor --configsets Configure,Install,Start
-          /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource Decryptor
-      InstanceType: !Ref NodeInstanceType
-      ImageId: !FindInMap
-        - AWSAMIRegionMap
-        - !Ref 'AWS::Region'
-        - awslinux2
-      KeyName:
-        Ref: KeyPairName
-      Tags:
-      - Key: Name
-        Value: !Sub "Decryptor-${AWS::StackName}"
-      NetworkInterfaces:
-        -
-          NetworkInterfaceId: !Ref DecryptorInboundInterface
-          DeviceIndex: '0'
-        # -
-        #   NetworkInterfaceId: !Ref DecryptorOutboundInterface
-        #   DeviceIndex: '1'
-
-
-
-#Outputs:
