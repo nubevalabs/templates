@@ -461,8 +461,8 @@ Resources:
             - "InstallServices"
             - "InstallKeyServer"
             - "BuildContainer"
-            # - "InstallVXLANInterface"
-            # - "InstallNurxAgent"
+            - "InstallVXLANInterface"
+            - "InstallNurxAgent"
           Start:
             - "StartDecryptor"
         ConfigStartup:
@@ -500,51 +500,57 @@ Resources:
             02_packages:
               command: "docker exec nat apk add bash iptables iproute2"
             03_pid:
-              command: "pid=$(docker inspect -f '{{.State.Pid}}' nat); export $pid"
-            04_link:
-              command: "ln -sfT /proc/$pid/ns/net /var/run/netns/nat; mkdir -p /var/run/netns/"
-        # InstallVXLANInterface:
-        #   commands:
-        #     00_setnamespace:
-        #       command: "/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1"
-        #     00a_setnamespace-always:
-        #       command: "echo '/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1' >> /etc/rc.local"
-        #     00b_setvethpair:
-        #       command: "/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up"
-        #     00c_setvethpair-always:
-        #       command: "echo '/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up' >> /etc/rc.local"
-        #     00d_setmtu9001:
-        #       command: "/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001"
-        #     00d_setmtu9001-always:
-        #       command: "echo '/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001' >> /etc/rc.local"
-        #     01_createVXLAN:
-        #       command: "/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth1 dstport 4789"
-        #       env:
-        #         ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
-        #     02_interfaceUp:
-        #       command: "/usr/sbin/ip netns exec outbound ip link set vxlan2 up"
-        #     03_autoLaunchVXLAN:
-        #       command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote '${ToolIP}' dev eth1 dstport 4789' >> /etc/rc.local"
-        #       env:
-        #         ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
-        #     04_addsmorerclocalupdate:
-        #       command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link set vxlan2 up' >> /etc/rc.local"
-        # InstallNurxAgent:
-        #   commands:
-        #     01_dockergroup:
-        #       command: "sudo usermod -a -G docker ec2-user"
-        #     02_nuagent_config:
-        #       command: "mkdir /opt/nuagent"
-        #     02a_nuagent_config:
-        #       command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_create -o /opt/nuagent/rx_create"
-        #     02b_nuagent_config:
-        #       command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_login -o /opt/nuagent/rx_login"
-        #     02c_nuagent_config:
-        #       command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_get -o /opt/nuagent/rx_get"
-        #     03_install_decryptor:
-        #       command: "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --disable metrics -noautoupdate --nutoken avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9 --baseurl file:///host/opt/nuagent/"
-        #     04_Pause:
-        #       command: "sleep 30"
+              command: "pid=$(docker inspect -f '{{.State.Pid}}' nat) && ln -sfT /proc/$pid/ns/net /var/run/netns/nat && mkdir -p /var/run/netns/"
+#            04_link:
+#              command: "ln -sfT /proc/$pid/ns/net /var/run/netns/nat; mkdir -p /var/run/netns/"
+        InstallVXLANInterface:
+          commands:
+            00_testoutput:
+              command: "ip netns exec nat ip -s link show eth0"
+            01_create_veth_peer:
+              command: "ip link add sdi0 type veth peer name sdi1"
+            01_create_veth_peer_always:
+              command: "echo 'ip link add sdi0 type veth peer name sdi1' >> /etc/rc.local"
+            02_setup_sdi_ints:
+              command: "ip link set sdi1 netns nat && ip link set sdi0 up && ip netns exec nat ip link set sdi1 up"
+            02_setup_sdi_ints_always:
+              command: "echo 'ip link set sdi1 netns nat && ip link set sdi0 up && ip netns exec nat ip link set sdi1 up' >> /etc/rc.local"
+            03_set_mtu:
+              command: "ifconfig sdi0 mtu 9001 && ifconfig | grep veth | awk '{split($0, a, ":"); system("ip link set mtu 9001 " a[1])}'"
+            03_set_mtu_always:
+              command: "echo 'nfig | grep veth | awk '{split($0, a, ":"); system("ip link set mtu 9001 " a[1])}'' >> /etc/rc.local"
+            04_set_sdi_mtu:
+              command: "docker exec nat ifconfig eth0 mtu 9001 && docker exec nat ifconfig sdi1 mtu 9001"
+            04_set_sdi_mtu_always:
+              command: "echo 'docker exec nat ifconfig eth0 mtu 9001 && docker exec nat ifconfig sdi1 mtu 9001' >> /etc/rc.local"
+            05_createVXLAN:
+              command: "docker exec nat ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth0 dstport 4789"
+              env:
+                ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
+            05_createVXLAN_always:
+              command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote '${ToolIP}' dev eth1 dstport 4789' >> /etc/rc.local"
+              env:
+                ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
+            06_interfaceUp:
+              command: "docker exec nat ip link set vxlan2 up"
+            06_interfaceUp_always:
+              command: "echo 'docker exec nat ip link set vxlan2 up' >> /etc/rc.local"
+        InstallNurxAgent:
+          commands:
+            01_dockergroup:
+              command: "sudo usermod -a -G docker ec2-user"
+            02_nuagent_config:
+              command: "mkdir /opt/nuagent"
+            02a_nuagent_config:
+              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_create -o /opt/nuagent/rx_create"
+            02b_nuagent_config:
+              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_login -o /opt/nuagent/rx_login"
+            02c_nuagent_config:
+              command: "curl https://nubevalabs.s3.amazonaws.com/nuagent/rx_get -o /opt/nuagent/rx_get"
+            03_install_decryptor:
+              command: "docker run -v /:/host -v /var/run/docker.sock:/var/run/docker.sock --cap-add NET_ADMIN --name nubeva-rx -d --restart=on-failure --net=host nubeva/nurx --accept-eula --disable metrics -noautoupdate --nutoken avnujtoj_D1don13jxtUQoGovougnelugODOAdlOdxOu7jVx9jDq5Vx7goL1QqVgl9AxulunG --sslcredobj eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9 --baseurl file:///host/opt/nuagent/"
+            04_Pause:
+              command: "sleep 30"
         StartDecryptor:
           packages:
             yum:
@@ -558,6 +564,32 @@ Resources:
         #       command: "ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
         #     04_UpdateRClocal:
         #       command: "echo 'ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
+
+
+
+# # now send everything from nurx0 to sdi0 using tc…use commands at beginning of this doc to clear out tc if you have commands there.
+#
+# sudo tc qdisc add dev nurx0 ingress
+# sudo tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev sdi0
+# sudo tc qdisc replace dev nurx0 parent root handle 10: prio
+# sudo tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev sdi0
+#
+
+
+# #  now create vxlan device in nat namespace and then use tc in nat namespace to send everything from sdi1 to vxlan device…and we should be done.
+# docker exec -ti nat bash
+#   ifconfig eth0 mtu 9001
+#   ip link add vxlan type vxlan id 2 remote <remote routable IP> dev eth0 dstport 4789
+#   ifconfig vxlan up
+#   ifconfig vxlan mtu 8951 # YOU WILL NOT NEED TO DO THIS, IT’S DONE AUTOMATICALLY
+#   tc qdisc add dev sdi1 ingress
+#   tc filter add dev sdi1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan
+#   tc qdisc replace dev sdi1 parent root handle 10: prio
+#   tc filter add dev sdi1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan
+# exit
+
+
+
     Properties:
       UserData:
         Fn::Base64: !Sub |
@@ -588,60 +620,3 @@ Resources:
 
 
 #Outputs:
-
-
-# -----
-# Start Changes here
-# ------
-# Randy notes (WORKING MANUAL STEP): [These need to be incorporated into the CFT and retested. Everything seems to be working initially. beed to
-# docker run -dti --name nat --cap-add NET_ADMIN alpine sh
-# docker exec -ti nat sh
-#   apk add bash iptables iproute2 # iproute2 is for /sbin/tc
-#   exit
-##NOTES
-##echo "echo This is how we pipe to docker exec" | sudo docker exec --interactive CONTAINER_NAME /bin/bash -
-
-#
-# # now access the namespace of the docker container we just created for our use
-# pid=$(docker inspect -f '{{.State.Pid}}' nat) # store output or assign it to a variable (say pid)
-# sudo ln -sfT /proc/$pid/ns/net /var/run/netns/nat
-# sudo mkdir -p /var/run/netns/
-#
-# # now you can use it as a namespace…otherwise hidden by docker
-# sudo ip netns exec nat ip -s link show eth0
-#
-# # now create veth pair between host namespace and docker (nat) namespace
-# sudo ip link add sdi0 type veth peer name sdi1
-#
-# # now set sdi1 to go into the docker container “nat” namespace
-# sudo ip link set sdi1 netns nat
-# sudo ip link set sdi0 up
-# sudo ip netns exec nat ip link set sdi1 up
-# # increase MTU
-# sudo ifconfig sdi0 mtu 9001
-#
-# # Then change all veth network interfaces to mtu 9001 also
-# ifconfig | grep veth | awk '{split($0, a, ":"); system("ip link set mtu 9001 " a[1])}'
-#
-# docker exec -ti nat bash
-#   ifconfig eth0 mtu 9001 # this won’t work until the docker0 and veth* interfaces on host have mtu of 9001
-#   ifconfig sdi1 mtu 9001
-#
-# # now send everything from nurx0 to sdi0 using tc…use commands at beginning of this doc to clear out tc if you have commands there.
-#
-# sudo tc qdisc add dev nurx0 ingress
-# sudo tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev sdi0
-# sudo tc qdisc replace dev nurx0 parent root handle 10: prio
-# sudo tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev sdi0
-#
-# #  now create vxlan device in nat namespace and then use tc in nat namespace to send everything from sdi1 to vxlan device…and we should be done.
-# docker exec -ti nat bash
-#   ifconfig eth0 mtu 9001
-#   ip link add vxlan type vxlan id 2 remote <remote routable IP> dev eth0 dstport 4789
-#   ifconfig vxlan up
-#   ifconfig vxlan mtu 8951 # YOU WILL NOT NEED TO DO THIS, IT’S DONE AUTOMATICALLY
-#   tc qdisc add dev sdi1 ingress
-#   tc filter add dev sdi1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan
-#   tc qdisc replace dev sdi1 parent root handle 10: prio
-#   tc filter add dev sdi1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan
-# exit
