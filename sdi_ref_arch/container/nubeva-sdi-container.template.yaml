@@ -507,8 +507,8 @@ Resources:
               command: "echo 'ip link set sdi1 netns nat && ip link set sdi0 up && ip netns exec nat ip link set sdi1 up' >> /etc/rc.local"
             03_set_mtu:
               command: "ifconfig sdi0 mtu 9001 && ifconfig | grep veth | awk '{split($0, a, \":\"); system(\"ip link set mtu 9001 \" a[1])}'"
-            03_set_mtu_always:
-              command: "echo 'ifconfig sdi0 mtu 9001 && ifconfig | grep veth | awk \'{split($0, a, \":\"); system(\"ip link set mtu 9001 \" a[1])}\'' >> /etc/rc.local"
+#            03_set_mtu_always:
+#              command: "echo 'ifconfig sdi0 mtu 9001 && ifconfig | grep veth | awk '{split($0, a, \":\"); system(\"ip link set mtu 9001 \" a[1])}'' >> /etc/rc.local"
             04_set_sdi_mtu:
               command: "docker exec nat ifconfig eth0 mtu 9001 && docker exec nat ifconfig sdi1 mtu 9001"
             04_set_sdi_mtu_always:
