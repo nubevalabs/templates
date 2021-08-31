@@ -500,7 +500,7 @@ Resources:
             02_packages:
               command: "docker exec nat apk add bash iptables iproute2"
             03_pid:
-              command: "pid=$(docker inspect -f '{{.State.Pid}}' nat) && ln -sfT /proc/$pid/ns/net /var/run/netns/nat && mkdir -p /var/run/netns/"
+              command: " mkdir -p /var/run/netns/&& pid=$(docker inspect -f '{{.State.Pid}}' nat) && ln -sfT /proc/$pid/ns/net /var/run/netns/nat"
         # InstallVXLANInterface:
         #   commands:
         #     00_testoutput:
@@ -554,38 +554,14 @@ Resources:
             yum:
               iproute-tc: []
         #   commands:
-        #     01_Mirrornurx0toveth0:
-        #       command: "tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0"
-        #     02_UpdateRCloca:
-        #       command: "echo 'tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0' >> /etc/rc.local"
-        #     03_Mirrorveth1toVXLAN2:
-        #       command: "ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
+        #     01_Mirrornurx0tosdi0:
+        #       command: "tc qdisc add dev nurx0 ingress && tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev sdi0 && tc qdisc replace dev nurx0 parent root handle 10: prio && tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev sdi0"
+        #     02_UpdateRClocal:
+        #       command: "echo 'tc qdisc add dev nurx0 ingress && tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev sdi0 && tc qdisc replace dev nurx0 parent root handle 10: prio && tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev sdi0' >> /etc/rc.local"
+        #     03_Mirrorsdi1toVXLAN2:
+        #       command: "docker exec nat tc qdisc add dev sdi1 ingress && docker exec nat tc filter add dev sdi1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan && docker exec nat tc qdisc replace dev sdi1 parent root handle 10: prio && docker exec nat tc filter add dev sdi1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan"
         #     04_UpdateRClocal:
-        #       command: "echo 'ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
-
-
-
-# # now send everything from nurx0 to sdi0 using tc…use commands at beginning of this doc to clear out tc if you have commands there.
-#
-# sudo tc qdisc add dev nurx0 ingress
-# sudo tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev sdi0
-# sudo tc qdisc replace dev nurx0 parent root handle 10: prio
-# sudo tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev sdi0
-#
-
-
-# #  now create vxlan device in nat namespace and then use tc in nat namespace to send everything from sdi1 to vxlan device…and we should be done.
-# docker exec -ti nat bash
-#   ifconfig eth0 mtu 9001
-#   ip link add vxlan type vxlan id 2 remote <remote routable IP> dev eth0 dstport 4789
-#   ifconfig vxlan up
-#   ifconfig vxlan mtu 8951 # YOU WILL NOT NEED TO DO THIS, IT’S DONE AUTOMATICALLY
-#   tc qdisc add dev sdi1 ingress
-#   tc filter add dev sdi1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan
-#   tc qdisc replace dev sdi1 parent root handle 10: prio
-#   tc filter add dev sdi1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan
-
-
+        #       command: "echo 'docker exec nat tc qdisc add dev sdi1 ingress && docker exec nat tc filter add dev sdi1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan && docker exec nat tc qdisc replace dev sdi1 parent root handle 10: prio && docker exec nat tc filter add dev sdi1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan' >> /etc/rc.local"
 
     Properties:
       UserData:
