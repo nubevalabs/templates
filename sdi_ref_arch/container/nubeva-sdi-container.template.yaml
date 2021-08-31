@@ -461,7 +461,7 @@ Resources:
             - "InstallServices"
             - "InstallKeyServer"
             - "BuildContainer"
-            # - "InstallVXLANInterface"
+            - "InstallVXLANInterface"
             - "InstallNurxAgent"
           Start:
             - "StartDecryptor"
@@ -501,22 +501,22 @@ Resources:
               command: "docker exec nat apk add bash iptables iproute2"
             03_pid:
               command: " mkdir -p /var/run/netns/&& pid=$(docker inspect -f '{{.State.Pid}}' nat) && ln -sfT /proc/$pid/ns/net /var/run/netns/nat"
-        # InstallVXLANInterface:
-        #   commands:
-        #     00_testoutput:
-        #       command: "ip netns exec nat ip -s link show eth0"
-        #     01_create_veth_peer:
-        #       command: "ip link add sdi0 type veth peer name sdi1"
-        #     01_create_veth_peer_always:
-        #       command: "echo 'ip link add sdi0 type veth peer name sdi1' >> /etc/rc.local"
-        #     02_setup_sdi_ints:
-        #       command: "ip link set sdi1 netns nat && ip link set sdi0 up && ip netns exec nat ip link set sdi1 up"
-        #     02_setup_sdi_ints_always:
-        #       command: "echo 'ip link set sdi1 netns nat && ip link set sdi0 up && ip netns exec nat ip link set sdi1 up' >> /etc/rc.local"
-        #     03_set_mtu:
-        #       command: "ifconfig sdi0 mtu 9001 && ifconfig | grep veth | awk '{split($0, a, ":"); system("ip link set mtu 9001 " a[1])}'"
-        #     03_set_mtu_always:
-        #       command: "echo 'nfig | grep veth | awk '{split($0, a, ":"); system("ip link set mtu 9001 " a[1])}'' >> /etc/rc.local"
+        InstallVXLANInterface:
+          commands:
+            00_testoutput:
+              command: "ip netns exec nat ip -s link show eth0"
+            01_create_veth_peer:
+              command: "ip link add sdi0 type veth peer name sdi1"
+            01_create_veth_peer_always:
+              command: "echo 'ip link add sdi0 type veth peer name sdi1' >> /etc/rc.local"
+            02_setup_sdi_ints:
+              command: "ip link set sdi1 netns nat && ip link set sdi0 up && ip netns exec nat ip link set sdi1 up"
+            02_setup_sdi_ints_always:
+              command: "echo 'ip link set sdi1 netns nat && ip link set sdi0 up && ip netns exec nat ip link set sdi1 up' >> /etc/rc.local"
+            03_set_mtu:
+              command: "ifconfig sdi0 mtu 9001 && ifconfig | grep veth | awk '{split($0, a, ":"); system("ip link set mtu 9001 " a[1])}'"
+            03_set_mtu_always:
+              command: "echo 'nfig | grep veth | awk '{split($0, a, ":"); system("ip link set mtu 9001 " a[1])}'' >> /etc/rc.local"
         #     04_set_sdi_mtu:
         #       command: "docker exec nat ifconfig eth0 mtu 9001 && docker exec nat ifconfig sdi1 mtu 9001"
         #     04_set_sdi_mtu_always:
