@@ -584,7 +584,6 @@ Resources:
 #   tc filter add dev sdi1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan
 #   tc qdisc replace dev sdi1 parent root handle 10: prio
 #   tc filter add dev sdi1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan
-# exit
 
 
 
