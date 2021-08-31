@@ -488,33 +488,33 @@ Resources:
         BuildContainer:
           commands:
             01_alpine:
-              command: "docker run -dti --name nat --cap-add NET_ADMIN alpine sh"
+              command: "docker run -dti --name outbound --cap-add NET_ADMIN alpine sh"
             02_packages:
-              command: "docker exec nat apk add bash iptables iproute2"
+              command: "docker exec outbound apk add bash iptables iproute2"
             03_pid:
-              command: " mkdir -p /var/run/netns/&& pid=$(docker inspect -f '{{.State.Pid}}' nat) && ln -sfT /proc/$pid/ns/net /var/run/netns/nat"
+              command: "mkdir -p /var/run/netns/ && pid=$(docker inspect -f '{{.State.Pid}}' outbound) && ln -sfT /proc/$pid/ns/net /var/run/netns/outbound"
         InstallVXLANInterface:
           commands:
             00_testoutput:
-              command: "ip netns exec nat ip -s link show eth0"
+              command: "ip netns exec outbound ip -s link show eth0"
             01_create_veth_peer:
               command: "ip link add sdi0 type veth peer name sdi1"
             01_create_veth_peer_always:
               command: "echo 'ip link add sdi0 type veth peer name sdi1' >> /etc/rc.local"
             02_setup_sdi_ints:
-              command: "ip link set sdi1 netns nat && ip link set sdi0 up && ip netns exec nat ip link set sdi1 up"
+              command: "ip link set sdi1 netns outbound && ip link set sdi0 up && ip netns exec outbound ip link set sdi1 up"
             02_setup_sdi_ints_always:
-              command: "echo 'ip link set sdi1 netns nat && ip link set sdi0 up && ip netns exec nat ip link set sdi1 up' >> /etc/rc.local"
+              command: "echo 'ip link set sdi1 netns outbound && ip link set sdi0 up && ip netns exec outbound ip link set sdi1 up' >> /etc/rc.local"
             03_set_mtu:
               command: "ifconfig sdi0 mtu 9001 && ifconfig | grep veth | awk '{split($0, a, \":\"); system(\"ip link set mtu 9001 \" a[1])}'"
 #            03_set_mtu_always:
 #              command: "echo 'ifconfig sdi0 mtu 9001 && ifconfig | grep veth | awk '{split($0, a, \":\"); system(\"ip link set mtu 9001 \" a[1])}'' >> /etc/rc.local"
             04_set_sdi_mtu:
-              command: "docker exec nat ifconfig eth0 mtu 9001 && docker exec nat ifconfig sdi1 mtu 9001"
+              command: "docker exec outbound ifconfig eth0 mtu 9001 && docker exec outbound ifconfig sdi1 mtu 9001"
             04_set_sdi_mtu_always:
-              command: "echo 'docker exec nat ifconfig eth0 mtu 9001 && docker exec nat ifconfig sdi1 mtu 9001' >> /etc/rc.local"
+              command: "echo 'docker exec outbound ifconfig eth0 mtu 9001 && docker exec outbound ifconfig sdi1 mtu 9001' >> /etc/rc.local"
             05_createVXLAN:
-              command: "docker exec nat ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth0 dstport 4789"
+              command: "docker exec outbound ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth0 dstport 4789"
               env:
                 ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
             05_createVXLAN_always:
@@ -522,9 +522,9 @@ Resources:
               env:
                 ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
             06_interfaceUp:
-              command: "docker exec nat ip link set vxlan2 up"
+              command: "docker exec outbound ip link set vxlan2 up"
             06_interfaceUp_always:
-              command: "echo 'docker exec nat ip link set vxlan2 up' >> /etc/rc.local"
+              command: "echo 'docker exec outbound ip link set vxlan2 up' >> /etc/rc.local"
         InstallNurxAgent:
           commands:
             01_dockergroup:
@@ -551,9 +551,9 @@ Resources:
             02_UpdateRClocal:
               command: "echo 'tc qdisc add dev nurx0 ingress && tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev sdi0 && tc qdisc replace dev nurx0 parent root handle 10: prio && tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev sdi0' >> /etc/rc.local"
             03_Mirrorsdi1toVXLAN2:
-              command: "docker exec nat tc qdisc add dev sdi1 ingress && docker exec nat tc filter add dev sdi1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2 && docker exec nat tc qdisc replace dev sdi1 parent root handle 10: prio && docker exec nat tc filter add dev sdi1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
+              command: "docker exec outbound tc qdisc add dev sdi1 ingress && docker exec outbound tc filter add dev sdi1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2 && docker exec outbound tc qdisc replace dev sdi1 parent root handle 10: prio && docker exec outbound tc filter add dev sdi1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
             04_UpdateRClocal:
-              command: "echo 'docker exec nat tc qdisc add dev sdi1 ingress && docker exec nat tc filter add dev sdi1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2 && docker exec nat tc qdisc replace dev sdi1 parent root handle 10: prio && docker exec nat tc filter add dev sdi1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
+              command: "echo 'docker exec outbound tc qdisc add dev sdi1 ingress && docker exec outbound tc filter add dev sdi1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2 && docker exec outbound tc qdisc replace dev sdi1 parent root handle 10: prio && docker exec outbound tc filter add dev sdi1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
 
     Properties:
       UserData:
