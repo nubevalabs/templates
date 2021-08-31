@@ -242,21 +242,6 @@ Resources:
     Properties:
       Description: "Decryptor"
       NetworkInterfaceId: !Ref DecryptorInboundInterface
-  DecryptorTrafficMirrorTarget:
-    Type: AWS::EC2::TrafficMirrorTarget
-    DependsOn: Decryptor
-    Properties:
-      Description: "Decryptor"
-      NetworkInterfaceId: !Ref DecryptorInboundInterface
-  DecryptorTrafficMirrorSession:
-    Type: "AWS::EC2::TrafficMirrorSession"
-    DependsOn: Source
-    Properties:
-      Description: "Source to Decryptor"
-      NetworkInterfaceId: !Ref SourceInterface
-      TrafficMirrorTargetId: !Ref DecryptorTrafficMirrorTarget
-      TrafficMirrorFilterId: !Ref AllTrafficMirrorFilter
-      SessionNumber: 1
   DecryptorTrafficMirrorSession:
     Type: "AWS::EC2::TrafficMirrorSession"
     DependsOn: Source
