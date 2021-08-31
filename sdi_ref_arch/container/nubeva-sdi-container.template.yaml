@@ -498,7 +498,7 @@ Resources:
             01_alpine:
               command: "docker run -dti --name nat --cap-add NET_ADMIN alpine sh"
             02_packages:
-              command: "apk add bash iptables iproute2 | docker exec -ti nat sh"
+              command: "docker exec -ti nat apk add bash iptables iproute2"
             03_pid:
               command: "pid=$(docker inspect -f '{{.State.Pid}}' nat); export $pid"
             04_link:
