@@ -501,8 +501,6 @@ Resources:
               command: "docker exec nat apk add bash iptables iproute2"
             03_pid:
               command: "pid=$(docker inspect -f '{{.State.Pid}}' nat) && ln -sfT /proc/$pid/ns/net /var/run/netns/nat && mkdir -p /var/run/netns/"
-#            04_link:
-#              command: "ln -sfT /proc/$pid/ns/net /var/run/netns/nat; mkdir -p /var/run/netns/"
         InstallVXLANInterface:
           commands:
             00_testoutput:
