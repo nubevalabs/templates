@@ -9,7 +9,7 @@ Metadata:
         default: Nubeva configuration
       Parameters:
       - APIKey
-      - Container
+      - Architecture
     - Label:
         default: Network configuration
       Parameters:
@@ -39,11 +39,11 @@ Metadata:
         default: VPC CIDR
 
 Parameters:
-  Container:
-    Default: false
+  Architecture:
+    Default: multi_interface
     AllowedValues:
-    - true
-    - false
+    - single_interface
+    - multi_interface
     Description: Choose to install containerized version of standalone decryptor.
     Type: String
 
@@ -108,11 +108,11 @@ Parameters:
 
 Conditions:
   ContainerInstall: !Equals
-    - !Ref Container
-    - 'true'
+    - !Ref Architecture
+    - 'single_interface'
   MultiInstall: !Equals
-    - !Ref Container
-    - 'false'
+    - !Ref Architecture
+    - 'multi_interface'
 
 
 
