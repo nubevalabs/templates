@@ -499,13 +499,13 @@ Resources:
             00a_setnamespace-always:
               command: "echo '/usr/sbin/ip netns add outbound; /usr/sbin/ip link set eth1 netns outbound; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set eth1 up; /usr/sbin/ip netns exec outbound dhclient eth1' >> /etc/rc.local"
             00b_setvethpair:
-              command: "/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up"
+              command: "/usr/sbin/ip link add sdi0 type veth peer name sdi1; /usr/sbin/ip link set sdi1 netns outbound; /usr/sbin/ip link set sdi0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set sdi1 up"
             00c_setvethpair-always:
-              command: "echo '/usr/sbin/ip link add veth0 type veth peer name veth1; /usr/sbin/ip link set veth1 netns outbound; /usr/sbin/ip link set veth0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set veth1 up' >> /etc/rc.local"
+              command: "echo '/usr/sbin/ip link add sdi0 type veth peer name sdi1; /usr/sbin/ip link set sdi1 netns outbound; /usr/sbin/ip link set sdi0 up; /usr/sbin/ip netns exec outbound /usr/sbin/ip link set sdi1 up' >> /etc/rc.local"
             00d_setmtu9001:
-              command: "/usr/sbin/ip link set veth1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001"
+              command: "/usr/sbin/ip link set sdi1 mtu 9001; /usr/sbin/ip netns exec outbound ip link set sdi1 mtu 9001"
             00d_setmtu9001-always:
-              command: "echo '/usr/sbin/ip link set veth0 mtu 9001; /usr/sbin/ip netns exec outbound ip link set veth1 mtu 9001' >> /etc/rc.local"
+              command: "echo '/usr/sbin/ip link set sdi0 mtu 9001; /usr/sbin/ip netns exec outbound ip link set sdi1 mtu 9001' >> /etc/rc.local"
             01_createVXLAN:
               command: "/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote ${ToolIP} dev eth1 dstport 4789"
               env:
@@ -539,14 +539,14 @@ Resources:
             yum:
               iproute-tc: []
           commands:
-            01_Mirrornurx0toveth0:
-              command: "tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0"
+            01_Mirrornurx0tosdi0:
+              command: "tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev sdi0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev sdi0"
             02_UpdateRCloca:
-              command: "echo 'tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev veth0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev veth0' >> /etc/rc.local"
-            03_Mirrorveth1toVXLAN2:
-              command: "ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
+              command: "echo 'tc qdisc add dev nurx0 ingress; tc filter add dev nurx0 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev sdi0; tc qdisc replace dev nurx0 parent root handle 10: prio; tc filter add dev nurx0 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev sdi0' >> /etc/rc.local"
+            03_Mirrorsdi1toVXLAN2:
+              command: "ip netns exec outbound tc qdisc add dev sdi1 ingress; ip netns exec outbound tc filter add dev sdi1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev sdi1 parent root handle 10: prio; ip netns exec outbound tc filter add dev sdi1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2"
             04_UpdateRClocal:
-              command: "echo 'ip netns exec outbound tc qdisc add dev veth1 ingress; ip netns exec outbound tc filter add dev veth1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev veth1 parent root handle 10: prio; ip netns exec outbound tc filter add dev veth1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
+              command: "echo 'ip netns exec outbound tc qdisc add dev sdi1 ingress; ip netns exec outbound tc filter add dev sdi1 parent ffff: protocol all prio 2 u32 match u32 0 0 flowid 1:1 action mirred egress mirror dev vxlan2; ip netns exec outbound tc qdisc replace dev sdi1 parent root handle 10: prio; ip netns exec outbound tc filter add dev sdi1 parent 10: protocol all prio 2 u32 match u32 0 0 flowid 10:1 action mirred egress mirror dev vxlan2' >> /etc/rc.local"
 
     Properties:
       UserData:
