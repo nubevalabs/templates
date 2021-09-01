@@ -17,7 +17,7 @@ Metadata:
       - SubnetID
       - RemoteAccessCIDR
     - Label:
-        default: Autoscaling group configuration
+        default: Node configuration
       Parameters:
       - KeyPairName
       - NodeInstanceType

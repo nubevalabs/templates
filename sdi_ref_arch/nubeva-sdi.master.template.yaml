@@ -40,11 +40,10 @@ Metadata:
 
 Parameters:
   Architecture:
-    Default: multi_interface
     AllowedValues:
     - single_interface
     - multi_interface
-    Description: Choose to install containerized version of standalone decryptor.
+    Description: Choose to install single or multi inferface architecture.
     Type: String
 
   KeyPairName:
