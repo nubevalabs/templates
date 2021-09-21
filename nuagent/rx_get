@@ -1,6 +1,6 @@
 {
   "response": {
-    "SslCredObj": "eyJ0eXBlIjoic2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9",
+    "SslCredObj": "eyJ0eXBlIjoia2RiIiwiZG9tYWluIjoia2V5Lm51YmVkZ2UuY29tOjQ0MzMiLCJyZWdpb24iOiJ0ZXN0IiwiYWsiOiJ1c2VyIiwic2siOiJwYXNzd29yZCJ9",
     "Mtu": 65535
   },
   "status": "success"

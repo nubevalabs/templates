@@ -518,7 +518,7 @@ Resources:
               env:
                 ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
             05_createVXLAN_always:
-              command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote '${ToolIP}' dev eth1 dstport 4789' >> /etc/rc.local"
+              command: "echo '/usr/sbin/ip netns exec outbound /usr/sbin/ip link add vxlan2 type vxlan id 2 remote '${ToolIP}' dev eth0 dstport 4789' >> /etc/rc.local"
               env:
                 ToolIP: !GetAtt WiresharkInterface.PrimaryPrivateIpAddress
             06_interfaceUp:
