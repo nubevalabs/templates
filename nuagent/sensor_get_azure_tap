@@ -15,7 +15,7 @@
     "DestGroups":[
        {
           "iplist_list_text":[
-             "10.0.1.4"
+             "10.0.1.11"
           ],
           "_type":"custom.destgroup",
           "name_text":"destination",
