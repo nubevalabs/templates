@@ -1,7 +1,7 @@
 {
   "status": "success",
   "response": {
-    "SslCredObj": "",
+    "SslCredObj": "eyJ0eXBlIjoiZHRscyIsImRvbWFpbiI6ImtleS5udWJlZGdlLmNvbTo0NDMzIiwicmVnaW9uIjoidGVzdCIsImFrIjoidXNlciIsInNrIjoicGFzc3dvcmQifQo=",
     "SrcGroups": [
       {
         "_type": "custom.srcgroup",
