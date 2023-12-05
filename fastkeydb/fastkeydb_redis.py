@@ -270,11 +270,7 @@ def write_to_nss_file(file_name, cr, md, key_type, mk, cets, chts, shts, cts0, s
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="FastKeyDB\nYou can use `--nssfile /host/home/ec2-user/keys.log` for example on EC2 Amazon Linux 2.\n"
-                    "Example Usage:\n\n\t"
-                    "Windows: python dtlskeydb_win.py --nssfile C:\Users\Administrator\Desktop\keys.log "
-                    "--certs-path C:\\Users\\Administrator\\Downloads\\\n\n\t"
-                    "Linux: python dtlskeydb.py --nssfile /home/ec2-user/fastkey/sky/keys.log --certs-path /home/ec2-user/fastkey/",
+        description="FastKeyDB\nYou can use `--nssfile /host/home/ec2-user/keys.log` for example on EC2 Amazon Linux 2.\n",
         formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("--nssfile", dest='nssfile', type=str, help="Path to nsslogfile including filename")
     parser.add_argument("--certs-path", dest='certs_path', type=str,
