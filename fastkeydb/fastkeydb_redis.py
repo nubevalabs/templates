@@ -301,7 +301,7 @@ if __name__ == "__main__":
         CERTS_PATH = args.certs_path
 
     # See what the arguments are
-    print("Arguments set: [ nssfile: {}, debug: {}, certs-path: {} ]".format(args.nssfile, args.debug, args.certs_path))
+    print("Arguments set: [ nssfile: {}, debug: {}, certs-path: {}, certs-name: {} ]".format(args.nssfile, args.debug, args.certs_path, args.certs_name))
 
     certs_path = ""
     if platform == "linux" or platform == "linux2":
@@ -312,6 +312,7 @@ if __name__ == "__main__":
         certs_path = 'C:\\Users\\' if not CERTS_PATH else CERTS_PATH
 
     context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+    print("Arguments set: certs-path: {}, certs-name: {} ]".format(certs_path, args.certs_name))
     context.load_verify_locations("{}{}.ca".format(certs_path, args.certs_name))
     context.load_cert_chain("{}{}.pem".format(certs_path, args.certs_name), "{}{}.key".format(certs_path, args.certs_name))
     context.set_ecdh_curve("prime256v1")
